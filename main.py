@@ -8,7 +8,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-def visualize(perm_inversions, ham):
+def visualize(perm_inversions, show_graph, ham, verbose):
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(perm_inversions.values()), 0)
 
@@ -16,7 +16,7 @@ def visualize(perm_inversions, ham):
         graph.add_node(node, pos=(k_partite, partite_counts[k_partite]))
         partite_counts[k_partite] += 1
 
-        # Add edges between permutations that can be transformed into each other by a single neighbor swap
+    # Add edges between permutations that can be transformed into each other by a single neighbor swap
     permutations = list(perm_inversions.keys())
     for i in range(len(permutations)):
         for j in range(i + 1, len(permutations)):
@@ -27,7 +27,8 @@ def visualize(perm_inversions, ham):
 
     colors = nx.get_edge_attributes(graph, 'color')
     if ham:
-        print("Computing Hamiltonian path...")
+        if verbose:
+            print("Computing Hamiltonian path...")
         hamiltonian_nodes = hamilton(graph)
         print("There exists a Hamiltonian path in the graph:", hamiltonian_nodes)
         for ind in range(len(hamiltonian_nodes) - 1):
@@ -36,12 +37,13 @@ def visualize(perm_inversions, ham):
             if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in colors:
                 colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
 
-    plt.figure(figsize=(19, 38))
-    pos = nx.get_node_attributes(graph, 'pos')
-    nx.draw(graph, pos, with_labels=True, edge_color=colors.values())
+    if show_graph:
+        plt.figure(figsize=(19, 38))
+        pos = nx.get_node_attributes(graph, 'pos')
+        nx.draw(graph, pos, with_labels=True, edge_color=colors.values())
 
-    plt.axis('off')
-    plt.show()
+        plt.axis('off')
+        plt.show()
 
 
 def can_neighbor_swap(perm1, perm2):
@@ -161,7 +163,7 @@ if __name__ == '__main__':
         # Print each unique permutation in the order they were generated
         print("Computed all {} permutations of which {} are even and {} odd".format(len(parities), even, odd))
         if args.graph or args.hamiltonian:
-            visualize(parities, args.hamiltonian)
+            visualize(parities, args.graph, args.hamiltonian, args.verbose)
     else:
         print("Please provide a permutation string using the -p or --permutation option.")
 
