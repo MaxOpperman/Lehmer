@@ -23,14 +23,22 @@ def visualize(perm_inversions, ham):
             perm1, perm2 = permutations[i], permutations[j]
             inv_diff = abs(perm_inversions[perm1] - perm_inversions[perm2])
             if inv_diff == 1 and can_neighbor_swap(perm1, perm2):
-                graph.add_edge(perm1, perm2)
+                graph.add_edge(perm1, perm2, color='k')
+
+    colors = nx.get_edge_attributes(graph, 'color')
     if ham:
         print("Computing Hamiltonian path...")
-        print("There exists a Hamiltonian path in the graph:", hamilton(graph))
+        hamiltonian_nodes = hamilton(graph)
+        print("There exists a Hamiltonian path in the graph:", hamiltonian_nodes)
+        for ind in range(len(hamiltonian_nodes) - 1):
+            if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in colors:
+                colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
+            if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in colors:
+                colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
 
     plt.figure(figsize=(19, 38))
     pos = nx.get_node_attributes(graph, 'pos')
-    nx.draw(graph, pos, with_labels=True)
+    nx.draw(graph, pos, with_labels=True, edge_color=colors.values())
 
     plt.axis('off')
     plt.show()
@@ -152,7 +160,7 @@ if __name__ == '__main__':
         parities, even, odd = compute_parity(permutations)
         # Print each unique permutation in the order they were generated
         print("Computed all {} permutations of which {} are even and {} odd".format(len(parities), even, odd))
-        if args.graph:
+        if args.graph or args.hamiltonian:
             visualize(parities, args.hamiltonian)
     else:
         print("Please provide a permutation string using the -p or --permutation option.")
