@@ -8,6 +8,11 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
+def visualize3d():
+    # TODO https://stackoverflow.com/questions/65752590/converting-a-networkx-2d-graph-into-a-3d-interactive-graph
+    return None
+
+
 def visualize(perm_inversions, show_graph, ham, verbose):
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(perm_inversions.values()), 0)
@@ -31,11 +36,12 @@ def visualize(perm_inversions, show_graph, ham, verbose):
             print("Computing Hamiltonian path...")
         hamiltonian_nodes = hamilton(graph)
         print("There exists a Hamiltonian path in the graph:", hamiltonian_nodes)
-        for ind in range(len(hamiltonian_nodes) - 1):
-            if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in colors:
-                colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
-            if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in colors:
-                colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
+        if hamiltonian_nodes is not None:
+            for ind in range(len(hamiltonian_nodes) - 1):
+                if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in colors:
+                    colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
+                if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in colors:
+                    colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
 
     if show_graph:
         plt.figure(figsize=(19, 38))
