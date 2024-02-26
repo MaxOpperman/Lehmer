@@ -1,4 +1,5 @@
 import argparse
+import copy
 from itertools import permutations
 import math
 from collections import Counter
@@ -29,46 +30,62 @@ def visualize(perm_inversions, show_graph, ham, verbose):
             if inv_diff == 1 and can_neighbor_swap(perm1, perm2):
                 graph.add_edge(perm1, perm2, color='k')
 
-    colors = nx.get_edge_attributes(graph, 'color')
+    edge_colors = nx.get_edge_attributes(graph, 'color')
+    spur_origins, stutters = [], []
     if ham:
         if verbose:
             print("Computing Hamiltonian path...")
-        hamiltonian_nodes = hamilton(graph, verbose)
-        print("There exists a Hamiltonian path in the graph:", hamiltonian_nodes)
+        hamiltonian_nodes, spur_origins, stutters = lehmer_path(copy.deepcopy(graph), verbose)
         if hamiltonian_nodes is not None:
             for ind in range(len(hamiltonian_nodes) - 1):
-                if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in colors:
-                    colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
-                if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in colors:
-                    colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
+                if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in edge_colors:
+                    edge_colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
+                if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in edge_colors:
+                    edge_colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
 
     if show_graph:
         plt.figure(figsize=(19, 38))
         pos = nx.get_node_attributes(graph, 'pos')
+        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else 'skyblue' for node in
+                       graph.nodes()]
         nx.draw(
             graph,
             pos,
             with_labels=True,
-            edge_color=colors.values(),
-            node_color='skyblue',
+            edge_color=edge_colors.values(),
+            node_color=node_colors,
             node_size=500,
             font_size=10,
             font_weight='bold',
         )
 
-        path_marker = PathMarker(graph, pos)
+        path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
 
         # Register click event handler
         def onclick(event):
             if event.inaxes is not None:
                 x, y = event.xdata, event.ydata
                 node = None
+                edge = None
                 for n, (xp, yp) in pos.items():
                     if (x - xp) ** 2 + (y - yp) ** 2 < 0.01:  # Check if the click is close to a node
                         node = n
                         break
+                if node is None:
+                    # Check if the click is close to an edge
+                    for u, v in graph.edges():
+                        x1, y1 = pos[u]
+                        x2, y2 = pos[v]
+                        # Calculate the distance from the click to the edge
+                        dist = point_to_line_distance(x, y, x1, y1, x2, y2)
+                        if dist < 0.01:  # Click is close to the edge
+                            edge = (u, v)
+                            break
                 if node is not None:
                     path_marker.toggle_node(node)
+                    path_marker.update_plot(nx, plt)
+                elif edge is not None:
+                    path_marker.toggle_edge(edge)
                     path_marker.update_plot(nx, plt)
 
         # Register key press event handler
@@ -130,6 +147,85 @@ def hamilton(G, verb):
     if verb:
         pbar.close()
     return None
+
+
+def lehmer_path(graph, verbose):
+    # Step 1: Set node tally at 1
+    node_tally = 1
+    # Step 2: Set spur tally at 0
+    spur_tally = 0
+    spur_origins = []
+    stutters = []
+    # Step 3: The first node becomes B
+    b = list(graph.nodes())[0]
+
+    interchanges = [b]  # Store interchange digits
+
+    # Step 4: If there is no path leaving B, go to Step 16
+    while list(graph.neighbors(b)):
+        # Step 5: Among the nodes connected to B of least multiplicity, select the node N of least serial number
+        node = sorted(graph.neighbors(b))[0]
+        print(b, sorted(graph.neighbors(b)))
+
+        # Step 6: If the multiplicity of N is 1, go to Step 12
+        if graph.degree(node) == 1:
+            # Step 12: Store interchange digit from B to N in the next two storage places
+            interchanges.append(node)
+            if graph.number_of_edges() > 1:
+                # Step 13: Spur tally plus 1 replaces spur tally
+                spur_tally += 1
+                # add nodes to path and list of spurs
+                interchanges.append(b)
+                spur_origins.append(b)
+                stutters.append(node)
+            # Step 14: Disconnect B and N
+            graph.remove_edge(b, node)
+            # Step 15: Go to Step 10
+            node_tally += 1
+            continue
+
+        # Step 7: Store interchange digit from B to N in next storage place
+        interchanges.append(node)
+        # Step 8: Disconnect B from all connecting nodes, thus reducing by 1 the multiplicity of each such node
+        for neighbors in list(graph.neighbors(b)):  # Use list() to create a copy of the list before iterating
+            graph.remove_edge(b, neighbors)
+        # Step 9: N becomes B
+        b = node
+        # Step 10: Node tally plus 1 replaces node tally
+        node_tally += 1
+
+        # Step 11: Go to step 4
+
+    # Step 16: Output initial marks, spur and node tallies, and list of interchange digits
+    if verbose:
+        print("Node Tally:", node_tally, "and path length:", len(interchanges))
+        print("Spur Tally:", spur_tally)
+        print("Spur origins:", spur_origins)
+        print("Stutters:", stutters)
+    print("Path:", interchanges)
+
+    # Step 17: Halt
+    return interchanges, spur_origins, stutters
+
+
+def point_to_line_distance(x, y, x1, y1, x2, y2):
+    # Calculate the dot product of the vectors (x - x1, y - y1) and (x2 - x1, y2 - y1)
+    dot_product = (x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)
+
+    # Calculate the square of the length of the line segment
+    line_length_squared = (x2 - x1) ** 2 + (y2 - y1) ** 2
+
+    # Parameter t is the proportion of the projection of the point onto the line
+    t = max(0, min(1, dot_product / line_length_squared))
+
+    # Calculate the closest point on the line segment to the point (x, y)
+    closest_x = x1 + t * (x2 - x1)
+    closest_y = y1 + t * (y2 - y1)
+
+    # Calculate the distance between the closest point and the point (x, y)
+    distance = math.sqrt((x - closest_x) ** 2 + (y - closest_y) ** 2)
+
+    return distance
 
 
 def compute_parity(perms):
