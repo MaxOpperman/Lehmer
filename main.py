@@ -1,16 +1,15 @@
 import argparse
-from itertools import permutations, combinations
+from itertools import permutations
 import math
 from collections import Counter
 from functools import reduce
 
+import mplcursors as mplcursors
 import networkx as nx
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-
-def visualize3d():
-    # TODO https://stackoverflow.com/questions/65752590/converting-a-networkx-2d-graph-into-a-3d-interactive-graph
-    return None
+from pathmarker import PathMarker
 
 
 def visualize(perm_inversions, show_graph, ham, verbose):
@@ -34,7 +33,7 @@ def visualize(perm_inversions, show_graph, ham, verbose):
     if ham:
         if verbose:
             print("Computing Hamiltonian path...")
-        hamiltonian_nodes = hamilton(graph)
+        hamiltonian_nodes = hamilton(graph, verbose)
         print("There exists a Hamiltonian path in the graph:", hamiltonian_nodes)
         if hamiltonian_nodes is not None:
             for ind in range(len(hamiltonian_nodes) - 1):
@@ -46,7 +45,40 @@ def visualize(perm_inversions, show_graph, ham, verbose):
     if show_graph:
         plt.figure(figsize=(19, 38))
         pos = nx.get_node_attributes(graph, 'pos')
-        nx.draw(graph, pos, with_labels=True, edge_color=colors.values())
+        nx.draw(
+            graph,
+            pos,
+            with_labels=True,
+            edge_color=colors.values(),
+            node_color='skyblue',
+            node_size=500,
+            font_size=10,
+            font_weight='bold',
+        )
+
+        path_marker = PathMarker(graph, pos)
+
+        # Register click event handler
+        def onclick(event):
+            if event.inaxes is not None:
+                x, y = event.xdata, event.ydata
+                node = None
+                for n, (xp, yp) in pos.items():
+                    if (x - xp) ** 2 + (y - yp) ** 2 < 0.01:  # Check if the click is close to a node
+                        node = n
+                        break
+                if node is not None:
+                    path_marker.toggle_node(node)
+                    path_marker.update_plot(nx, plt)
+
+        # Register key press event handler
+        def onkeypress(event):
+            if event.key == 'c':
+                path_marker.reset_colors()
+                path_marker.update_plot(nx, plt)
+
+        plt.gcf().canvas.mpl_connect('button_press_event', onclick)
+        plt.gcf().canvas.mpl_connect('key_press_event', onkeypress)
 
         plt.axis('off')
         plt.show()
@@ -70,9 +102,13 @@ def can_neighbor_swap(perm1, perm2):
 
 
 # from https://gist.github.com/mikkelam/ab7966e7ab1c441f947b
-def hamilton(G):
+def hamilton(G, verb):
     F = [(G, [list(G.nodes())[0]])]
     n = G.number_of_nodes()
+    if verb:
+        pbar = tqdm(total=math.factorial(len(F)))
+    else:
+        pbar = None
     while F:
         graph, path = F.pop()
         confs = []
@@ -89,6 +125,10 @@ def hamilton(G):
                 return p
             else:
                 F.append((g, p))
+        if verb:
+            pbar.update(1)
+    if verb:
+        pbar.close()
     return None
 
 
