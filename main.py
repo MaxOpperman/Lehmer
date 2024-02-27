@@ -5,100 +5,122 @@ import math
 from collections import Counter
 from functools import reduce
 
-import mplcursors as mplcursors
 import networkx as nx
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 from pathmarker import PathMarker
 
 
-def visualize(perm_inversions, show_graph, ham, verbose):
+def visualize(perm_inversions, color):
     graph = nx.Graph()
+    # keep track of the Y-axis value based on the number of nodes with the arity counts
     partite_counts = dict.fromkeys(set(perm_inversions.values()), 0)
 
     for node, k_partite in perm_inversions.items():
         graph.add_node(node, pos=(k_partite, partite_counts[k_partite]))
+        # change the Y-axis value
         partite_counts[k_partite] += 1
 
     # Add edges between permutations that can be transformed into each other by a single neighbor swap
-    permutations = list(perm_inversions.keys())
-    for i in range(len(permutations)):
-        for j in range(i + 1, len(permutations)):
-            perm1, perm2 = permutations[i], permutations[j]
+    perms = list(perm_inversions.keys())
+    for i in range(len(perms)):
+        for j in range(i + 1, len(perms)):
+            perm1, perm2 = perms[i], perms[j]
             inv_diff = abs(perm_inversions[perm1] - perm_inversions[perm2])
             if inv_diff == 1 and can_neighbor_swap(perm1, perm2):
                 graph.add_edge(perm1, perm2, color='k')
 
     edge_colors = nx.get_edge_attributes(graph, 'color')
-    spur_origins, stutters = [], []
-    if ham:
-        if verbose:
-            print("Computing Hamiltonian path...")
-        hamiltonian_nodes, spur_origins, stutters = lehmer_path(copy.deepcopy(graph), verbose)
+    return color, edge_colors, graph
+
+
+def find_path(edge_colors, graph, ham, lehmer, verbose, parity_diff):
+    """
+     Either finds a perfect Hamiltonian Path or a Lehmer path (Hamiltonian Path with spurs) or returns empty arrays
+    """
+    hamiltonian_nodes, spur_origins, stutters = [], [], []
+    if ham or lehmer:
+        if ham:
+            if verbose:
+                print("Computing Hamiltonian path...")
+            hamiltonian_nodes = hamilton(graph, [])
+            prev_paths = [hamiltonian_nodes]
+            print(hamiltonian_nodes)
+            while hamiltonian_nodes is not None:
+                hamiltonian_nodes = hamilton(graph, prev_paths)
+                prev_paths.append(hamiltonian_nodes)
+                print(hamiltonian_nodes)
+        if lehmer:
+            hamiltonian_nodes, spur_origins, stutters = lehmer_path(copy.deepcopy(graph), verbose, parity_diff)
         if hamiltonian_nodes is not None:
             for ind in range(len(hamiltonian_nodes) - 1):
-                if (hamiltonian_nodes[ind], hamiltonian_nodes[ind+1]) in edge_colors:
-                    edge_colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind+1])] = 'r'
-                if (hamiltonian_nodes[ind+1], hamiltonian_nodes[ind]) in edge_colors:
-                    edge_colors[(hamiltonian_nodes[ind+1], hamiltonian_nodes[ind])] = 'r'
+                if (hamiltonian_nodes[ind], hamiltonian_nodes[ind + 1]) in edge_colors:
+                    edge_colors[(hamiltonian_nodes[ind], hamiltonian_nodes[ind + 1])] = 'r'
+                if (hamiltonian_nodes[ind + 1], hamiltonian_nodes[ind]) in edge_colors:
+                    edge_colors[(hamiltonian_nodes[ind + 1], hamiltonian_nodes[ind])] = 'r'
+    return hamiltonian_nodes, spur_origins, stutters
 
-    if show_graph:
-        plt.figure(figsize=(19, 38))
-        pos = nx.get_node_attributes(graph, 'pos')
-        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else 'skyblue' for node in
-                       graph.nodes()]
-        nx.draw(
-            graph,
-            pos,
-            with_labels=True,
-            edge_color=edge_colors.values(),
-            node_color=node_colors,
-            node_size=500,
-            font_size=10,
-            font_weight='bold',
-        )
 
-        path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
+def plot_graph(color, edge_colors, graph, hamiltonian_nodes, spur_origins, stutters):
+    plt.figure(figsize=(19, 38))
+    pos = nx.get_node_attributes(graph, 'pos')
+    if color:
+        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else
+                       'blue' if node in hamiltonian_nodes else 'skyblue' for node in graph.nodes()]
+    else:
+        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else 'skyblue'
+                       for node in graph.nodes()]
+    nx.draw(
+        graph,
+        pos,
+        with_labels=True,
+        edge_color=edge_colors.values(),
+        node_color=node_colors,
+        node_size=500,
+        font_size=10,
+        font_weight='bold',
+    )
 
-        # Register click event handler
-        def onclick(event):
-            if event.inaxes is not None:
-                x, y = event.xdata, event.ydata
-                node = None
-                edge = None
-                for n, (xp, yp) in pos.items():
-                    if (x - xp) ** 2 + (y - yp) ** 2 < 0.01:  # Check if the click is close to a node
-                        node = n
+    path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
+
+    # Register click event handler
+    def onclick(event):
+        if event.inaxes is not None:
+            x, y = event.xdata, event.ydata
+            node = None
+            edge = None
+            for n, (xp, yp) in pos.items():
+                if (x - xp) ** 2 + (y - yp) ** 2 < 0.01:  # Check if the click is close to a node
+                    node = n
+                    break
+            if node is None:
+                # Check if the click is close to an edge
+                for u, v in graph.edges():
+                    x1, y1 = pos[u]
+                    x2, y2 = pos[v]
+                    # Calculate the distance from the click to the edge
+                    dist = point_to_line_distance(x, y, x1, y1, x2, y2)
+                    if dist < 0.01:  # Click is close to the edge
+                        edge = (u, v)
                         break
-                if node is None:
-                    # Check if the click is close to an edge
-                    for u, v in graph.edges():
-                        x1, y1 = pos[u]
-                        x2, y2 = pos[v]
-                        # Calculate the distance from the click to the edge
-                        dist = point_to_line_distance(x, y, x1, y1, x2, y2)
-                        if dist < 0.01:  # Click is close to the edge
-                            edge = (u, v)
-                            break
-                if node is not None:
-                    path_marker.toggle_node(node)
-                    path_marker.update_plot(nx, plt)
-                elif edge is not None:
-                    path_marker.toggle_edge(edge)
-                    path_marker.update_plot(nx, plt)
-
-        # Register key press event handler
-        def onkeypress(event):
-            if event.key == 'c':
-                path_marker.reset_colors()
+            if node is not None:
+                path_marker.toggle_node(node)
+                path_marker.update_plot(nx, plt)
+            elif edge is not None:
+                path_marker.toggle_edge(edge)
                 path_marker.update_plot(nx, plt)
 
-        plt.gcf().canvas.mpl_connect('button_press_event', onclick)
-        plt.gcf().canvas.mpl_connect('key_press_event', onkeypress)
+    # Register key press event handler
+    def onkeypress(event):
+        if event.key == 'c':
+            path_marker.reset_colors()
+            path_marker.update_plot(nx, plt)
 
-        plt.axis('off')
-        plt.show()
+    plt.gcf().canvas.mpl_connect('button_press_event', onclick)
+    plt.gcf().canvas.mpl_connect('key_press_event', onkeypress)
+
+    plt.axis('off')
+    plt.show()
 
 
 def can_neighbor_swap(perm1, perm2):
@@ -119,13 +141,12 @@ def can_neighbor_swap(perm1, perm2):
 
 
 # from https://gist.github.com/mikkelam/ab7966e7ab1c441f947b
-def hamilton(G, verb):
+def hamilton(G, excluded_paths=None):
+    if excluded_paths is None:
+        excluded_paths = []
+
     F = [(G, [list(G.nodes())[0]])]
     n = G.number_of_nodes()
-    if verb:
-        pbar = tqdm(total=math.factorial(len(F)))
-    else:
-        pbar = None
     while F:
         graph, path = F.pop()
         confs = []
@@ -139,17 +160,14 @@ def hamilton(G, verb):
             confs.append((conf_g, conf_p))
         for g, p in confs:
             if len(p) == n:
-                return p
+                if p not in excluded_paths:
+                    return p
             else:
                 F.append((g, p))
-        if verb:
-            pbar.update(1)
-    if verb:
-        pbar.close()
     return None
 
 
-def lehmer_path(graph, verbose):
+def lehmer_path(graph, verbose, parity_diff):
     # Step 1: Set node tally at 1
     node_tally = 1
     # Step 2: Set spur tally at 0
@@ -164,8 +182,17 @@ def lehmer_path(graph, verbose):
     # Step 4: If there is no path leaving B, go to Step 16
     while list(graph.neighbors(b)):
         # Step 5: Among the nodes connected to B of least multiplicity, select the node N of least serial number
-        node = sorted(graph.neighbors(b))[0]
-        print(b, sorted(graph.neighbors(b)))
+        connected_nodes = sorted(graph.neighbors(b), key=lambda x: (len(list(graph.neighbors(x))), x))
+
+        # Get the minimum number of connections among the connected nodes
+        min_connections = min(len(list(graph.neighbors(node))) for node in connected_nodes)
+
+        # Filter the connected nodes to include only those with the minimum number of connections
+        min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
+
+        print(b, min_connection_nodes, min_connections)
+        # Select the node N with the smallest serial number among the nodes with the minimum number of connections
+        node = min(min_connection_nodes)
 
         # Step 6: If the multiplicity of N is 1, go to Step 12
         if graph.degree(node) == 1:
@@ -182,6 +209,7 @@ def lehmer_path(graph, verbose):
             graph.remove_edge(b, node)
             # Step 15: Go to Step 10
             node_tally += 1
+            # Then go back to Step 4
             continue
 
         # Step 7: Store interchange digit from B to N in next storage place
@@ -199,7 +227,11 @@ def lehmer_path(graph, verbose):
     # Step 16: Output initial marks, spur and node tallies, and list of interchange digits
     if verbose:
         print("Node Tally:", node_tally, "and path length:", len(interchanges))
+        if node_tally < graph.number_of_nodes():
+            print("!!!!! INCORRECT PATH; MISSING", graph.number_of_nodes() - node_tally, "NODES !!!!!")
         print("Spur Tally:", spur_tally)
+        if spur_tally != parity_diff - 1:
+            print("!!!!! INCORRECT NUMBER OF SPURS; FOUND", spur_tally, "BUT ONLY", parity_diff - 1, "IS CORRECT !!!!!")
         print("Spur origins:", spur_origins)
         print("Stutters:", stutters)
     print("Path:", interchanges)
@@ -291,8 +323,10 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Count permutations of a given input string.')
     parser.add_argument('-p', '--permutation', type=str, help='Input permutation string')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose mode')
-    parser.add_argument('-m', '--hamiltonian', action='store_true', help='Check if a Hamiltonian Path Exists')
+    parser.add_argument('-m', '--hamiltonian', action='store_true', help='Print all possible perfect Hamiltonian Paths')
+    parser.add_argument('-l', '--lehmer', action='store_true', help='Use Lehmer\'s algorithm to find a path')
     parser.add_argument('-g', '--graph', action='store_true', help='Show the NetworkX neighbor swap graph')
+    parser.add_argument('-c', '--color', action='store_true', help='Color the nodes in the Hamiltonian Path')
 
     args = parser.parse_args()
 
@@ -305,7 +339,12 @@ if __name__ == '__main__':
         # Print each unique permutation in the order they were generated
         print("Computed all {} permutations of which {} are even and {} odd".format(len(parities), even, odd))
         if args.graph or args.hamiltonian:
-            visualize(parities, args.graph, args.hamiltonian, args.verbose)
+            node_color, edge_color, perm_graph = visualize(parities, args.color)
+            h_path, spurs_orig, spurs_dest = find_path(
+                edge_color, perm_graph, args.hamiltonian, args.lehmer, args.verbose, even-odd,
+            )
+            if args.graph:
+                plot_graph(node_color, edge_color, perm_graph, h_path, spurs_orig, spurs_dest)
     else:
         print("Please provide a permutation string using the -p or --permutation option.")
 
