@@ -1,5 +1,6 @@
 import argparse
 import copy
+import random
 from itertools import permutations
 import math
 from collections import Counter
@@ -31,15 +32,15 @@ def visualize(perm_inversions, color):
                 graph.add_edge(perm1, perm2, color='k')
 
     edge_colors = nx.get_edge_attributes(graph, 'color')
-    return color, edge_colors, graph
+    return color, edge_colors, graph, partite_counts
 
 
-def find_path(edge_colors, graph, ham, lehmer, verbose, parity_diff):
+def find_path(edge_colors, graph, ham, lehmer, verbose, parity_diff, permutations_dict, arities, spurs):
     """
      Either finds a perfect Hamiltonian Path or a Lehmer path (Hamiltonian Path with spurs) or returns empty arrays
     """
     hamiltonian_nodes, spur_origins, stutters = [], [], []
-    if ham or lehmer:
+    if ham or lehmer is not None:
         if ham:
             if verbose:
                 print("Computing Hamiltonian path...")
@@ -50,8 +51,8 @@ def find_path(edge_colors, graph, ham, lehmer, verbose, parity_diff):
                 hamiltonian_nodes = hamilton(graph, prev_paths)
                 prev_paths.append(hamiltonian_nodes)
                 print(hamiltonian_nodes)
-        if lehmer:
-            hamiltonian_nodes, spur_origins, stutters = lehmer_path(copy.deepcopy(graph), verbose, parity_diff)
+        if lehmer is not None:
+            hamiltonian_nodes, spur_origins, stutters = lehmer_path(copy.deepcopy(graph), verbose, permutations_dict, arities, parity_diff, lehmer, spurs)
         if hamiltonian_nodes is not None:
             for ind in range(len(hamiltonian_nodes) - 1):
                 if (hamiltonian_nodes[ind], hamiltonian_nodes[ind + 1]) in edge_colors:
@@ -167,7 +168,7 @@ def hamilton(G, excluded_paths=None):
     return None
 
 
-def lehmer_path(graph, verbose, parity_diff):
+def lehmer_path(graph, verbose, perm_inversions, arities, parity_diff, strat, spurs):
     # Step 1: Set node tally at 1
     node_tally = 1
     # Step 2: Set spur tally at 0
@@ -176,26 +177,19 @@ def lehmer_path(graph, verbose, parity_diff):
     stutters = []
     # Step 3: The first node becomes B
     b = list(graph.nodes())[0]
+    max_arity = max(arities.keys())
 
     interchanges = [b]  # Store interchange digits
 
     # Step 4: If there is no path leaving B, go to Step 16
     while list(graph.neighbors(b)):
-        # Step 5: Among the nodes connected to B of least multiplicity, select the node N of least serial number
-        connected_nodes = sorted(graph.neighbors(b), key=lambda x: (len(list(graph.neighbors(x))), x))
-
-        # Get the minimum number of connections among the connected nodes
-        min_connections = min(len(list(graph.neighbors(node))) for node in connected_nodes)
-
-        # Filter the connected nodes to include only those with the minimum number of connections
-        min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
-
-        print(b, min_connection_nodes, min_connections)
-        # Select the node N with the smallest serial number among the nodes with the minimum number of connections
-        node = min(min_connection_nodes)
+        # Step 5: Pick the next node
+        node = use_strategy(arities, b, graph, perm_inversions, strat, not verbose)
+        # Update the arities dictionary to reflect the decreasing count of nodes with each arity
+        arities[perm_inversions[node]] -= 1
 
         # Step 6: If the multiplicity of N is 1, go to Step 12
-        if graph.degree(node) == 1:
+        if graph.degree(node) == 1 or (is_stutter_permutation(node, max_arity) and spurs):
             # Step 12: Store interchange digit from B to N in the next two storage places
             interchanges.append(node)
             if graph.number_of_edges() > 1:
@@ -217,6 +211,7 @@ def lehmer_path(graph, verbose, parity_diff):
         # Step 8: Disconnect B from all connecting nodes, thus reducing by 1 the multiplicity of each such node
         for neighbors in list(graph.neighbors(b)):  # Use list() to create a copy of the list before iterating
             graph.remove_edge(b, neighbors)
+
         # Step 9: N becomes B
         b = node
         # Step 10: Node tally plus 1 replaces node tally
@@ -226,18 +221,142 @@ def lehmer_path(graph, verbose, parity_diff):
 
     # Step 16: Output initial marks, spur and node tallies, and list of interchange digits
     if verbose:
-        print("Node Tally:", node_tally, "and path length:", len(interchanges))
+        if len(spur_origins) != len(stutters):
+            print("Spur origins:", spur_origins)
+            print("Stutters:", stutters)
+        else:
+            print("Spur origin -> stutter:")
+            for i in range(len(spur_origins)):
+                print("Spur {}:".format(i), spur_origins[i], "->", stutters[i])
         if node_tally < graph.number_of_nodes():
+            print("Node Tally:", node_tally, "and path length:", len(interchanges))
             print("!!!!! INCORRECT PATH; MISSING", graph.number_of_nodes() - node_tally, "NODES !!!!!")
-        print("Spur Tally:", spur_tally)
-        if spur_tally != parity_diff - 1:
-            print("!!!!! INCORRECT NUMBER OF SPURS; FOUND", spur_tally, "BUT ONLY", parity_diff - 1, "IS CORRECT !!!!!")
-        print("Spur origins:", spur_origins)
-        print("Stutters:", stutters)
+        else:
+            print("Node Tally:", node_tally, "which is CORRECT! And path length:", len(interchanges))
+        if spur_tally > 0 and spur_tally != parity_diff - 1:
+            print("Spur Tally:", spur_tally)
+            print("!!!!! INCORRECT NUMBER OF SPURS; FOUND", spur_tally, "BUT ONLY", max(parity_diff - 1, 0),
+                  "IS CORRECT !!!!!")
+        else:
+            print("Spur Tally:", spur_tally, "which is CORRECT!")
     print("Path:", interchanges)
 
     # Step 17: Halt
     return interchanges, spur_origins, stutters
+
+
+# Define the strategies
+strategies = {
+    0: "Among the nodes connected to B of least multiplicity, select the node N of least serial number",
+    1: "First pick nodes of which less nodes with that arity are available, then pick the smallest serial number node",
+    2: "First pick nodes of which less nodes with that arity are available, then apply Lehmer's strategy",
+    3: "First pick nodes with larger multiplicity, then pick the first node with the smallest serial number as before",
+    4: "First pick the node with the least multiplicity, upon a tie choose the one with the largest serial number",
+}
+
+
+def use_strategy(arities, b, graph, perm_inversions, strategy, verbose):
+    """
+     Compute the next node based on the strategy provided
+    :param strategy: 1
+    :return:
+    """
+    connected_nodes = list(graph.neighbors(b))
+    # Lehmer's Original Strategy:
+    # Among the nodes connected to B of least multiplicity, select the node N of least serial number
+    if strategy == 0:
+        # This doesn't work because sometimes stutter permutations are chosen as part of the actual path
+        # Get the minimum number of connections among the connected nodes
+        num_connections = [len(list(graph.neighbors(node))) for node in connected_nodes]
+        min_connections = min(num_connections)
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum number of connections
+        min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
+        # In case of a tie, smaller serial number
+        node = min(min_connection_nodes)
+    # Arity strategy:
+    # First pick nodes of which less nodes with that arity are available, then pick the smallest serial number node
+    elif strategy == 1:
+        # This doesn't work since sometimes the last node (e.g. case of 0^4,1^6), there are stutter permutations being
+        # skipped on the far right
+        min_arity = min([arities[perm_inversions[n]] for n in connected_nodes])
+        min_arities = [k for k, v in arities.items() if v == min_arity]
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum arity
+        min_arity_nodes = [node for node in connected_nodes if perm_inversions[node] in min_arities]
+        if verbose:
+            print(b, min_arity_nodes, min_arity, arities)
+        # In case of a tie, smaller serial number
+        node = min(min_arity_nodes)
+    # Arity strategy & Lehmer combined:
+    # First pick nodes of which less nodes with that arity are available, then apply Lehmer's strategy
+    elif strategy == 2:
+        #
+        min_arity = min([arities[perm_inversions[n]] for n in connected_nodes])
+        min_arities = [k for k, v in arities.items() if v == min_arity]
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum arity
+        min_arity_nodes = [node for node in connected_nodes if perm_inversions[node] in min_arities]
+        # Get the minimum number of connections among the connected nodes
+        num_connections = [len(list(graph.neighbors(node))) for node in min_arity_nodes]
+        min_connections = min(num_connections)
+        # Filter the connected nodes to include only those with the minimum number of connections
+        min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
+        if verbose:
+            print(b, num_connections, min_connection_nodes, min_arity_nodes, min_arity, arities)
+        # In case of a tie, smaller serial number
+        node = min(min_connection_nodes)
+    # Opposite Lehmer:
+    # First pick nodes with larger multiplicity, then pick the first node with the smallest serial number as before
+    elif strategy == 3:
+        # Get the minimum number of connections among the connected nodes
+        num_connections = [len(list(graph.neighbors(node))) for node in connected_nodes]
+        max_connections = max(num_connections)
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum number of connections
+        max_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == max_connections]
+        if verbose:
+            print(b, num_connections, max_connection_nodes, arities)
+        # In case of a tie, smaller serial number
+        node = min(max_connection_nodes)
+    # First pick the node with the least multiplicity, upon a tie choose the one with the largest serial number
+    elif strategy == 4:
+        # Get the minimum number of connections among the connected nodes
+        num_connections = [len(list(graph.neighbors(node))) for node in connected_nodes]
+        min_connections = min(num_connections)
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum number of connections
+        min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
+        # In case of a tie, larger serial number
+        node = max(min_connection_nodes)
+    else:
+        node = random.choice(list(graph.neighbors(b)))
+    return node
+
+
+def is_stutter_permutation(perm, max_arity):
+    """
+     Returns whether the permutation is a stutter permutation
+     Always returns False when the permutation has the maximum arity in the graph
+    """
+    if max_arity:
+        return False
+    # Iterate over pairs of elements
+    for i in range(1, len(perm), 2):
+        # Check if the pair satisfies the condition
+        if perm[i] != perm[i - 1]:
+            return False
+    return True
 
 
 def point_to_line_distance(x, y, x1, y1, x2, y2):
@@ -320,11 +439,16 @@ def print_unique_permutations(input_str):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Count permutations of a given input string.')
+    lehmer_strategy_help = "Default: random choices\r\n"
+    for key, val in strategies.items():
+        lehmer_strategy_help += f"{key}: {val}\r\n"
+    parser = argparse.ArgumentParser(description='Helper tool to find paths through permutation neighbor swap graphs.')
     parser.add_argument('-p', '--permutation', type=str, help='Input permutation string')
     parser.add_argument('-v', '--verbose', action='store_true', help='Enable verbose mode')
     parser.add_argument('-m', '--hamiltonian', action='store_true', help='Print all possible perfect Hamiltonian Paths')
-    parser.add_argument('-l', '--lehmer', action='store_true', help='Use Lehmer\'s algorithm to find a path')
+    parser.add_argument('-l', '--lehmer', type=int, choices=strategies.keys(), default=-1,
+                        help=f'Select a strategy for finding a path: {lehmer_strategy_help}')
+    parser.add_argument('-s', '--spur', action='store_true', help='Automatically recognize stutters as spurs')
     parser.add_argument('-g', '--graph', action='store_true', help='Show the NetworkX neighbor swap graph')
     parser.add_argument('-c', '--color', action='store_true', help='Color the nodes in the Hamiltonian Path')
 
@@ -338,10 +462,11 @@ if __name__ == '__main__':
         parities, even, odd = compute_parity(permutations)
         # Print each unique permutation in the order they were generated
         print("Computed all {} permutations of which {} are even and {} odd".format(len(parities), even, odd))
+        print(f"Using strategy: {strategies[args.lehmer]}")
         if args.graph or args.hamiltonian:
-            node_color, edge_color, perm_graph = visualize(parities, args.color)
+            node_color, edge_color, perm_graph, arity_counts = visualize(parities, args.color)
             h_path, spurs_orig, spurs_dest = find_path(
-                edge_color, perm_graph, args.hamiltonian, args.lehmer, args.verbose, even-odd,
+                edge_color, perm_graph, args.hamiltonian, args.lehmer, args.verbose, even-odd, parities, arity_counts, args.spur,
             )
             if args.graph:
                 plot_graph(node_color, edge_color, perm_graph, h_path, spurs_orig, spurs_dest)
