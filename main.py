@@ -258,8 +258,7 @@ strategies = {
 def use_strategy(arities, b, graph, perm_inversions, strategy, verbose):
     """
      Compute the next node based on the strategy provided
-    :param strategy: 1
-    :return:
+    :return: the next node for the Lehmer Path according to the given strategy
     """
     connected_nodes = list(graph.neighbors(b))
     # Lehmer's Original Strategy:
