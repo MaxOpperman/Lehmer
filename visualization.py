@@ -148,10 +148,9 @@ def lehmer_path(graph: nx.Graph(), cli_args: Namespace, signature: List[int]):
     spur_origins = []
     stutters = []
     # Step 3: The first node becomes B
-    b = tuple(sorted(list(graph.nodes())[0]))
+    b = start_perm(signature)
 
     interchanges = [b]  # Store interchange digits
-    print(start_perm(signature))
 
     # Step 4: If there is no path leaving B, go to Step 16
     while list(graph.neighbors(b)):
@@ -215,7 +214,6 @@ def lehmer_path(graph: nx.Graph(), cli_args: Namespace, signature: List[int]):
                   "IS CORRECT !!!!!")
         else:
             print("Spur Tally:", spur_tally, "which is CORRECT!")
-    print("Path:", interchanges)
 
     # Step 17: Halt
     return interchanges, spur_origins, stutters
