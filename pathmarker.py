@@ -56,13 +56,14 @@ class PathMarker:
             font_size=10,
             font_weight='bold',
             edge_color=self.edge_colors,
+            # width=4,
         )
 
-        # Draw marked nodes in red
-        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.marked_nodes, node_color='blue', node_size=500)
+        # Draw marked nodes in color
+        nx.draw_networkx_nodes(self.graph, self.pos, nodelist=self.marked_nodes, node_color='royalblue', node_size=400)
 
-        # Draw marked edges in green
-        nx.draw_networkx_edges(self.graph, self.pos, edgelist=self.marked_edges, edge_color='blue', width=4)
+        # Draw marked edges in color
+        nx.draw_networkx_edges(self.graph, self.pos, edgelist=self.marked_edges, edge_color='royalblue', width=3)
 
         plt.title('Permutation Inversions Graph')
         plt.draw()

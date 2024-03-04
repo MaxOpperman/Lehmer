@@ -41,10 +41,10 @@ def find_path_colors(edge_colors: dict, graph: nx.Graph(), cli_args: Namespace, 
             edge_colors[(h_nodes[ind + 1], h_nodes[ind])] = 'r'
     # Color the nodes
     if cli_args.color:
-        node_colors = ['green' if node in spur_origins else 'red' if node in spur_destinations else
-                       'blue' if node in h_nodes else 'skyblue' for node in graph.nodes()]
+        node_colors = ['green' if node in spur_origins else 'olive' if node in spur_destinations else
+                       'deeppink' if node in h_nodes else 'skyblue' for node in graph.nodes()]
     else:
-        node_colors = ['green' if node in spur_origins else 'red' if node in spur_destinations else 'skyblue'
+        node_colors = ['green' if node in spur_origins else 'olive' if node in spur_destinations else 'skyblue'
                        for node in graph.nodes()]
     return node_colors, edge_colors.values()
 

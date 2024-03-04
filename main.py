@@ -66,10 +66,10 @@ def plot_graph(color, edge_colors, graph, hamiltonian_nodes, spur_origins, stutt
     plt.figure(figsize=(19, 38))
     pos = nx.get_node_attributes(graph, 'pos')
     if color:
-        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else
-                       'blue' if node in hamiltonian_nodes else 'skyblue' for node in graph.nodes()]
+        node_colors = ['green' if node in spur_origins else 'olive' if node in stutters else
+                       'deeppink' if node in hamiltonian_nodes else 'skyblue' for node in graph.nodes()]
     else:
-        node_colors = ['green' if node in spur_origins else 'red' if node in stutters else 'skyblue'
+        node_colors = ['green' if node in spur_origins else 'olive' if node in stutters else 'skyblue'
                        for node in graph.nodes()]
     nx.draw(
         graph,
@@ -80,6 +80,7 @@ def plot_graph(color, edge_colors, graph, hamiltonian_nodes, spur_origins, stutt
         node_size=500,
         font_size=10,
         font_weight='bold',
+        # width=4,
     )
 
     path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
@@ -189,7 +190,7 @@ def lehmer_path(graph, verbose, perm_inversions, arities, parity_diff, strat, sp
         arities[perm_inversions[node]] -= 1
 
         # Step 6: If the multiplicity of N is 1, go to Step 12
-        if graph.degree(node) == 1 or (is_stutter_permutation(node, max_arity) and spurs):
+        if graph.degree(node) == 1 or (is_stutter_permutation(node, perm_inversions[node], max_arity) and spurs):
             # Step 12: Store interchange digit from B to N in the next two storage places
             interchanges.append(node)
             if graph.number_of_edges() > 1:
@@ -201,6 +202,9 @@ def lehmer_path(graph, verbose, perm_inversions, arities, parity_diff, strat, sp
                 stutters.append(node)
             # Step 14: Disconnect B and N
             graph.remove_edge(b, node)
+            if spurs:
+                for neighbors in list(graph.neighbors(node)):
+                    graph.remove_edge(node, neighbors)
             # Step 15: Go to Step 10
             node_tally += 1
             # Then go back to Step 4
@@ -239,7 +243,7 @@ def lehmer_path(graph, verbose, perm_inversions, arities, parity_diff, strat, sp
                   "IS CORRECT !!!!!")
         else:
             print("Spur Tally:", spur_tally, "which is CORRECT!")
-    print("Path:", interchanges)
+    # print("Path:", interchanges)
 
     # Step 17: Halt
     return interchanges, spur_origins, stutters
@@ -343,12 +347,12 @@ def use_strategy(arities, b, graph, perm_inversions, strategy, verbose):
     return node
 
 
-def is_stutter_permutation(perm, max_arity):
+def is_stutter_permutation(perm, inversions, max_arity):
     """
      Returns whether the permutation is a stutter permutation
      Always returns False when the permutation has the maximum arity in the graph
     """
-    if max_arity:
+    if max_arity == inversions:
         return False
     # Iterate over pairs of elements
     for i in range(1, len(perm), 2):
