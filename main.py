@@ -80,7 +80,6 @@ def plot_graph(color, edge_colors, graph, hamiltonian_nodes, spur_origins, stutt
         node_size=500,
         font_size=10,
         font_weight='bold',
-        # width=4,
     )
 
     path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
