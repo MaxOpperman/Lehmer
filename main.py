@@ -80,6 +80,7 @@ def plot_graph(color, edge_colors, graph, hamiltonian_nodes, spur_origins, stutt
         node_size=500,
         font_size=10,
         font_weight='bold',
+        # width=4,
     )
 
     path_marker = PathMarker(graph, pos, edge_colors.values(), node_colors)
@@ -251,10 +252,11 @@ def lehmer_path(graph, verbose, perm_inversions, arities, parity_diff, strat, sp
 # Define the strategies
 strategies = {
     0: "Among the nodes connected to B of least multiplicity, select the node N of least serial number",
-    1: "First pick nodes of which less nodes with that arity are available, then pick the smallest serial number node",
-    2: "First pick nodes of which less nodes with that arity are available, then apply Lehmer's strategy",
+    1: "First pick nodes of which less nodes with that #inversions are available, then the smallest serial number node",
+    2: "First pick nodes of which less nodes with that #inversions are available, then apply Lehmer's strategy",
     3: "First pick nodes with larger multiplicity, then pick the first node with the smallest serial number as before",
     4: "First pick the node with the least multiplicity, upon a tie choose the one with the largest serial number",
+    5: "First pick nodes with larger multiplicity upon a tie choose the one with the largest serial number",
 }
 
 
@@ -314,7 +316,6 @@ def use_strategy(arities, b, graph, perm_inversions, strategy, verbose):
             print(b, num_connections, min_connection_nodes, min_arity_nodes, min_arity, arities)
         # In case of a tie, smaller serial number
         node = min(min_connection_nodes)
-    # Opposite Lehmer:
     # First pick nodes with larger multiplicity, then pick the first node with the smallest serial number as before
     elif strategy == 3:
         # Get the minimum number of connections among the connected nodes
@@ -341,6 +342,21 @@ def use_strategy(arities, b, graph, perm_inversions, strategy, verbose):
         min_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == min_connections]
         # In case of a tie, larger serial number
         node = max(min_connection_nodes)
+    # Opposite Lehmer:
+    # First pick nodes with larger multiplicity, then pick the first node with the largest serial number
+    elif strategy == 5:
+        # Get the minimum number of connections among the connected nodes
+        num_connections = [len(list(graph.neighbors(node))) for node in connected_nodes]
+        max_connections = max(num_connections)
+        if verbose:
+            print(b, arities, [n for n in connected_nodes], [perm_inversions[n] for n in connected_nodes],
+                  [arities[perm_inversions[n]] for n in connected_nodes])
+        # Filter the connected nodes to include only those with the minimum number of connections
+        max_connection_nodes = [node for node in connected_nodes if len(list(graph.neighbors(node))) == max_connections]
+        if verbose:
+            print(b, num_connections, max_connection_nodes, arities)
+        # In case of a tie, smaller serial number
+        node = max(max_connection_nodes)
     else:
         node = random.choice(list(graph.neighbors(b)))
     return node

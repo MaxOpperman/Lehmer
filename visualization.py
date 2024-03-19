@@ -61,6 +61,7 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
         node_size=500,
         font_size=10,
         font_weight='bold',
+        # width=4,
     )
 
     path_marker = PathMarker(graph, pos, e_color, n_color)

@@ -237,7 +237,7 @@ def stutterPermutationQ(s):
 
 
 def HpathQ(per, sig):
-    """Determines whether the path is a Hamiltonian path on the non-stutter pmerutations of the given signature."""
+    """Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature."""
     if pathQ(per):
         for i in non_stutters(sig):
             try:
@@ -250,7 +250,7 @@ def HpathQ(per, sig):
 
 
 def HcycleQ(per, sig):
-    """Determines whether the path is a Hamiltonian cycle on the non-stutter pmerutations of the given signature."""
+    """Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature."""
     if cycleQ(per):
         return HpathQ(per, sig)
     else:
