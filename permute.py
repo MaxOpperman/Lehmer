@@ -1,5 +1,8 @@
 import argparse
+import copy
+
 from permutation_graphs import *
+from rivertz import SetPerm
 from visualization import *
 
 
@@ -21,6 +24,17 @@ if __name__ == "__main__":
         non_stutter = non_stutters(sig)
         print(f"There are {multinomial(sig)} permutations and computed {len(perms)}, of which {len(stutter)} are "
               f"stutters and {len(non_stutter)} are non-stutters")
+        if args.rivertz:
+            rivertz_perms = []
+            for p in SetPerm(sig):
+                rivertz_perms.append(p)
+            print(f"Missed {multinomial(sig) - len(rivertz_perms)}")
+            if pathQ(rivertz_perms):
+                print("Rivertz permutations are a path!")
+                if HpathQ(rivertz_perms, sig):
+                    print("Rivertz permutations are even a Hamiltonian path!!!")
+            else:
+                print("ERROR! Rivertz permutations are not a path (see above for the mistake in the path)")
         if args.graph or args.lehmer:
             perm_graph_dict, edge_color_dict = visualize(graph(sig), count_inversions(sig))
             if args.lehmer:
