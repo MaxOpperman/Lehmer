@@ -15,6 +15,7 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--auto-spur", action="store_true", help="Automatically recognize stutters as spurs")
     parser.add_argument("-g", "--graph", action="store_true", help="Show the NetworkX neighbor swap graph")
     parser.add_argument("-c", "--color", action="store_true", help="Color the nodes in the Hamiltonian Path")
+    parser.add_argument("-r", "--rivertz", action="store_true", help="Compute the permutations with Rivertz's algo")
 
     args = parser.parse_args()
     sig = [int(x) for x in args.signature.split(",")]
@@ -24,6 +25,7 @@ if __name__ == "__main__":
         non_stutter = non_stutters(sig)
         print(f"There are {multinomial(sig)} permutations and computed {len(perms)}, of which {len(stutter)} are "
               f"stutters and {len(non_stutter)} are non-stutters")
+
         if args.rivertz:
             rivertz_perms = []
             for p in SetPerm(sig):

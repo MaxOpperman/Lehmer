@@ -1,3 +1,6 @@
+from typing import List
+
+
 def adjacent(s, t):
     """"returns true if s and t adjacent, false otherwise"""
     if len(s) != len(t):
@@ -6,13 +9,16 @@ def adjacent(s, t):
     return len(diff) == 2 and diff[0] + 1 == diff[1] and s[diff[0]] == t[diff[1]] and s[diff[1]] == t[diff[0]]
 
 
-def pathQ(p):
+def pathQ(p: List[tuple], verbose=True):
     """Returns True if p a path.
+    :param verbose: whether the error in the path should be printed in console
     :param p, list of vertices
     :return: true if p is a path
     """
     for i, item in enumerate(p):
         if i < len(p) - 1 and not adjacent(item, p[i + 1]):
+            if verbose:
+                print(f"No path: index {i}->{i+1}. See: {i-1}-{i}-{i+1}; {p[i-1]}-{item}-{p[i+1]}")
             return False
     return True
 
@@ -38,7 +44,7 @@ def pathsEdges(paths):
 
 
 def stichPaths(p1, p2):
-    """Stiches two parallel paths by gluing the end vertices."""
+    """Stitches two parallel paths by gluing the end vertices."""
     if adjacent(p1[-1], p2[0]):
         return p1 + p2
     elif adjacent(p1[0], p2[-1]):
@@ -51,7 +57,7 @@ def stichPaths(p1, p2):
 
 
 def splitPath(p, a):
-    """Splits a path at vertex a. Element a appers in both paths."""
+    """Splits a path at vertex a. Element a appears in both paths."""
     A = p.index(a)
     if len(p) == 1:
         return p
@@ -60,6 +66,7 @@ def splitPath(p, a):
 
 def cutCycle(c, a):
     """Splits a cycle at vertex a. Vertex a appears on first place """
+    assert cycleQ(c)
     A = c.index(a)
     return c[A:] + c[:A]
 
