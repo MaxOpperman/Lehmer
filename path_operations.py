@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 
 def adjacent(s, t):
@@ -62,6 +62,13 @@ def splitPath(p, a):
     if len(p) == 1:
         return p
     return [p[:A + 1], p[A:]]
+
+
+def splitPathIn2(p: List[tuple], a: tuple) -> Tuple[List[tuple], List[tuple]]:
+    """Splits a path at vertex a. Element a appears in both paths."""
+    assert len(p) > 1
+    A = p.index(a)
+    return p[:A+1], p[A+1:]
 
 
 def cutCycle(c, a):
