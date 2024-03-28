@@ -65,7 +65,7 @@ def splitPath(p, a):
 
 
 def splitPathIn2(p: List[tuple], a: tuple) -> Tuple[List[tuple], List[tuple]]:
-    """Splits a path at vertex a. Element a appears in both paths."""
+    """Splits a path at vertex a. Element a appears in only the first path."""
     assert len(p) > 1
     A = p.index(a)
     return p[:A+1], p[A+1:]

@@ -232,26 +232,30 @@ def _lemma8_glue_a_edges(k_q: Tuple[int, ...], l_p: Tuple[int, ...], p: int, sub
     :param sub_cycles: sub cycles created by gluing y_ij, y_ij+1
     :return: Cycle of all sub cycles glued together
     """
+    # make the a1 path, we have as first part of the cycle a11~path~a12
     g_result_start = _lemma8_subgraph_cutter(
         sub_cycles[0],
         (0,) + l_p[:p - 1] + (1,) + (k_q[0], l_p[0]) + k_q[1:],
         (0,) + l_p[:p - 1] + (1, l_p[0]) + k_q,
     )
     g_result_end = []
-    for i in range(1, len(sub_cycles)-(len(sub_cycles) % 2)):
-        cyc = _lemma8_subgraph_cutter(
-            sub_cycles[i],
-            (0,) + l_p[:p - 2 * i] + (1,) + l_p[:2 * i] + k_q,
-            (0,) + l_p[:p - 2 * i] + (1,) + l_p[:2 * i - 1] + (k_q[0], l_p[0]) + k_q[1:],
-        )
-        p1, p2 = splitPathIn2(cyc, (0,) + l_p[:max(p - ((2 * i) + 1), 0)] + (1,) + l_p[:(2 * i) + 1] + k_q, )
+    # for each of the floor((p+1)/2) sub cycles
+    for i in range(1, len(sub_cycles)-((p+1) % 2)):
+        # take the first a1 and a2 and make them into a cycle from a1 ~ all nodes in cycle ~ a2
+        a_2i_1 = (0,) + l_p[:p - 2 * i] + (1,) + l_p[:2 * i] + k_q
+        a_2i_2 = (0,) + l_p[:p - 2 * i] + (1,) + l_p[:2 * i - 1] + (k_q[0], l_p[0]) + k_q[1:]
+        cyc = _lemma8_subgraph_cutter(sub_cycles[i], a_2i_1, a_2i_2)
+        # then cut that cycle in 2 by splitting after the next a1 (and thus before the next a2)
+        next_a_2 = (0,) + l_p[:max(p - ((2 * i) + 1), 0)] + (1,) + l_p[:(2 * i) + 1] + k_q
+        p1, p2 = splitPathIn2(cyc, next_a_2)
         g_result_start.extend(p1)
-        g_result_end.extend(p2)
+        g_result_end.extend(p2[::-1])
     if p % 2 == 0:
-        g_result_start.extend(
-            _lemma8_subgraph_cutter(sub_cycles[-1], (0, 1) + l_p + k_q, (0, 1) + l_p[:-1] + (k_q[0], l_p[-1]) + k_q[1:])
-        )
-    g_result_start.extend(g_result_end)
+        # if p is even, we are still missing the last cycle which we only have to sort from the last a1~nodes~a2
+        a_last_1 = (0, 1) + l_p + k_q
+        a_last_2 = (0, 1) + l_p[:-1] + (k_q[0], l_p[-1]) + k_q[1:]
+        g_result_start.extend(_lemma8_subgraph_cutter(sub_cycles[-1], a_last_1, a_last_2))
+    g_result_start.extend(g_result_end[::-1])
     return g_result_start
 
 
