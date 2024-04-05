@@ -1,5 +1,4 @@
 import argparse
-import copy
 
 from permutation_graphs import *
 from rivertz import SetPerm
@@ -30,7 +29,8 @@ if __name__ == "__main__":
             rivertz_perms = []
             for p in SetPerm(sig):
                 rivertz_perms.append(p)
-            print(f"Missed {multinomial(sig) - len(rivertz_perms)}")
+            print(f"Missed {multinomial(sig) - len(rivertz_perms)} of {multinomial(sig)} permutations; total motion "
+                  f"{total_path_motion(rivertz_perms)}")
             if pathQ(rivertz_perms):
                 print("Rivertz permutations are a path!")
                 if HpathQ(rivertz_perms, sig):

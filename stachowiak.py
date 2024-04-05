@@ -157,9 +157,13 @@ def _lemma8_subgraph_cutter(cyc: List[tuple], x: tuple, y: tuple) -> List[tuple]
     """
     try:
         assert adjacent(x, y)
-        assert cycleQ(cyc)
     except AssertionError as err:
-        print(f"{repr(err)} for x: {x}, y: {y}, cycle: {cyc}")
+        print(f"{repr(err)} not adjacent for x: {x}, y: {y}")
+        quit()
+    try:
+        assert adjacent(x, y)
+    except AssertionError as err:
+        print(f"{repr(err)} for x: {x}, y: {y}, not in cycle: {cyc}")
         quit()
     cyc_cut = cutCycle(cyc, x)
     if cyc_cut[1] == y:
@@ -188,21 +192,15 @@ def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> List[List[tuple]]:
                 l7_q_set, l7_suffix = _lemma8_helper([(0, 1), (3, 1), (2, sig[2]), (3, i)])
                 for l7_i in range(len(l7_q_set)):
                     g_ij.append(l_p[:2 * j] + l7_q_set[l7_i] + l_p[:sig[3] - i - 2 * j - 1] + (1,) + l7_suffix[l7_i])
-                g_ij = _lemma8_subgraph_cutter(
-                    g_ij,
-                    l_p[:2 * j] + (0,) + l_p[:sig[3] - i - 2 * j] + (1,) + l_p[:i] + k_q,
-                    l_p[:2 * j + 1] + (0,) + l_p[:sig[3] - i - 2 * j - 1] + (1,) + l_p[:i] + k_q,
-                )
+                x_ij = l_p[:2 * j] + (0,) + l_p[:sig[3] - i - 2 * j] + (1,) + l_p[:i] + k_q
+                y_ij = l_p[:2 * j + 1] + (0,) + l_p[:sig[3] - i - 2 * j - 1] + (1,) + l_p[:i] + k_q
             # j == (p-i)/2
             elif j == (sig[3] - i) / 2:
                 l7_subgraph = lemma7(sig[:3] + [i])
                 for item in l7_subgraph:
                     g_ij.append(l_p[:sig[3] - i] + item)
-                g_ij = _lemma8_subgraph_cutter(
-                    g_ij,
-                    l_p[:sig[3] - i] + (0, 1) + l_p[:i] + k_q,
-                    l_p[:sig[3] - i] + (1, 0) + l_p[:i] + k_q,
-                )
+                x_ij = l_p[:sig[3] - i] + (0, 1) + l_p[:i] + k_q
+                y_ij = l_p[:sig[3] - i] + (1, 0) + l_p[:i] + k_q
             # (p-i)/2 < j <= p-i
             else:
                 l7_q_set, l7_suffix = _lemma8_helper([(3, 1), (1, 1), (2, sig[2]), (3, i)])
@@ -210,12 +208,15 @@ def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> List[List[tuple]]:
                     g_ij.append(
                         l_p[:2 * (sig[3] - i - j)] + l7_q_set[l7_i] + l_p[:i + 2 * j - sig[3] - 1] + (0,) + l7_suffix[
                             l7_i])
-                g_ij = _lemma8_subgraph_cutter(
-                    g_ij,
-                    l_p[:2 * (sig[3] - i - j) + 1] + (1,) + l_p[:i + 2 * j - sig[3] - 1] + (0,) + l_p[:i] + k_q,
-                    l_p[:2 * (sig[3] - i - j)] + (1,) + l_p[:i + 2 * j - sig[3]] + (0,) + l_p[:i] + k_q,
-                )
+                x_ij = l_p[:2 * (sig[3] - i - j) + 1] + (1,) + l_p[:i + 2 * j - sig[3] - 1] + (0,) + l_p[:i] + k_q
+                y_ij = l_p[:2 * (sig[3] - i - j)] + (1,) + l_p[:i + 2 * j - sig[3]] + (0,) + l_p[:i] + k_q
+            g_ij = _lemma8_subgraph_cutter(
+                g_ij,
+                x_ij,
+                y_ij
+            )
             g_i.extend(g_ij)
+
         if g_i[0] == ((0,) + l_p[:sig[3] - i] + (1,) + l_p[:i] + k_q):
             g_all.append(g_i)
         else:
@@ -261,7 +262,7 @@ def _lemma8_glue_a_edges(k_q: Tuple[int, ...], l_p: Tuple[int, ...], p: int, sub
 
 def lemma8(sig: List[int]) -> List[tuple]:
     """
-     The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q >O.
+     The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
      We assume sig has the form [1, 1, q, p]
     """
     k_q = tuple([2] * sig[2])
@@ -278,7 +279,7 @@ def lemma8(sig: List[int]) -> List[tuple]:
     if len(g_all) % 2 == 1:
         sub_cycles.append(g_all[-1])
     g_result_start = _lemma8_glue_a_edges(k_q, l_p, sig[3], sub_cycles)
-    # assert cycleQ(g_result_start)
+    assert cycleQ(g_result_start)
     return g_result_start
 
 

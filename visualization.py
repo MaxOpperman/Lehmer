@@ -7,7 +7,7 @@ import networkx as nx
 from matplotlib import pyplot as plt
 
 from pathmarker import PathMarker
-from permutation_graphs import start_perm, defect
+from permutation_graphs import start_perm, defect, total_path_motion
 
 
 def visualize(dict_graph, dict_inv) -> (nx.Graph(), dict):
@@ -87,7 +87,10 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
                         edge = (u, v)
                         break
             if node is not None:
-                path_marker.toggle_node(node)
+                if event.button == 3:  # Right mouse click
+                    path_marker.toggle_right_mark_node(node)
+                else:  # Left mouse click
+                    path_marker.toggle_node(node)
                 path_marker.update_plot(nx, plt)
             elif edge is not None:
                 path_marker.toggle_edge(edge)
@@ -215,6 +218,7 @@ def lehmer_path(graph: nx.Graph(), cli_args: Namespace, signature: List[int]):
                   "IS CORRECT !!!!!")
         else:
             print("Spur Tally:", spur_tally, "which is CORRECT!")
+        print(f"Total Lehmer motion {total_path_motion(interchanges)}")
 
     # Step 17: Halt
     return interchanges, spur_origins, stutters

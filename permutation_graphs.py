@@ -329,5 +329,22 @@ def conditionHcycleNS(sig):
             return True
     return True
 
-# def Hpath(sig):
-# """sig is a signature, either with length \[LessEqual] 2 and at least one 1, or with at least two odd frequencies"""
+
+def total_path_motion(path):
+    """
+     Returns the sum of the widths (difference in index between the two transposed elements) for all nodes in the path
+    """
+    total_motion = 0
+    for node in range(len(path) - 1):
+        permutation_a = path[node]
+        permutation_b = path[node + 1]
+        for i in range(len(permutation_a)):
+            if permutation_a[i] != permutation_b[i]:
+                for j in range(i, len(permutation_a)):
+                    if permutation_a[j] != permutation_b[j]:
+                        width = abs(i - j)
+                        if width > 2:
+                            print(f"Width of transposition {node} is {width}: {permutation_a}, {permutation_b}")
+                        total_motion += width
+    print(path)
+    return total_motion
