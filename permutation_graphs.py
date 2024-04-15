@@ -148,12 +148,17 @@ def multiset(s):
     return per
 
 
-def extend(lis, e):
-    """Didn't work if instead of i+[e] did i.append(e)"""
+def extend(lst: list, e: tuple):
+    """
+     Extend every item in l with e
+    :param lst: list of tuples
+    :param e: tuple to extend every item in l with
+    :return:
+    """
     try:
-        return [i + e for i in lis]
+        return [i + e for i in lst]
     except TypeError:
-        return [i + [e] for i in lis]
+        return [i + [e] for i in lst]
 
 
 def shorten(lis, num):

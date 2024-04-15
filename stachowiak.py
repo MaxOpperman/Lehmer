@@ -1,7 +1,9 @@
 import argparse
 import collections
+import copy
 import itertools
 import math
+import sys
 from typing import Tuple, Union
 
 from permutation_graphs import *
@@ -111,7 +113,7 @@ def _lemma8_helper(sig_occ: List[Tuple[int, int]]) -> Tuple[List[tuple], List[tu
         all_q, result, end_q, end_res = [], [], [], []
         for i in reversed(range(sig_occ[2][1]+1)):
             ge = []
-            q, g_i = _lemma8_helper(sig_occ[:2] + [(2, sig_occ[2][1]-i)] + [(3, sig_occ[3][1]-1)])
+            q, g_i = _lemma8_helper(sig_occ[:2] + [(sig_occ[2][0], sig_occ[2][1]-i)] + [(sig_occ[3][0], sig_occ[3][1]-1)])
             for j, suffix in enumerate(g_i):
                 node = k_q[:i] + (l_p[0],) + suffix
                 ge.append(node)
@@ -277,7 +279,6 @@ def _lemma9_g_i_sub_graphs_r0(k_r, k_s, l_p, sig) -> List[List[tuple]]:
             g_all.append(g_i)
         else:
             g_all.append(g_i[::-1])
-        print("G_ALL", g_all)
     return g_all
 
 
@@ -406,6 +407,88 @@ def lemma9(sig: List[int]) -> List[tuple]:
         return cycle
 
 
+def stutterPermutations(*sign):
+    odds = selectOdds(sign)
+    if len(odds) >= 2:
+        return []
+    else:
+        result = stutterize(permutations(*halveSignature(sign)))
+        if len(odds) == 1:
+            return extend(result, odds)
+        else:
+            return result
+
+
+def HpathNS(k0: int, k1: int) -> list:
+    odd_perms = []
+    tuple_0 = tuple(k0 * [0])
+    tuple_1 = tuple(k1 * [1])
+    sys.setrecursionlimit(2500)
+    if k0 == 0:
+        return [tuple_1]
+    elif k1 == 0:
+        return [tuple_0]
+    elif k0 == 1:
+        for i in range(k1 + 1):
+            odd_perms.append(tuple_1[:i] + tuple_0 + tuple_1[i:])
+        return odd_perms
+    elif k1 == 1:
+        for i in range(k0 + 1):
+            odd_perms.append(tuple_0[:i] + tuple_1 + tuple_0[i:])
+        return odd_perms
+    if k0 % 2 == 1 and k1 % 2 == 0:
+        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian path from 0^k0 1^k1 to 1^(k1-1) 0^k0 1
+        p0 = extend(HpathNS(k0 - 1, k1), (0,))  # A Hamiltonian cycle from 1^(k1-1) 0^(k0-1) 1 0
+
+        return p1[:-1] + [p0[-1]] + p0[:-1]
+
+    elif k0 % 2 == 0 and k1 % 2 == 1:
+        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian cycle containing edge 0^(k0-1) 1^(k1-1) 0 1 ~ 0^(k0-2) 1 0 1^(k1-2) 0 1
+        p0 = extend(HpathNS(k0 - 1, k1), (0,))  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^k1 0^k1
+        v = p0[0]
+
+        return [v] + cutCycle(p1[::-1], swapPair(v, -2)) + p0[1:]
+    elif k0 % 2 == 0 and k1 % 2 == 0:
+        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
+        p0 = extend(HpathNS(k0 - 1, k1), (0,))
+        if k0 == k1:  # k0-1 < k1
+            p0 = p0[::-1]  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^(k1-1) 0^(k0-1) 1 0
+
+        return p1[::-1] + p0
+    else:
+        p11 = HpathNS(k0, k1 - 2)
+        p1101 = HpathNS(k0 - 1, k1 - 3)
+        p0101 = HpathNS(k0 - 2, k1 - 2)
+        p0001 = HpathNS(k0 - 3, k1 - 1)
+        p00 = HpathNS(k0 - 2, k1)
+
+        sp11 = extend(stutterPermutations(k0 - 1, k1 - 3), (1, 1))
+        sp00 = extend(stutterPermutations(k0 - 3, k1 - 1), (0, 0))
+
+        if len(p1101) == 0:
+            c11xy = list(map(lambda x: extend(sp11[0], x), [(0, 1), (1, 0)]))
+        else:
+            ext_path = extend(cutCycle(p1101, p0101[0][:-1] + (0,)), (1, 1))
+            p11xy = createZigZagPath(ext_path, (0, 1), (1, 0))
+            c11xy = incorporateSpursInZigZag(p11xy, sp11, sp11, 2)
+
+        if len(p0001) == 0:
+            c00xy = list(map(lambda x: extend(sp00[0], x), [(1, 0), (0, 1)]))
+        else:
+            ext_path = extend(cutCycle(p0001, p0101[-1][:-1] + (1,)), (0, 0))
+            p00xy = createZigZagPath(ext_path, (0, 1), (1, 0))
+            c00xy = incorporateSpursInZigZag(p00xy, sp00, sp00, 2)
+            c00xy = c00xy[::-1]
+
+        if k0 - 2 < k1:
+            p00 = p00[::-1]
+
+        tube = createSquareTube(p0101[::-1], (0, 1), (1, 0))
+
+        path_ham = extend(p11, (1, 1))[::-1] + tube[:3] + c00xy[2:] + tube[3:-2] + c11xy[:2] + tube[-2:] + extend(p00, (0, 0))[::-1]
+        return path_ham
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Helper tool to find paths through permutation neighbor swap graphs.")
     parser.add_argument("-s", "--signature"
@@ -429,6 +512,11 @@ if __name__ == "__main__":
             if args.verbose:
                 print("l8", l8, pathQ(l8), cycleQ(l8))
             print(f"Lemma 8: {len(l8)} of {2*math.comb(sum(s), s[3])} permutations found. Cycle; {cycleQ(l8)}")
+            x, y = _lemma8_helper([(0, 1), (1, 1), (0, s[2]-1), (1, s[3]-1)])
+            if s[2] % 2 == 1 and s[3] % 2 == 1:
+                perms_odd = HpathNS(s[2], s[3])
+                print(f"Both {s[2]} and {s[3]} are odd: {len(perms_odd)}/{math.comb(s[2] + s[3], s[3])}")
+                print(perms_odd, pathQ(perms_odd), cycleQ(perms_odd))
 
         elif len(s) == 5:
             l9 = lemma9(s)

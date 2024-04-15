@@ -1,3 +1,4 @@
+import copy
 from typing import List, Tuple
 
 
@@ -73,7 +74,13 @@ def splitPathIn2(p: List[tuple], a: tuple) -> Tuple[List[tuple], List[tuple]]:
 
 def cutCycle(c, a):
     """Splits a cycle at vertex a. Vertex a appears on first place """
-    assert cycleQ(c)
+    if len(c) == 1 and a in c:
+        return c
+    try:
+        assert cycleQ(c)
+    except AssertionError as err:
+        print(f"{repr(err)} not a cycle: {c}, should be cut to {a}")
+        quit()
     A = c.index(a)
     return c[A:] + c[:A]
 
@@ -117,8 +124,8 @@ def mul(sez, e):
     """Adds 'e' to all elements(lists) in list sez"""
     if not sez:
         return [e]
-    for i in sez:
-        i.append(e)
+    for i, el in enumerate(sez):
+        sez[i] = el + (e,)
     return sez
 
 
@@ -141,65 +148,53 @@ def createZigZagPathE(c, d):
     return C
 
 
-def createZigZagPath(c, d):
-    """c and d are the same cycles. both are needed because
-     mul(c, 0) changes te cycle c, so if you do mul(c, 1) you get mul(c, 01). This alg returns path."""
-
-    c0 = pathEdges(mul(c, 0))
-    c1 = pathEdges(mul(d, 1))
-    C = []
-    for i, item in enumerate(c0):
-        if i % 2 == 0:
-            C.extend(item)
-        if i % 2 == 1:
-            C.extend(c1[i])
-    C.append(c1[-1][1])
-    C.append(c1[0][0])
-    return C
-
-
-def incorporateSpurInZigZag(c, d, s, ss, edges0):
-    """c and d are the same cycles. both are needed because
-     mul(c, 0) changes te cycle c, so if you do mul(c, 1) you get mul(c, 01)"""
-    sp = 2 * spurBaseIndex(c, s[0], edges0)
-    C = createZigZagPath(c, d)
-    C = C[:sp] + mul(s, 0) + mul(ss, 1) + C[sp:]
-    return C
+def createZigZagPath(c: List[tuple], u: tuple, v: tuple):
+    """
+    :param c: cycle of even length, list of tuples
+    :param u: tuple to append
+    :param v: tuple to append
+    :return: cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
+            running from cycle[[1]]v to cycle[[-1]]v; the two copies are distinguished by
+            appending u and v; also works for a path
+    """
+    assert adjacent(u, v)
+    module = [u, v, v, u]  # Define the module list
+    result = []
+    # Map over the temporary list and join each vertex with the corresponding element from the module list
+    for i, item in enumerate(c):
+        for suff in module:
+            result.append(item + suff)
+    return result
 
 
-def incorporateSpursInZigZag(c, d, s, ss, edges):
-    C = createZigZagPath(c, d)
-    e = [mul(i, 0) for i in edges]
-    for i, item in enumerate(s):
-        sp = spurBaseIndex(c, mul(item, 0)[0], e)
-        c = c[:sp] + ss[i] + c[sp:]
-        C = C[:sp * 2] + s[i] + mul(ss[i], 1) + C[sp * 2:]
-
-    return C
+def incorporateSpurInZigZag(path, vertex, edgeQ, e):
+    # Modify path to remove last e elements except for the first one
+    modified_path = [x[:-e] if i != 0 else x for i, x in enumerate(path)]
+    i = spurBaseIndex(path, vertex, edgeQ(modified_path))
+    pair = path[i:i+2]  # Extract the 'vertical' edge
+    return path[:i] + [vertex + pair[1][:-e]] + path[i+1:]
 
 
-def createSquareTube(p, q, r, s):
-    p00 = mul(mul(p, 0), 0)
-    p10 = mul(mul(r, 1), 0)
-    p01 = mul(mul(q, 0), 1)
-    p11 = mul(mul(s, 1), 1)
+def incorporateSpursInZigZag(path, vertices, edgeQ, e):
+    for vertex in vertices:
+        path = incorporateSpurInZigZag(path, vertex, edgeQ, e)
+    return path
 
-    P = []
-    P.extend([p00[0], p10[0], p01[0], p11[0], p11[1]])
-    for i, item in enumerate(p00):
-        if i + 1 < len(p00):
-            if i % 2 == 0 and i > 0:
-                P.extend([p10[i], p00[i], p11[i], p11[i + 1]])
-            elif i % 2 == 1:
-                P.extend([p00[i], p10[i], p01[i], p01[i + 1]])
-        else:
-            P.extend([p00[i], p10[i], p01[i]])
-            # Paths have to be of even length so this is not needed, but if you would want a square tube of paths of odd length this might be useful
-            # if i%2 == 0 :
-            #    P.extend([p10[i], p00[i], p11[i]])
-            # elif i%2 ==1:
-            #    P.extend([p00[i], p10[i], p01[i]])
-    return P
+
+def createSquareTube(path: List[tuple], u: tuple, v: tuple):
+    # interleave the elements of the four copies of the path list
+    temp = [item for sublist in zip(*([path]*4)) for item in sublist]
+    uu = u + u
+    uv = u + v
+    vu = v + u
+    vv = v + v
+    module1 = [uu, uv, vv, vu, vu, vv, uv, uu]
+    module2 = [uu, uv, vv, vu, vu, uu, uv, vv]
+
+    # Combine the path with modules based on the index
+    result = [item + module1[i % 8] for i, item in enumerate(temp[:-8])] +\
+             [item + module2[i % 8] for i, item in enumerate(temp[-8:])]
+    return result
 
 
 def parallelEdgesQ(e1, e2, edges):
