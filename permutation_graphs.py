@@ -1,4 +1,5 @@
-from itertools import chain, permutations
+from itertools import chain, permutations as itertoolspermutations
+from collections import Counter
 from path_operations import cycleQ, pathQ
 from typing import List, Dict
 
@@ -33,7 +34,7 @@ def perm(sig) -> List[list]:
     for index, item in enumerate(sig):
         first_perm.extend([index] * item)
 
-    return [list(p) for p in set(permutations(first_perm))]
+    return [list(p) for p in set(itertoolspermutations(first_perm))]
 
 
 def start_perm(sig) -> tuple:
@@ -172,32 +173,58 @@ def signature(s):
     return [s.count(i) for i in range(max(s) + 1)]
 
 
-def neighbor(s, t):
-    #DOESNT HAVE TESTS
-    """"Returns True if s and t adjacent, False otherwise"""
-    if len(s) != len(t):
-        return False
-    diff = [i for i, (a, b) in enumerate(zip(s, t)) if a != b]
-    return len(diff) == 2 and diff[0] + 1 == diff[1] and s[diff[0]] == t[diff[1]] and s[diff[1]] == t[diff[0]]
-
-
-def swapPair(s, i):
-    """Swaps i+th and (i+1)-th element in s"""
-    if len(s) == 0:
-        return []
-    if len(s) - 1 > i:
-        return list(chain(*[s[:i], list(reversed(s[i:i + 2])), s[i + 2:]]))
-    else:
-        return 'Index out of range.'
+def swapPair(perm, i, j=None):
+    """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
+    perm = list(perm)
+    if j is None:
+        j = i + 1
+    if i != 0 and j != 0 and i < len(perm) and j < len(perm):
+        perm[i], perm[j] = perm[j], perm[i]
+    return tuple(perm)
 
 
 def edgeIndex(e, f):
     return [i for i, (a, b) in enumerate(zip(e, f)) if a != b][0]
 
 
+def rotate(l, n):
+    """Rotates the list l by n positions."""
+    return l[n % len(l):] + l[:n % len(l)]
+
+
 def halveSignature(sig):
-    """Halves the signature. ([2, 4, 6] --> [1, 2, 3])"""
-    return [int(i / 2) for i in sig]
+    """Halves the signature. ([2, 4, 6] --> [1, 2, 3]), rounding down."""
+    return [i // 2 for i in sig]
+
+
+def multiset(freq):
+    """Generates the lexicographically smallest list with given occurrence frequencies."""
+    if isinstance(freq, int):
+        freq = [freq]
+    return [i for i, f in enumerate(freq) for _ in range(f)]
+
+
+def permutations(s):
+    """Generates all possible permutations of a given list of integers."""
+    if isinstance(s, int):
+        s = [s]
+    # for itertools permutations:
+    # Elements are treated as unique based on their position, not on their value.
+    return list(set(itertoolspermutations(multiset(s))))
+
+
+def stutterPermutations(s):
+    """Generates stutter permutations of a given list of integers."""
+    odds = selectOdds(s)
+    if len(odds) >= 2:
+        return []
+    else:
+        result = stutterize(permutations(halveSignature(s)))
+        print(result)
+        if len(odds) == 1:
+            return extend(result, odds)
+        else:
+            return result
 
 
 def stutterCounter(sig):
@@ -214,15 +241,12 @@ def nonStutterCount(sig):
 
 def stutterize(s):
     """Converts argument into stutter permutation by repeating every number."""
-    st = []
-    for i in s:
-        st.extend([i, i])
-    return st
+    return [tuple([el for el in t for _ in range(2)]) for t in s]
 
 
 def selectOdds(sig):
     """Returns list of numbers with odd occurrence frequencies in the given signature."""
-    return [i for i, item in enumerate(sig) if item % 2 == 0]
+    return [i for i, item in enumerate(sig) if item % 2 == 1]
 
 
 def selectByTail(s, tail):

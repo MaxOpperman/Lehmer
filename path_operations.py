@@ -77,19 +77,28 @@ def cutCycle(c, a):
     if len(c) == 1 and a in c:
         return c
     try:
-        assert cycleQ(c)
+        assert a in c
     except AssertionError as err:
-        print(f"{repr(err)} not a cycle: {c}, should be cut to {a}")
+        print(f"{repr(err)} cycle: {c}, should be cut to {a}")
         quit()
     A = c.index(a)
     return c[A:] + c[:A]
 
 
-def spurBaseIndex(path, vertex, edges):
-    try:
-        return [path.index(i[(i.index(vertex) + 1) % 2]) for i in edges if vertex in i][0]
-    except IndexError:
+def spurBaseIndex(path, vertex):
+    """Determines index of base of spur for given path and spur tip."""
+    for i, item in enumerate(path):
+        if neighbor(item, vertex):
+            return i
+    return False
+
+
+def neighbor(p, q):
+    """Returns True if p and q differ by a swap of two adjacent elements, False otherwise."""
+    if len(p) != len(q):
         return False
+    diff = [i for i, (a, b) in enumerate(zip(p, q)) if a != b]
+    return len(diff) == 2 and diff[0] + 1 == diff[1] and p[diff[0]] == q[diff[1]] and p[diff[1]] == q[diff[0]]
 
 
 def spur(path, vertex, edges):
@@ -158,26 +167,21 @@ def createZigZagPath(c: List[tuple], u: tuple, v: tuple):
             appending u and v; also works for a path
     """
     assert adjacent(u, v)
-    module = [u, v, v, u]  # Define the module list
-    result = []
-    # Map over the temporary list and join each vertex with the corresponding element from the module list
-    for i, item in enumerate(c):
-        for suff in module:
-            result.append(item + suff)
-    return result
+    temp = [item for sublist in zip(c, c) for item in sublist]
+    module = [u, v, v, u]
+    return [item + module[i % 4] for i, item in enumerate(temp)]
 
 
-def incorporateSpurInZigZag(path, vertex, edgeQ, e):
+def incorporateSpurInZigZag(path, vertex_pair):
     # Modify path to remove last e elements except for the first one
-    modified_path = [x[:-e] if i != 0 else x for i, x in enumerate(path)]
-    i = spurBaseIndex(path, vertex, edgeQ(modified_path))
-    pair = path[i:i+2]  # Extract the 'vertical' edge
-    return path[:i] + [vertex + pair[1][:-e]] + path[i+1:]
+    i = spurBaseIndex(path, vertex_pair[0])
+    return path[:i+1] + vertex_pair + path[i+1:]
 
 
-def incorporateSpursInZigZag(path, vertices, edgeQ, e):
-    for vertex in vertices:
-        path = incorporateSpurInZigZag(path, vertex, edgeQ, e)
+def incorporateSpursInZigZag(path, vertices):
+    C = [stut+suff for stut in vertices for suff in [(1, 0), (0, 1)]]
+    for vertex_index in range(0, len(C), 2):
+        path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index+1]])
     return path
 
 
