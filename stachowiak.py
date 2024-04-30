@@ -9,6 +9,7 @@ from typing import Tuple, Union
 from permutation_graphs import *
 from path_operations import *
 from rivertz import SetPerm
+from verhoeff import HpathNS
 
 
 def generate_all_di(chain_p: tuple) -> List[list]:
@@ -408,113 +409,6 @@ def lemma9(sig: List[int]) -> List[tuple]:
         return cycle
 
 
-
-def HpathNS(k0: int, k1: int) -> list:
-    odd_perms = []
-    tuple_0 = tuple(k0 * [0])
-    tuple_1 = tuple(k1 * [1])
-    sys.setrecursionlimit(2500)
-    if k0 == 0:
-        if k1 % 2 == 0:
-            return []
-        return [tuple_1]
-    elif k1 == 0:
-        if k0 % 2 == 0:
-            return []
-        return [tuple_0]
-    elif k0 == 1:
-        # path from 0^k0 1 to 1 0^k0, if k1 odd, else from 0^(k0-1) 1 0 to 1 0^k0
-        for i in reversed(range(k1 + 1)):
-            odd_perms.append(tuple_1[:i] + tuple_0 + tuple_1[i:])
-        return odd_perms[::-1]
-    elif k1 == 1:
-        # path from 1^k1 0 to 0 1^k1, if k0 odd, else from 1^(k1-1) 0 1 to 0 1^k1
-        for i in reversed(range(k0 + 1)):
-            odd_perms.append(tuple_0[:i] + tuple_1 + tuple_0[i:])
-        return odd_perms[::-1] if k0 % 2 else odd_perms[1:]
-    if k0 > k1:
-        return [tuple(1 if x == 0 else 0 for x in tup) for tup in HpathNS(k1, k0)]
-    if k0 % 2 == 1 and k1 % 2 == 0:
-        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian path from 0^k0 1^k1 to 1^(k1-1) 0^k0 1
-        p0 = extend(HpathNS(k0 - 1, k1), (0,))  # A Hamiltonian cycle from 1^(k1-1) 0^(k0-1) 1 0
-
-        return p1[:-1] + [p0[-1]] + p0[:-1]
-
-    elif k0 % 2 == 0 and k1 % 2 == 1:
-        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian cycle containing edge 0^(k0-1) 1^(k1-1) 0 1 ~ 0^(k0-2) 1 0 1^(k1-2) 0 1
-        p0 = extend(HpathNS(k0 - 1, k1), (0,))  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^k1 0^k1
-        v = p0[0]
-
-        return [v] + cutCycle(p1[::-1], swapPair(v, -2)) + p0[1:]
-    elif k0 % 2 == 0 and k1 % 2 == 0:
-        p1 = extend(HpathNS(k0, k1 - 1), (1,))  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
-        p0 = extend(HpathNS(k0 - 1, k1), (0,))
-
-        print(f"p's even {k0}, {k1}: p1 {p1[::-1]}, p0 {p0}")
-        return p1[::-1] + p0[:-1]
-    else:
-        p11 = HpathNS(k0, k1 - 2)
-        p1101 = HpathNS(k0 - 1, k1 - 3)
-        p0101 = HpathNS(k0 - 2, k1 - 2)
-        p0001 = HpathNS(k0 - 3, k1 - 1)
-        p00 = HpathNS(k0 - 2, k1)
-
-        sp00 = extend(stutterPermutations([k0 - 3, k1 - 1]), (0, 0))
-        sp11 = extend(stutterPermutations([k0 - 1, k1 - 3]), (1, 1))
-        print(f"p's odd {k0}, {k1}: p11 {p11}, p1101 {p1101}, p0101 {p0101}, p0001 {p0001}, p00 {p00}")
-        print("stutter permutations:", sp00, sp11)
-
-        if len(p1101) == 0:
-            c11xy = [stut+suff for suff in [(0, 1), (1, 0)] for stut in sp11]
-            print("p1101 is 0 gives", c11xy, "between", createSquareTube(p0101[::-1], (0, 1), (1, 0))[-4:-2], "and", createSquareTube(p0101[::-1], (0, 1), (1, 0))[-2:])
-        else:
-            print("1", p1101, p0101, p0101[0][:-1] + (0,))
-            ext_path = extend(cutCycle(p1101, p0101[0][:-1] + (0,)), (1, 1))
-            print("ext1", ext_path, "gives", createZigZagPath(ext_path, (0, 1), (1, 0)), "between", createSquareTube(p0101[::-1], (0, 1), (1, 0))[-4:-2], "and", createSquareTube(p0101[::-1], (0, 1), (1, 0))[-2:])
-            p11xy = rotate(createZigZagPath(ext_path, (0, 1), (1, 0)), 1)
-            print(f"p11xy: {p11xy}, {pathQ(p11xy)}")
-            c11xy = incorporateSpursInZigZag(p11xy, sp11)[::-1]
-            print(f"p11xy: {p11xy}, len: {len(p11xy)}, c11xy: {c11xy}, len: {len(c11xy)}, {pathQ(c11xy)}, {cycleQ(c11xy)}")
-
-        if len(p0001) == 0:
-            c00xy = [stut+suff for suff in [(1, 0), (0, 1)] for stut in sp00]
-            print("p0001 is 0 gives", c00xy, "between", createSquareTube(p0101[::-1], (0, 1), (1, 0))[1:3], "and", createSquareTube(p0101[::-1], (0, 1), (1, 0))[3:5])
-        else:
-            print("2", p0001, p0101, p0101[-1][:-1])
-            ext_path = extend(cutCycle(p0001, p0101[-1][:-1] + (1,)), (0, 0))
-            print("ext2", ext_path, "gives", createZigZagPath(ext_path, (0, 1), (1, 0)), "between", createSquareTube(p0101[::-1], (0, 1), (1, 0))[:3], "and", createSquareTube(p0101[::-1], (0, 1), (1, 0))[3:5])
-            p00xy = rotate(createZigZagPath(ext_path, (0, 1), (1, 0)), 1)
-            print(f"p00xy: {p00xy}, {pathQ(p00xy)}")
-            c00xy = incorporateSpursInZigZag(p00xy, sp00)
-
-        if k0 != k1 and k0 != 3:
-            p00 = p00[::-1]
-        if k1 == k0:
-            p11 = p11[::-1]
-
-        tube = createSquareTube(p0101[::-1], (0, 1), (1, 0))
-        tube1, tube2, tube3 = tube[:3], tube[3:-2], tube[-2:]
-        print(
-            "p11", len(extend(p11, (1, 1))),
-            "+tube1", len(extend(p11, (1, 1)) + tube1),
-            "+c00xy", len(extend(p11, (1, 1)) + tube1 + c00xy),
-            "+tube2", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2),
-            "+c11xy", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy),
-            "+tube3", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy + tube3),
-        )
-
-        path_ham = extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy + tube3 + extend(p00, (0, 0))
-        if len(path_ham) != len(set(path_ham)):
-            print("Path contains duplicates:", [item for item, count in collections.Counter(path_ham).items() if count > 1])
-        if len(path_ham) < math.comb(k0 + k1, k1):
-            rivertz_perms = []
-            for p in SetPerm([k0, k1]):
-                rivertz_perms.append(p)
-            corrected_tuples = [tuple([x - 1 for x in item]) for item in rivertz_perms]
-            print("Path is missing elements:", [item for item in corrected_tuples if item not in path_ham])
-        return path_ham
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Helper tool to find paths through permutation neighbor swap graphs.")
     parser.add_argument("-s", "--signature"
@@ -524,6 +418,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
     s = [int(x) for x in args.signature.split(",")]
     if len(s) > 1:
+        if len(s) == 2:
+            perms_odd = HpathNS(s[0], s[1])
+            print(f"Both {s[0]} and {s[1]} are odd: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])}")
+            print(perms_odd, pathQ(perms_odd), cycleQ(perms_odd))
         if s[0] % 2 == 0 or s[1] % 2 == 0:
             raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
         if len(s) == 3:
@@ -538,11 +436,6 @@ if __name__ == "__main__":
             if args.verbose:
                 print("l8", l8, pathQ(l8), cycleQ(l8))
             print(f"Lemma 8: {len(l8)} of {2*math.comb(sum(s), s[3])} permutations found. Cycle; {cycleQ(l8)}")
-            x, y = _lemma8_helper([(0, 1), (1, 1), (0, s[2]-1), (1, s[3]-1)])
-            if s[2] % 2 == 1 and s[3] % 2 == 1:
-                perms_odd = HpathNS(s[2], s[3])
-                print(f"Both {s[2]} and {s[3]} are odd: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[2] + s[3], s[3])}")
-                print(perms_odd, pathQ(perms_odd), cycleQ(perms_odd))
 
         elif len(s) == 5:
             l9 = lemma9(s)

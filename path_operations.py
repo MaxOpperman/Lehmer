@@ -178,8 +178,8 @@ def incorporateSpurInZigZag(path, vertex_pair):
     return path[:i+1] + vertex_pair + path[i+1:]
 
 
-def incorporateSpursInZigZag(path, vertices):
-    C = [stut+suff for stut in vertices for suff in [(1, 0), (0, 1)]]
+def incorporateSpursInZigZag(path, vertices, spur_suffixes):
+    C = [stut+suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
         path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index+1]])
     return path

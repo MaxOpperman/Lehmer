@@ -42,9 +42,9 @@ def start_perm(sig) -> tuple:
     return tuple(sum([[i] * count for i, count in enumerate(sig)], []))
 
 
-def non_stutters(sig) -> list:
+def non_stutters(sig) -> List[tuple]:
     """"Returns all non-Stutters permutations of signature sig"""
-    return [p for p in perm(sig) if not stutterPermutationQ(p)]
+    return [tuple(p) for p in perm(sig) if not stutterPermutationQ(p)]
 
 
 def stutters_sig(sig) -> list:
