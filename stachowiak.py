@@ -1,14 +1,11 @@
 import argparse
-import collections
-import copy
+from functools import reduce
 import itertools
 import math
-import sys
-from typing import Tuple, Union
+from typing import Tuple
 
 from permutation_graphs import *
 from path_operations import *
-from rivertz import SetPerm
 from verhoeff import HpathNS
 
 
@@ -409,6 +406,127 @@ def lemma9(sig: List[int]) -> List[tuple]:
         return cycle
 
 
+def _lemma10_helper(K: List[tuple], p: int, new_color: int):
+    """K is a Hamiltonian path in Q, p is the length of the last part of the signature (l^p)"""
+    G = []
+    l_p = tuple([new_color] * p)
+    for node in K:
+        if node == (0, 1, 0, 0, 1, 1):
+            print(f"Node: {node} is a part of K")
+    for i in range(int(len(K)/2)):
+        # Constructing cycles Ci taking graphs 'including' vertices on 2*i and 2*i+1 position
+        for j, item in enumerate(K[2 * i]):
+            # determining r and s - location of a swap
+            if item != K[2 * i + 1][j]:
+                r = j
+                s = len(K[2 * i]) - r - 2
+                break
+        g = lemma9([1, 1, r, s, p])
+
+        g_modified = []
+        remove_color = 3
+        for item in g:
+            new_item = list(item)  # Convert item to a list
+            # smartly renaming permutations -> isomorphism, depending on order of 01/10 -
+            # tells us either to use 2*2 or 2*i+1
+            if new_item.index(0) < new_item.index(1):
+                k = 0
+                for j, it in enumerate(new_item):
+                    if it != remove_color:
+                        new_item[j] = K[2 * i][k]
+                        k += 1
+                    if it == remove_color:
+                        new_item[j] = new_color
+            else:
+                k = 0
+                for j, it in enumerate(new_item):
+                    if it != remove_color:
+                        new_item[j] = K[2 * i + 1][k]
+                        k += 1
+                    if it == remove_color:
+                        new_item[j] = new_color
+            g_modified.append(tuple(new_item))  # Convert item back to a tuple
+        G.extend([g_modified])  # adding cycle to G
+
+    cycle = []
+    # gluing the cycles
+    for i, gi in enumerate(G):
+        # ai = [p * ['L'] + K[2 * i], (p - 1) * ['L'] + [K[2 * i][0]] + ['L'] + K[2 * i][1:]]
+        ai = [l_p + K[2 * i], l_p[:-1] + tuple([K[2 * i][0]]) + l_p[-1:] + K[2 * i][1:]]
+        # bi = [K[2 * i] + p * ['L'], K[2 * i][:-1] + ['L'] + [K[2 * i][-1]] + (p - 1) * ['L']]
+        bi = [K[2 * i] + l_p, K[2 * i][:-1] + l_p[-1:] + tuple([K[2 * i][-1]]) + l_p[:-1]]
+        if i > 0:
+            # aj = [p * ['L'] + K[2 * i - 1], (p - 1) * ['L'] + [K[2 * i - 1][0]] + ['L'] + K[2 * i - 1][1:]]
+            aj = [l_p + K[2 * i - 1], l_p[:-1] + tuple([K[2 * i - 1][0]]) + l_p[-1:] + K[2 * i - 1][1:]]
+            # bj = [K[2 * i - 1] + p * ['L'], K[2 * i - 1][:-1] + ['L'] + [K[2 * i - 1][-1]] + (p - 1) * ['L']]
+            bj = [K[2 * i - 1] + l_p, K[2 * i - 1][:-1] + l_p[-1:] + tuple([K[2 * i - 1][-1]]) + l_p[:-1]]
+            if adjacent(ai[0], aj[0]) and adjacent(ai[1], aj[1]):
+                ind_ai = gi.index(ai[0])
+                ind_aj = cycle.index(aj[0])
+                # preparing a cycle gi so that ai[0] the first and ai[1] second in list
+                if gi[(ind_ai + 1) % (len(gi) - 1)] == ai[1]:
+                    gi = gi[ind_ai:] + gi[:ind_ai]
+                else:
+                    gi.reverse()
+                    ind_ai = gi.index(ai[0])
+                    gi = gi[ind_ai:] + gi[:ind_ai]
+                # preparing the cycle (already glued ones) st aj[0] first and aj[1] last in list
+                if ind_aj + 1 == len(cycle):  # if it is last Index error
+                    if cycle[0] == aj[1]:
+                        cycle.reverse()
+                    else:
+                        cycle = [cycle[-1]] + cycle[:-1]
+                elif cycle[ind_aj + 1] == aj[1]:  # if aj[0], aj[1]
+                    cycle = cycle[ind_aj + 1:] + cycle[:ind_aj + 1]
+                    cycle.reverse()
+                else:  # [aj[1], aj[0]]
+                    cycle = cycle[ind_aj:] + cycle[:ind_aj]
+            # if ai, aj not parallel we do the same for b
+            elif adjacent(bi[0], bj[0]) and adjacent(bi[1], bj[1]):
+                ind_bi = gi.index(bi[0])
+                ind_bj = cycle.index(bj[0])
+                if gi[(ind_bi + 1) % (len(gi) - 1)] == bi[1]:
+                    gi = gi[ind_bi:] + gi[:ind_bi]
+                else:
+                    gi.reverse()
+                    ind_bi = gi.index(bi[0])
+                    gi = gi[ind_bi:] + gi[:ind_bi]
+
+                if ind_bj + 1 == len(cycle):
+                    if cycle[0] == bj[1]:
+                        cycle.reverse()
+                    else:
+                        cycle = [cycle[-1]] + cycle[:-1]
+                elif cycle[ind_bj + 1] == bj[1]:  # if aj [0, 1] in order we put a[0] infront, aj[1] at the back
+                    cycle = cycle[ind_bj + 1:] + cycle[:ind_bj + 1]
+                    cycle.reverse()
+                else:
+                    cycle = cycle[ind_bj:] + cycle[:ind_bj]
+            print(f"cycle {i}/{len(G)} is still a cycle {cycleQ(cycle)}, adjacent start {adjacent(gi[0], cycle[0])} and end {adjacent(gi[1], cycle[-1])}")
+            cycle = [gi[0]] + cycle + gi[1:]
+        elif i == 0:
+            cycle.extend(gi)
+    return cycle
+
+
+def lemma10(sig):
+    """If q = |Q| > 2, Q is even and GE(Q) contains a Hamiltonian path and p > 0 then GE(Q|l^p) has a Hamiltonian cycle."""
+    K = HpathNS(sig[0], sig[1])
+    cycle = _lemma10_helper(K, sig[2], 2)
+    return cycle
+
+
+def lemma11(sig):
+    """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then then GE(Q|P) has a Hamiltonian cycle."""
+    K = HpathNS(sig[0], sig[1])
+    cycle = K
+    for ind, new_color in enumerate(sig[2:]):
+        color = 2 + ind
+        new_cycle = _lemma10_helper(cycle, new_color, color)
+        cycle = new_cycle
+    return cycle
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Helper tool to find paths through permutation neighbor swap graphs.")
     parser.add_argument("-s", "--signature"
@@ -422,23 +540,8 @@ if __name__ == "__main__":
             perms_odd = HpathNS(s[0], s[1])
             print(f"Both {s[0]} and {s[1]} are odd: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])}")
             print(perms_odd, pathQ(perms_odd), cycleQ(perms_odd))
-        if s[0] % 2 == 0 or s[1] % 2 == 0:
+        elif s[0] % 2 == 0 or s[1] % 2 == 0:
             raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
-        if len(s) == 3:
-            chain = tuple([2] * s[2])
-            l3 = lemma2_extended_path(chain)
-            if args.verbose:
-                print("l3", l3, pathQ(l3), cycleQ(l3))
-            print(f"{len(l3)} of {multinomial(s)} permutations found. Cycle; {cycleQ(l3)}, Path; {pathQ(l3)}")
-
-        elif len(s) == 4:
-            l8 = lemma8(s)
-            if args.verbose:
-                print("l8", l8, pathQ(l8), cycleQ(l8))
-            print(f"Lemma 8: {len(l8)} of {2*math.comb(sum(s), s[3])} permutations found. Cycle; {cycleQ(l8)}")
-
-        elif len(s) == 5:
-            l9 = lemma9(s)
-            if args.verbose:
-                print("l9", l9, pathQ(l9), cycleQ(l9))
-            print(f"Lemma 9: {len(l9)} of {2*math.comb(sum(s), s[4])} permutations found. Cycle; {cycleQ(l9)}")
+        l11 = lemma11(s)
+        print(f"lemma 11 results {l11}")
+        print(f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}")

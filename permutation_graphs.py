@@ -1,5 +1,6 @@
 from itertools import chain, permutations as itertoolspermutations
 from collections import Counter
+import math
 from path_operations import cycleQ, pathQ
 from typing import List, Dict
 
@@ -220,7 +221,6 @@ def stutterPermutations(s):
         return []
     else:
         result = stutterize(permutations(halveSignature(s)))
-        print(result)
         if len(odds) == 1:
             return extend(result, odds)
         else:

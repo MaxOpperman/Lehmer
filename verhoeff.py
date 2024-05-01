@@ -1,9 +1,8 @@
 import collections
-import math
 import sys
 
 from path_operations import createSquareTube, createZigZagPath, cutCycle, cycleQ, incorporateSpursInZigZag, pathQ
-from permutation_graphs import extend, rotate, stutterPermutationQ, stutterPermutations, swapPair
+from permutation_graphs import binomial, extend, rotate, stutterPermutationQ, stutterPermutations, swapPair
 from rivertz import SetPerm
 
 
@@ -67,38 +66,25 @@ def HpathNS(k0: int, k1: int) -> list:
 
         if len(p1101) == 0:
             c11xy = [stut+suff for suff in [(0, 1), (1, 0)] for stut in sp11]
-            print("p1101 is 0 gives", c11xy, "between", tube2[-3:], "and", tube3)
         else:
             ext_path = extend(cutCycle(p1101, p0101[0][:-1] + (0,)), (1, 1))
             p11xy = rotate(createZigZagPath(ext_path, (1, 0), (0, 1)), 1)
             c11xy = incorporateSpursInZigZag(p11xy, sp11, [(0, 1), (1, 0)])
-            print(f"p11xy: {p11xy}, len: {len(p11xy)}, c11xy: {c11xy}, len: {len(c11xy)}, {pathQ(c11xy)}, {cycleQ(c11xy)}")
 
         if len(p0001) == 0:
             c00xy = [stut+suff for suff in [(1, 0), (0, 1)] for stut in sp00]
-            print("p0001 is 0 gives", c00xy, "between", tube1[1:], "and", tube2[:3])
         else:
             ext_path = extend(cutCycle(p0001, p0101[-1][:-1] + (1,)), (0, 0))
             p00xy = rotate(createZigZagPath(ext_path, (0, 1), (1, 0)), 1)
             c00xy = incorporateSpursInZigZag(p00xy, sp00, [(1, 0), (0, 1)])
-            print(f"p00xy: {p00xy}, len: {len(p00xy)}, c00xy: {c00xy}, len: {len(c00xy)}, {pathQ(c00xy)}, {cycleQ(c00xy)}")
 
         if k0 - 2 < k1:
             p00 = p00[::-1]
 
-        print(
-            "p11", len(extend(p11, (1, 1))),
-            "+tube1", len(extend(p11, (1, 1)) + tube1),
-            "+c00xy", len(extend(p11, (1, 1)) + tube1 + c00xy),
-            "+tube2", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2),
-            "+c11xy", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy),
-            "+tube3", len(extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy + tube3),
-        )
-
         path_ham = extend(p11, (1, 1)) + tube1 + c00xy + tube2 + c11xy + tube3 + extend(p00, (0, 0))
         if len(path_ham) != len(set(path_ham)):
             print("Path contains duplicates:", [item for item, count in collections.Counter(path_ham).items() if count > 1])
-        if len(path_ham) < math.comb(k0 + k1, k1):
+        if len(path_ham) < binomial(k0, k1):
             rivertz_perms = []
             for p in SetPerm([k0, k1]):
                 rivertz_perms.append(p)
