@@ -227,26 +227,26 @@ def stutterPermutations(s):
             return result
 
 
-def stutterCounter(sig):
+def stutterCounter(sig: List[int]):
     #NO TESTS!
     """Returns the number of stutter permutations in a graph with signature sig."""
     return len(stutters_sig(sig))
 
 
-def nonStutterCount(sig):
+def nonStutterCount(sig: List[int]):
     #NO TESTS!
     """Returns the number of non-stutter permutations in a graph with signature sig."""
     return len(non_stutters(sig))
 
 
-def stutterize(s):
+def stutterize(s: List[int]):
     """Converts argument into stutter permutation by repeating every number."""
     return [tuple([el for el in t for _ in range(2)]) for t in s]
 
 
-def selectOdds(sig):
+def selectOdds(sig: tuple):
     """Returns list of numbers with odd occurrence frequencies in the given signature."""
-    return [i for i, item in enumerate(sig) if item % 2 == 1]
+    return tuple([i for i, item in enumerate(sig) if item % 2 == 1])
 
 
 def selectByTail(s, tail):

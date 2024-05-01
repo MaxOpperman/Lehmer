@@ -2,7 +2,7 @@ import collections
 import math
 import pytest
 from path_operations import pathQ
-from permutation_graphs import HpathQ, stutterCounter
+from permutation_graphs import HpathQ, binomial, nonStutterCount, stutterCounter, stutterPermutations
 from verhoeff import HpathNS
 
 class Test_HpathNS_BaseCases():
@@ -144,7 +144,7 @@ class Test_HpathNS_Odd_Odd():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(5 + 5, 5)
+        assert len(result) == binomial(5, 5)
         # check that there is a hamilton path
         assert HpathQ(result, [5, 5])
 
@@ -154,7 +154,7 @@ class Test_HpathNS_Odd_Odd():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(14, 9)
+        assert len(result) == binomial(5, 9)
         # check that there is a hamilton path
         assert pathQ(result)
 
@@ -164,7 +164,7 @@ class Test_HpathNS_Odd_Odd():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(14, 5)
+        assert len(result) == binomial(9, 5)
         # check that there is a hamilton path
         assert pathQ(result)
 
@@ -174,7 +174,7 @@ class Test_HpathNS_Odd_Odd():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(14, 7)
+        assert len(result) == binomial(7, 7)
         # check that there is a hamilton path
         assert pathQ(result)
 
@@ -193,7 +193,7 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(9 + 13, 13)
+        assert len(result) == binomial(9, 13)
         # check that there is a hamilton path
         assert pathQ(result)
 
@@ -204,7 +204,7 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(22, 11)
+        assert len(result) == binomial(11, 11)
         # check that there is a hamilton path
         assert pathQ(result)
     
@@ -214,7 +214,7 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(15, 10)-stutterCounter([10, 5])
+        assert len(result) == binomial(10, 5)-len(stutterPermutations([10, 5]))
         # check that there is a hamilton path
         assert pathQ(result)
     
@@ -224,7 +224,7 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(15, 9)-stutterCounter([9, 6])
+        assert len(result) == binomial(9, 6)-len(stutterPermutations([9, 6]))
         # check that there is a hamilton path
         assert pathQ(result)
     
@@ -234,7 +234,7 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(16, 10)-stutterCounter([10, 6])
+        assert len(result) == binomial(10, 6)-len(stutterPermutations([10, 6]))
         # check that there is a hamilton path
         assert pathQ(result)
     
@@ -244,6 +244,6 @@ class Test_HpathNS_Large():
         dups = [item for item, count in collections.Counter(result).items() if count > 1]
         assert len(dups) == 0
         # make sure that all combinations have been found
-        assert len(result) == math.comb(16, 4)-stutterCounter([4, 12])
+        assert len(result) == binomial(4, 12)-len(stutterPermutations([4, 12]))
         # check that there is a hamilton path
         assert pathQ(result)

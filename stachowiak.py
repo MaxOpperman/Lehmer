@@ -413,7 +413,7 @@ def _lemma10_helper(K: List[tuple], p: int, new_color: int):
     for node in K:
         if node == (0, 1, 0, 0, 1, 1):
             print(f"Node: {node} is a part of K")
-    for i in range(int(len(K)/2)):
+    for i in range(len(K)//2):
         # Constructing cycles Ci taking graphs 'including' vertices on 2*i and 2*i+1 position
         for j, item in enumerate(K[2 * i]):
             # determining r and s - location of a swap
@@ -517,7 +517,7 @@ def lemma10(sig):
 
 
 def lemma11(sig):
-    """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then then GE(Q|P) has a Hamiltonian cycle."""
+    """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
     K = HpathNS(sig[0], sig[1])
     cycle = K
     for ind, new_color in enumerate(sig[2:]):
@@ -538,10 +538,12 @@ if __name__ == "__main__":
     if len(s) > 1:
         if len(s) == 2:
             perms_odd = HpathNS(s[0], s[1])
-            print(f"Both {s[0]} and {s[1]} are odd: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])}")
-            print(perms_odd, pathQ(perms_odd), cycleQ(perms_odd))
+            print(f"Resulting path {perms_odd}")
+            print(f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
+                  f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}")
         elif s[0] % 2 == 0 or s[1] % 2 == 0:
             raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
-        l11 = lemma11(s)
-        print(f"lemma 11 results {l11}")
-        print(f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}")
+        else:
+            l11 = lemma11(s)
+            print(f"lemma 11 results {l11}")
+            print(f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}")
