@@ -1,8 +1,17 @@
+"""
+Tests for Stachowiak (1992)
+
+Copyright (c) 2024 - Max Opperman - Eindhoven University of Technology, The Netherlands
+
+This software is made available under the terms of the (To Be Supplied) License.
+"""
+
+
 import copy
 import pytest
 from path_operations import cycleQ
 from permutation_graphs import HcycleQ, multinomial
-from stachowiak import _lemma10_helper, lemma10, lemma11
+from stachowiak import _lemma10_helper, lemma11
 
 class Test_Lemma11():
     """

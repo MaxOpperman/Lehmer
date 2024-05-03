@@ -1,7 +1,7 @@
 import copy
 import math
 from argparse import Namespace
-from typing import List
+from typing import List, Tuple
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -10,7 +10,7 @@ from pathmarker import PathMarker
 from permutation_graphs import start_perm, defect, total_path_motion
 
 
-def visualize(dict_graph, dict_inv) -> (nx.Graph(), dict):
+def visualize(dict_graph, dict_inv) -> Tuple[nx.Graph, dict]:
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(dict_inv.values()), 0)
 
@@ -28,7 +28,7 @@ def visualize(dict_graph, dict_inv) -> (nx.Graph(), dict):
     return graph, nx.get_edge_attributes(graph, 'color')
 
 
-def find_path_colors(edge_colors: dict, graph: nx.Graph(), cli_args: Namespace, signature: List[int]) -> (list, list):
+def find_path_colors(edge_colors: dict, graph: nx.Graph, cli_args: Namespace, signature: List[int]) -> Tuple[list, list]:
     """
      Finds the coloring if a possibly imperfect Hamiltonian path exits
     """
@@ -144,7 +144,7 @@ def is_stutter_permutation(perm, max_arity):
     return True
 
 
-def lehmer_path(graph: nx.Graph(), cli_args: Namespace, signature: List[int]):
+def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
     # Step 1: Set node tally at 1
     node_tally = 1
     # Step 2: Set spur tally at 0

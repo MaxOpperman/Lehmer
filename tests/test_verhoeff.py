@@ -1,8 +1,16 @@
+"""
+Tests for Verhoef (2017)
+
+Copyright (c) 2024 - Max Opperman - Eindhoven University of Technology, The Netherlands
+
+This software is made available under the terms of the (To Be Supplied) License.
+"""
+
 import collections
 import math
 import pytest
 from path_operations import pathQ
-from permutation_graphs import HpathQ, binomial, nonStutterCount, stutterCounter, stutterPermutations
+from permutation_graphs import HpathQ, binomial, stutterPermutations
 from verhoeff import HpathNS
 
 class Test_HpathNS_BaseCases():

@@ -1,6 +1,4 @@
-from itertools import chain, permutations as itertoolspermutations
-from collections import Counter
-import math
+from itertools import permutations as itertoolspermutations
 from path_operations import cycleQ, pathQ
 from typing import List, Dict
 
@@ -90,6 +88,7 @@ def generate_adj(s) -> List[tuple]:
     for i, item in enumerate(s):
         if i + 1 < len(s) and item != s[i + 1]:
             v.append(tuple(swapPair(s, i)))
+            print(f"swapped {s} at {i} to {v[-1]}")
     return v
 
 
@@ -99,6 +98,7 @@ def graph(sig) -> Dict[tuple, List[tuple]]:
     dic = {}
     for i in p:
         dic[tuple(i)] = generate_adj(i)
+    print(dic)
     return dic
 
 
@@ -179,7 +179,7 @@ def swapPair(perm, i, j=None):
     perm = list(perm)
     if j is None:
         j = i + 1
-    if i != 0 and j != 0 and i < len(perm) and j < len(perm):
+    if i < len(perm) and j < len(perm):
         perm[i], perm[j] = perm[j], perm[i]
     return tuple(perm)
 

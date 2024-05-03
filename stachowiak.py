@@ -154,7 +154,7 @@ def _lemma8_subgraph_cutter(cyc: List[tuple], x: tuple, y: tuple) -> List[tuple]
     :param cyc: cycle in a subgraph
     :param x: node that should be at the start of the path
     :param y: node that should be at the end of the path
-    :return:
+    :return: subgraph with x as start and y as end
     """
     try:
         assert adjacent(x, y)
@@ -224,57 +224,6 @@ def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> List[List[tuple]]:
             g_i.extend(g_ij)
 
         if g_i[0] == ((0,) + l_p[:len(l_p) - i] + (1,) + l_p[:i] + k_q):
-            g_all.append(g_i)
-        else:
-            g_all.append(g_i[::-1])
-    return g_all
-
-
-def _lemma9_g_i_sub_graphs_r0(k_r, k_s, l_p, sig) -> List[List[tuple]]:
-    """
-    Creates the G_i sub graphs of Lemma 8 (by making the G_ij sub graphs and connecting them)
-    :param k_r: chain of r elements "k"
-    :param k_s: chain of s elements "k"
-    :param l_p: chain of p element "l"
-    :param sig: signature of the sequence; form 1,1,r,s,p
-    :return: [ G_1, G_2, ... ]
-    """
-    g_all = []
-    for i in range(1, len(l_p) + 1):
-        g_i = []
-        for j in range(len(l_p) - i + 1):
-            g_ij = []
-            # O <= j < (p-i)/2
-            if j < (len(l_p) - i) / 2:
-                l7_q_set, l7_suffix = _lemma8_helper([(0, 1), (3, 1), (2, len(k_s)), (3, i)])
-                for l7_i in range(len(l7_q_set)):
-                    g_ij.append(k_r + l_p[:2 * j] + l7_q_set[l7_i] + l_p[:len(l_p) - i - 2 * j - 1] + (1,) + l7_suffix[l7_i])
-                x_ij = k_r + l_p[:2 * j] + (0,) + l_p[:len(l_p) - i - 2 * j] + (1,) + l_p[:i] + k_s
-                y_ij = k_r + l_p[:2 * j + 1] + (0,) + l_p[:len(l_p) - i - 2 * j - 1] + (1,) + l_p[:i] + k_s
-            # j == (p-i)/2
-            elif j == (len(l_p) - i) / 2:
-                l7_subgraph = lemma7(sig[:3] + [i])
-                for item in l7_subgraph:
-                    g_ij.append(k_r + l_p[:len(l_p) - i] + item)
-                x_ij = k_r + l_p[:len(l_p) - i] + (0, 1) + l_p[:i] + k_s
-                y_ij = k_r + l_p[:len(l_p) - i] + (1, 0) + l_p[:i] + k_s
-            # (p-i)/2 < j <= p-i
-            else:
-                l7_q_set, l7_suffix = _lemma8_helper([(3, 1), (1, 1), (2, len(k_s)), (3, i)])
-                for l7_i in range(len(l7_q_set)):
-                    g_ij.append(
-                        k_r + l_p[:2 * (len(l_p) - i - j)] + l7_q_set[l7_i] + l_p[:i + 2 * j - len(l_p) - 1] + (0,) + l7_suffix[
-                            l7_i])
-                x_ij = k_r + l_p[:2 * (len(l_p) - i - j) + 1] + (1,) + l_p[:i + 2 * j - len(l_p) - 1] + (0,) + l_p[:i] + k_s
-                y_ij = k_r + l_p[:2 * (len(l_p) - i - j)] + (1,) + l_p[:i + 2 * j - len(l_p)] + (0,) + l_p[:i] + k_s
-            g_ij = _lemma8_subgraph_cutter(
-                g_ij,
-                x_ij,
-                y_ij
-            )
-            g_i.extend(g_ij)
-
-        if g_i[0] == (k_r + (0,) + l_p[:len(l_p) - i] + (1,) + l_p[:i] + k_s):
             g_all.append(g_i)
         else:
             g_all.append(g_i[::-1])
