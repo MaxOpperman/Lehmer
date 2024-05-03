@@ -1,5 +1,4 @@
 import argparse
-from functools import reduce
 import itertools
 import math
 from typing import List, Tuple
@@ -487,12 +486,14 @@ if __name__ == "__main__":
     if len(s) > 1:
         if len(s) == 2:
             perms_odd = HpathNS(s[0], s[1])
-            print(f"Resulting path {perms_odd}")
+            if args.verbose:
+                print(f"Resulting path {perms_odd}")
             print(f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
                   f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}")
         elif s[0] % 2 == 0 or s[1] % 2 == 0:
             raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
         else:
             l11 = lemma11(s)
-            print(f"lemma 11 results {l11}")
+            if args.verbose:
+                print(f"lemma 11 results {l11}")
             print(f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}")
