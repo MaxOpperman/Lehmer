@@ -1,4 +1,3 @@
-import copy
 from typing import List, Tuple
 
 
@@ -39,11 +38,6 @@ def pathEdges(p):
     return [[item, p[i + 1]] for i, item in enumerate(p) if i < len(p) - 1]
 
 
-def pathsEdges(paths):
-    """Returns lists of edges of paths."""
-    return [[item, p[i + 1]] for p in paths for i, item in enumerate(p) if i < len(p) - 1]
-
-
 def stichPaths(p1, p2):
     """Stitches two parallel paths by gluing the end vertices."""
     if adjacent(p1[-1], p2[0]):
@@ -55,14 +49,6 @@ def stichPaths(p1, p2):
     elif adjacent(p1[0], p2[0]):
         return list(reversed(p1)) + p2
     return False
-
-
-def splitPath(p, a):
-    """Splits a path at vertex a. Element a appears in both paths."""
-    A = p.index(a)
-    if len(p) == 1:
-        return p
-    return [p[:A + 1], p[A:]]
 
 
 def splitPathIn2(p: List[tuple], a: tuple) -> Tuple[List[tuple], List[tuple]]:
@@ -101,21 +87,8 @@ def neighbor(p, q):
     return len(diff) == 2 and diff[0] + 1 == diff[1] and p[diff[0]] == q[diff[1]] and p[diff[1]] == q[diff[0]]
 
 
-def spur(path, vertex, edges):
-    try:
-        s = [i for i in edges if vertex in i and i[(i.index(vertex) + 1) % 2] in path][0]
-        if s[0] == vertex:
-            return [s[1], s[0]]
-        return s
-    except IndexError:
-        return False
-
-
-def spurs(path, vertices, edges):
-    return [spur(path, i, edges) for i in vertices]
-
-
 def incorporateSpur(path, vertex, edges):
+    """Incorporates spur into path. Returns False if spur cannot be incorporated (no adjacent vertex available)."""
     b = spurBaseIndex(path, vertex, edges)
     if not b:
         return False
@@ -123,6 +96,7 @@ def incorporateSpur(path, vertex, edges):
 
 
 def incorporateSpurs(path, vertices, edges):
+    """Incorporates multiple spurs into path."""
     for i in vertices:
         a = incorporateSpur(path, i, edges)
         path = a

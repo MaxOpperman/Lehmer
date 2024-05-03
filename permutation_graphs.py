@@ -88,7 +88,6 @@ def generate_adj(s) -> List[tuple]:
     for i, item in enumerate(s):
         if i + 1 < len(s) and item != s[i + 1]:
             v.append(tuple(swapPair(s, i)))
-            print(f"swapped {s} at {i} to {v[-1]}")
     return v
 
 
@@ -102,21 +101,6 @@ def graph(sig) -> Dict[tuple, List[tuple]]:
     return dic
 
 
-def graph_stutter_free(sig):
-    """Returns a graph with signature sig in form of dictionary on non stutter permutations"""
-    p = perm(sig)
-    dic = {}
-    val = []
-    for i in p:
-        if not stutterPermutationQ(i):
-            for j in generate_adj(i):
-                if not stutterPermutationQ(j):
-                    val.append(list(j))
-            dic[tuple(i)] = val
-            val = []
-    return dic
-
-
 def mul(sez, e):
     """Adds 'e' to all elements(lists) in list sez"""
     if not sez:
@@ -124,22 +108,6 @@ def mul(sez, e):
     for i in sez:
         i.append(e)
     return sez
-
-
-def mult(sez, e):
-    """"Adds 'e' to all elements(tuples) in list sez"""
-    for i in sez:
-        i += (e,)
-    return sez
-
-
-def Mul(dic, e):
-    """Adds 'e' to dictionary dic (to keys and values)"""
-    for i in list(dic.keys()):
-        for j in dic[i]:
-            j.append(e)
-        dic[i + (e,)] = dic.pop(i)
-    return dic
 
 
 def multiset(s):
@@ -284,79 +252,6 @@ def HcycleQ(per, sig):
         return HpathQ(per, sig)
     else:
         return False
-
-
-def transform(lis, tr):
-    """Transforms the permutation(s) according to the given renaming."""
-
-    l = []
-    for i in lis:
-        v = []
-        for j in i:
-            try:
-                v.append(tr[j])
-            except IndexError:
-                return "list of transformations is too short"
-        l.append(v)
-    return l
-
-
-def conditionHpath(sig):
-    """Condition for existence of Hamiltonian path on all permutations of the given signature."""
-    if len(sig) == 1:
-        return True
-    if len(sig) == 2 and sig[0] == 1 or sig[1] == 1:
-        return True
-    st = 0
-    for i in sig:
-        if i % 2 == 1:
-            st += 1
-    if st >= 2:
-        return True
-    return False
-
-
-def conditionHcycle(sig):
-    """Condition for existence of Hamiltonian cycle on all permutations of the given signature."""
-    if len(sig) < 2:
-        return False
-    st = 0
-    for i in sig:
-        if i % 2 == 1:
-            st += 1
-    if st >= 2:
-        if len(sig) == 3:
-            try:
-                sig.remove(1)
-                sig.remove(1)
-                if sig[0] % 2 == 0:
-                    return False
-            except ValueError:
-                return True
-        return True
-    return False
-
-
-def conditionHpathNS(sig):
-    # For every neighbor-swap graph, the subgraph consisting of its non-stutter permutations admits a Hpath
-    return True
-
-
-def conditionHcycleNS(sig):
-    """Condition for existence of Hamiltonian cycle on all non-stutter permutations of the given signature."""
-    if len(sig) < 2:
-        return False
-    if len(sig) == 2 and (sig[0] % 2 == 1 or sig[1] % 2 == 1):
-        return False
-    if len(sig) == 3:
-        try:
-            sig.remove(1)
-            sig.remove(1)
-            if sig[0] % 2 == 0:
-                return False
-        except ValueError:
-            return True
-    return True
 
 
 def total_path_motion(path):

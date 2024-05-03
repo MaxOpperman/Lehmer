@@ -1,7 +1,7 @@
 import collections
 import sys
 
-from path_operations import createSquareTube, createZigZagPath, cutCycle, cycleQ, incorporateSpursInZigZag, pathQ
+from path_operations import createSquareTube, createZigZagPath, cutCycle, incorporateSpursInZigZag
 from permutation_graphs import binomial, extend, rotate, stutterPermutationQ, stutterPermutations, swapPair
 from rivertz import SetPerm
 

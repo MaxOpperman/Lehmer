@@ -2,10 +2,10 @@ import argparse
 from functools import reduce
 import itertools
 import math
-from typing import Tuple
+from typing import List, Tuple
 
-from permutation_graphs import *
-from path_operations import *
+from path_operations import adjacent, cutCycle, cycleQ, pathQ, splitPathIn2
+from permutation_graphs import multinomial
 from verhoeff import HpathNS
 
 
