@@ -354,13 +354,56 @@ def lemma9(sig: List[int]) -> List[tuple]:
         return cycle
 
 
+def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
+    """
+     Cuts the cycle and gi to change them for lemma 10
+     :param cycle: cycle to cut for lemma 10
+     :param gi: subgraph to cut for lemma 10
+     :param edge_i: edge that should be at the start of gi
+     :param edge_j: edge that should be the point at which the cycle is cut (see return)
+     :return: cycle starts with edge_i[0] and edge_i[1] is the second node
+              gi starts with edge_j[0] and edge_j[1] is the last node
+    """
+    ind_node_i = gi.index(edge_i[0])
+    # preparing gi so that node_i[0] the first and node_i[1] second in list
+    if gi[(ind_node_i + 1) % (len(gi) - 1)] == edge_i[1]:
+        gi = gi[ind_node_i:] + gi[:ind_node_i]
+    else:
+        gi.reverse()
+        ind_node_i = gi.index(edge_i[0])
+        gi = gi[ind_node_i:] + gi[:ind_node_i]
+
+    ind_node_j = cycle.index(edge_j[0])
+    # preparing the cycle (already glued ones) such that node_j[0] first and node_j[1] last in list
+    if ind_node_j + 1 == len(cycle):
+        # if cycle ends with node_j[0] and ends with node_j[1]
+        if cycle[0] == edge_j[1]:
+            cycle.reverse()
+        # if cycle ends with node_j[0] and node_j[1] is the second to last element (since they are always neighbors in the path)
+        else:
+            # move node_j[0] to the start and append the rest of the cycle
+            cycle = [cycle[-1]] + cycle[:-1]
+    elif cycle[ind_node_j + 1] == edge_j[1]:
+        # if node_j[1] is the second element in the cycle
+        # change cycle to start with node_j[1] and then append the part until node_j[0]. Then reverse the whole cycle
+        cycle = cycle[ind_node_j + 1:] + cycle[:ind_node_j + 1]
+        cycle.reverse()
+    else:
+        # otherwise we have [node_j[1], node_j[0], ...] so we move node_j[0] to the start and append the part until node_j[1]
+        cycle = cycle[ind_node_j:] + cycle[:ind_node_j]
+    return cycle, gi
+
+
 def _lemma10_helper(K: List[tuple], p: int, new_color: int):
-    """K is a Hamiltonian path in Q, p is the length of the last part of the signature (l^p)"""
+    """"
+     :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
+     :param p: is the length of the last part of the signature (l^p)
+     :param new_color: is the new color to add to the graph
+     :return Hamiltonian path over Q | l^p
+     """
+    # G_i = GE(K_{2i-1} | l^p, K_{2i} | l^p) for 0 <= i <= n
     G = []
     l_p = tuple([new_color] * p)
-    for node in K:
-        if node == (0, 1, 0, 0, 1, 1):
-            print(f"Node: {node} is a part of K")
     for i in range(len(K)//2):
         # Constructing cycles Ci taking graphs 'including' vertices on 2*i and 2*i+1 position
         for j, item in enumerate(K[2 * i]):
@@ -369,6 +412,7 @@ def _lemma10_helper(K: List[tuple], p: int, new_color: int):
                 r = j
                 s = len(K[2 * i]) - r - 2
                 break
+        # G_i is isomorphic to GE( (k^r (0|1) k^s) | l^p )
         g = lemma9([1, 1, r, s, p])
 
         g_modified = []
@@ -394,66 +438,26 @@ def _lemma10_helper(K: List[tuple], p: int, new_color: int):
                     if it == remove_color:
                         new_item[j] = new_color
             g_modified.append(tuple(new_item))  # Convert item back to a tuple
-        G.extend([g_modified])  # adding cycle to G
+        G.extend([g_modified])  # adding cycle to the list of G_i's
 
-    cycle = []
-    # gluing the cycles
-    for i, gi in enumerate(G):
-        # ai = [p * ['L'] + K[2 * i], (p - 1) * ['L'] + [K[2 * i][0]] + ['L'] + K[2 * i][1:]]
+    cycle = G[0]
+    # K_j = k_{j,1} k_{j,2} \dots k_{j,q}
+    for i, gi in enumerate(G[1:], start=1):
+        # a_i = (l^p k_{2i}, l^{p-1} k_{2i,1} l k{2i,2} \dots k_{2i,q})
         ai = [l_p + K[2 * i], l_p[:-1] + tuple([K[2 * i][0]]) + l_p[-1:] + K[2 * i][1:]]
-        # bi = [K[2 * i] + p * ['L'], K[2 * i][:-1] + ['L'] + [K[2 * i][-1]] + (p - 1) * ['L']]
+        # b_i = (k_{2i} l^p, k_{2i,1} \dots k_{2i,q-1} l k_{2i,q} l^{p-1})
         bi = [K[2 * i] + l_p, K[2 * i][:-1] + l_p[-1:] + tuple([K[2 * i][-1]]) + l_p[:-1]]
-        if i > 0:
-            # aj = [p * ['L'] + K[2 * i - 1], (p - 1) * ['L'] + [K[2 * i - 1][0]] + ['L'] + K[2 * i - 1][1:]]
-            aj = [l_p + K[2 * i - 1], l_p[:-1] + tuple([K[2 * i - 1][0]]) + l_p[-1:] + K[2 * i - 1][1:]]
-            # bj = [K[2 * i - 1] + p * ['L'], K[2 * i - 1][:-1] + ['L'] + [K[2 * i - 1][-1]] + (p - 1) * ['L']]
-            bj = [K[2 * i - 1] + l_p, K[2 * i - 1][:-1] + l_p[-1:] + tuple([K[2 * i - 1][-1]]) + l_p[:-1]]
-            if adjacent(ai[0], aj[0]) and adjacent(ai[1], aj[1]):
-                ind_ai = gi.index(ai[0])
-                ind_aj = cycle.index(aj[0])
-                # preparing a cycle gi so that ai[0] the first and ai[1] second in list
-                if gi[(ind_ai + 1) % (len(gi) - 1)] == ai[1]:
-                    gi = gi[ind_ai:] + gi[:ind_ai]
-                else:
-                    gi.reverse()
-                    ind_ai = gi.index(ai[0])
-                    gi = gi[ind_ai:] + gi[:ind_ai]
-                # preparing the cycle (already glued ones) st aj[0] first and aj[1] last in list
-                if ind_aj + 1 == len(cycle):  # if it is last Index error
-                    if cycle[0] == aj[1]:
-                        cycle.reverse()
-                    else:
-                        cycle = [cycle[-1]] + cycle[:-1]
-                elif cycle[ind_aj + 1] == aj[1]:  # if aj[0], aj[1]
-                    cycle = cycle[ind_aj + 1:] + cycle[:ind_aj + 1]
-                    cycle.reverse()
-                else:  # [aj[1], aj[0]]
-                    cycle = cycle[ind_aj:] + cycle[:ind_aj]
-            # if ai, aj not parallel we do the same for b
-            elif adjacent(bi[0], bj[0]) and adjacent(bi[1], bj[1]):
-                ind_bi = gi.index(bi[0])
-                ind_bj = cycle.index(bj[0])
-                if gi[(ind_bi + 1) % (len(gi) - 1)] == bi[1]:
-                    gi = gi[ind_bi:] + gi[:ind_bi]
-                else:
-                    gi.reverse()
-                    ind_bi = gi.index(bi[0])
-                    gi = gi[ind_bi:] + gi[:ind_bi]
-
-                if ind_bj + 1 == len(cycle):
-                    if cycle[0] == bj[1]:
-                        cycle.reverse()
-                    else:
-                        cycle = [cycle[-1]] + cycle[:-1]
-                elif cycle[ind_bj + 1] == bj[1]:  # if aj [0, 1] in order we put a[0] infront, aj[1] at the back
-                    cycle = cycle[ind_bj + 1:] + cycle[:ind_bj + 1]
-                    cycle.reverse()
-                else:
-                    cycle = cycle[ind_bj:] + cycle[:ind_bj]
-            print(f"cycle {i}/{len(G)} is still a cycle {cycleQ(cycle)}, adjacent start {adjacent(gi[0], cycle[0])} and end {adjacent(gi[1], cycle[-1])}")
-            cycle = [gi[0]] + cycle + gi[1:]
-        elif i == 0:
-            cycle.extend(gi)
+        # a_j = (l^p k_{2i-1}, l^{p-1} k_{2i-1,1} l k_{2i-1,2} \dots, k_{2i-1,q})
+        aj = [l_p + K[2 * i - 1], l_p[:-1] + tuple([K[2 * i - 1][0]]) + l_p[-1:] + K[2 * i - 1][1:]]
+        # b_j = (k_{2i-1} l^p, k_{2i-1,1} \dots k_{2i-1,q-1} l k_{2i-1,q} l^{p-1})
+        bj = [K[2 * i - 1] + l_p, K[2 * i - 1][:-1] + l_p[-1:] + tuple([K[2 * i - 1][-1]]) + l_p[:-1]]
+        # if K_j and K_{j+1} differ in the first pair of elements, a_j and a_{j+1} are parallel
+        if adjacent(ai[0], aj[0]) and adjacent(ai[1], aj[1]):
+            cycle, gi = _lemma10_subcycle_cutter(cycle, gi, ai, aj)
+        # if K_j and K_{j+1} don't differ in the first pair of elements, b_j and b_{j+1} are parallel
+        elif adjacent(bi[0], bj[0]) and adjacent(bi[1], bj[1]):
+            cycle, gi = _lemma10_subcycle_cutter(cycle, gi, bi, bj)
+        cycle = [gi[0]] + cycle + gi[1:]
     return cycle
 
 
@@ -466,13 +470,12 @@ def lemma10(sig):
 
 def lemma11(sig):
     """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
-    K = HpathNS(sig[0], sig[1])
-    cycle = K
+    path = HpathNS(sig[0], sig[1]) # K in the paper
     for ind, new_color in enumerate(sig[2:]):
         color = 2 + ind
-        new_cycle = _lemma10_helper(cycle, new_color, color)
-        cycle = new_cycle
-    return cycle
+        cycle = _lemma10_helper(path, new_color, color)
+        path = cycle
+    return path
 
 
 if __name__ == "__main__":
@@ -490,8 +493,8 @@ if __name__ == "__main__":
                 print(f"Resulting path {perms_odd}")
             print(f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
                   f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}")
-        elif s[0] % 2 == 0 or s[1] % 2 == 0:
-            raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
+        #elif s[0] % 2 == 0 or s[1] % 2 == 0:
+        #    raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
         else:
             l11 = lemma11(s)
             if args.verbose:

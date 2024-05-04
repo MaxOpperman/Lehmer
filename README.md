@@ -11,7 +11,7 @@ Run the `permute.py` script with the following command-line arguments (only the 
 
 - `-s, --signature`: Input permutation signature (comma-separated).
 - `-v, --verbose`: Enable verbose mode.
-- `-l, --lehmer`: Compute the path using Lehmer's algorithm.
+- `-l, --lehmer`: Compute the path using Lehmer's algorithm. (Shows that the algorithm does not work for n > 7)
 - `-a, --auto-spur`: Automatically recognize stutters as spurs (if the `--lehmer` parameter is passed).
 - `-g, --graph`: Show the NetworkX neighbor swap graph.
 - `-c, --color`: Color the nodes in the Hamiltonian Path.
@@ -20,10 +20,11 @@ Run the `permute.py` script with the following command-line arguments (only the 
 ## Stachowiak.py
 Run the `stachowiak.py` script with the following command-line arguments:
 
-- `-s, --signature`: Input permutation signature (comma-separated).
+- `-s, --signature`: Input permutation signature (comma-separated), the sum of first two colors be even and > 2 (to allow for a Hamiltonian path).
 - `-v, --verbose`: Enable verbose mode.
 
 Stachowiak.py uses the code from `verhoeff.py` to compute the neighbor-swap paths for the binary case (two colors).
+When using this to compute Hamiltonian paths, note that it is required that the number of linear extensions of `Q` is required to be even and > 2 (see Lemma 10 by Stachowiak on why this is required).
 Then the lemmas from Stachowiak (Hamilton paths in graphs of linear extensions for unions of posets, 1992) are used to add elements to this path.
 To be exact, lemma 7, 8, 9, 10, and 11 are used to achieve this. But Lemma 2 is also programmed as a function of the script.
 

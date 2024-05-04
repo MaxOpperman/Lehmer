@@ -27,6 +27,13 @@ class Test_Lemma11():
         assert len(result) == multinomial([3, 3, 2])
         assert HcycleQ(result, [3, 3, 2])
 
+    def test_lemma11_3_3_1_2(self):
+        sig = [3, 3, 1, 2]
+        result = lemma11(sig)
+        assert len(set(result)) == len(result)
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
     def test_lemma11_3_3_7(self):
         sig = [3, 3, 7]
         result = lemma11(sig)
@@ -64,6 +71,37 @@ class Test_Lemma11():
 
     def test_lemma11_5_5_3(self):
         sig = [5, 5, 3]
+        result = lemma11(sig)
+        assert len(set(result)) == len(result)
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+@pytest.mark.slow
+class Test_Lemma11_Large():
+
+    def test_lemma11_7_7_2(self):
+        sig = [7, 7, 2]
+        result = lemma11(sig)
+        assert len(set(result)) == len(result)
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_5_5_4(self):
+        sig = [5, 5, 4]
+        result = lemma11(sig)
+        assert len(set(result)) == len(result)
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_3_5_6(self):
+        sig = [3, 5, 6]
+        result = lemma11(sig)
+        assert len(set(result)) == len(result)
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_5_5_1_3(self):
+        sig = [5, 5, 1, 3]
         result = lemma11(sig)
         assert len(set(result)) == len(result)
         assert len(result) == multinomial(sig)
