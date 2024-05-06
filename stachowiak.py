@@ -5,7 +5,8 @@ from typing import List, Tuple
 
 from path_operations import adjacent, cutCycle, cycleQ, pathQ, splitPathIn2
 from permutation_graphs import multinomial
-from verhoeff import HpathNS
+from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
+from verhoeff import HpathAlt, HpathNS
 
 
 def generate_all_di(chain_p: tuple) -> List[list]:
@@ -470,10 +471,24 @@ def lemma10(sig):
 
 def lemma11(sig):
     """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
-    path = HpathNS(sig[0], sig[1]) # K in the paper
-    for ind, new_color in enumerate(sig[2:]):
-        color = 2 + ind
-        cycle = _lemma10_helper(path, new_color, color)
+    if sum(sig[:2]) > 2:
+        path = HpathNS(sig[0], sig[1]) # K in the paper
+        next_color = 2
+    elif sig[2] == 1:
+        # use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1
+        try:
+            next_color = s.index(next(x for x in sig if x != 1))
+        except StopIteration:
+            next_color = len(s)  # all elements are 1
+        path = SteinhausJohnsonTrotter.get_sjt_permutations(SteinhausJohnsonTrotter(), next_color)
+    elif sig[2] != 0:
+        # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])
+        path = lemma2_extended_path(tuple([2] * sig[2]))
+        next_color = 3
+    else:
+        raise ValueError("q = |Q| > 2 and GE(Q) has an even number of vertices is required for Lemma 11")
+    for ind, new_color in enumerate(sig[next_color:], start=next_color):
+        cycle = _lemma10_helper(path, new_color, ind)
         path = cycle
     return path
 

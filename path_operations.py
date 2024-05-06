@@ -206,3 +206,33 @@ def parallelEdges(edges):
             if parallelEdgesQ(item, j, edges):
                 P.append([item, j])
     return P
+
+
+def transform(lis, tr):
+    """Transforms the permutation(s) according to the given renaming."""
+    l = []
+    for i in lis:
+        v = []
+        for j in i:
+            try:
+                v.append(tr[j])
+            except IndexError:
+                return "list of transformations is too short"
+        l.append(tuple(v))
+    return l
+
+
+def conditionHpath(sig):
+    """Condition for existence of Hamiltonian path on all permutations of the given signature."""
+    sig = [i for i in sig if i != 0]
+    if len(sig) == 1:
+        return True
+    if len(sig) == 2 and sig[0] == 1 or sig[1] == 1:
+        return True
+    st = 0
+    for i in sig:
+        if i % 2 == 1:
+            st += 1
+    if st >= 2:
+        return True
+    return False
