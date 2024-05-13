@@ -137,7 +137,7 @@ def _lemma7_constructor(sig: List[int]) -> Tuple[List[tuple], List[tuple]]:
     return _lemma8_helper([(0, 1), (1, 1), (2, sig[2]), (3, sig[3])])
 
 
-def lemma7(sig: List[int]) -> List[tuple]:
+def lemma7(sig: List[int]) -> List[Tuple[int, ...]]:
     """
      The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
      We assume sig has the form [1, 1, q, p]
@@ -148,7 +148,7 @@ def lemma7(sig: List[int]) -> List[tuple]:
     return cycle
 
 
-def _lemma8_subgraph_cutter(cyc: List[tuple], x: tuple, y: tuple) -> List[tuple]:
+def _lemma8_subgraph_cutter(cyc: List[tuple], x: tuple, y: tuple) -> List[Tuple[int, ...]]:
     """
      Makes sure x is the start node of the subgraph and y is the end node
     :param cyc: cycle in a subgraph
@@ -276,7 +276,7 @@ def _lemma9_glue_a_edges(k_r: Tuple[int, ...], k_s: Tuple[int, ...], l_p: Tuple[
     return g_result_start
 
 
-def lemma8(sig: List[int]) -> List[tuple]:
+def lemma8(sig: List[int]) -> List[Tuple[int, ...]]:
     """
      The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
      We assume sig has the form [1, 1, q, p]
@@ -298,7 +298,7 @@ def lemma8(sig: List[int]) -> List[tuple]:
     return g_result_start
 
 
-def lemma9(sig: List[int]) -> List[tuple]:
+def lemma9(sig: List[int]) -> List[Tuple[int, ...]]:
     """
      The graph G=GE( (k^r (0|1) k^s) | l^p) ) contains a Hamilton cycle for every p, r+s > O.
      We assume sig has the form [1, 1, r, s, p]
@@ -477,9 +477,9 @@ def lemma11(sig):
     elif sig[2] == 1:
         # use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1
         try:
-            next_color = s.index(next(x for x in sig if x != 1))
+            next_color = sig.index(next(x for x in sig if x != 1))
         except StopIteration:
-            next_color = len(s)  # all elements are 1
+            next_color = len(sig)  # all elements are 1
         path = SteinhausJohnsonTrotter.get_sjt_permutations(SteinhausJohnsonTrotter(), next_color)
     elif sig[2] != 0:
         # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])
@@ -508,8 +508,8 @@ if __name__ == "__main__":
                 print(f"Resulting path {perms_odd}")
             print(f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
                   f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}")
-        #elif s[0] % 2 == 0 or s[1] % 2 == 0:
-        #    raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
+        elif s[0] % 2 == 0 or s[1] % 2 == 0:
+           raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
         else:
             l11 = lemma11(s)
             if args.verbose:

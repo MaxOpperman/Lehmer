@@ -131,7 +131,7 @@ def createZigZagPathE(c, d):
     return C
 
 
-def createZigZagPath(c: List[tuple], u: tuple, v: tuple):
+def createZigZagPath(c: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, ...]]:
     """
     :param c: cycle of even length, list of tuples
     :param u: tuple to append
@@ -146,20 +146,20 @@ def createZigZagPath(c: List[tuple], u: tuple, v: tuple):
     return [item + module[i % 4] for i, item in enumerate(temp)]
 
 
-def incorporateSpurInZigZag(path, vertex_pair):
+def incorporateSpurInZigZag(path, vertex_pair) -> List[Tuple[int, ...]]:
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
     return path[:i+1] + vertex_pair + path[i+1:]
 
 
-def incorporateSpursInZigZag(path, vertices, spur_suffixes):
+def incorporateSpursInZigZag(path, vertices, spur_suffixes) -> List[Tuple[int, ...]]:
     C = [stut+suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
         path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index+1]])
     return path
 
 
-def createSquareTube(path: List[tuple], u: tuple, v: tuple):
+def createSquareTube(path: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, ...]]:
     # interleave the elements of the four copies of the path list
     temp = [item for sublist in zip(*([path]*4)) for item in sublist]
     uu = u + u

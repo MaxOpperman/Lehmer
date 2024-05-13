@@ -1,6 +1,6 @@
 from itertools import permutations as itertoolspermutations
 from path_operations import cycleQ, pathQ
-from typing import List, Dict
+from typing import List, Dict, Tuple
 
 
 def binomial(k0: int, k1: int) -> int:
@@ -36,12 +36,12 @@ def perm(sig) -> List[list]:
     return [list(p) for p in set(itertoolspermutations(first_perm))]
 
 
-def start_perm(sig) -> tuple:
+def start_perm(sig) -> Tuple[int, ...]:
     """Returns the permutation of the least serial number"""
     return tuple(sum([[i] * count for i, count in enumerate(sig)], []))
 
 
-def non_stutters(sig) -> List[tuple]:
+def non_stutters(sig) -> List[Tuple[int, ...]]:
     """"Returns all non-Stutters permutations of signature sig"""
     return [tuple(p) for p in perm(sig) if not stutterPermutationQ(p)]
 
@@ -82,7 +82,7 @@ def count_inversions(sig) -> Dict[tuple, int]:
     return dic
 
 
-def generate_adj(s) -> List[tuple]:
+def generate_adj(s) -> List[Tuple[int, ...]]:
     """Returns all adjacent elts of element s"""
     v = []
     for i, item in enumerate(s):
@@ -118,7 +118,7 @@ def multiset(s):
     return per
 
 
-def extend(lst: list, e: tuple):
+def extend(lst: list, e: tuple) -> List[Tuple[int, ...]]:
     """
      Extend every item in l with e
     :param lst: list of tuples
@@ -142,7 +142,7 @@ def signature(s):
     return [s.count(i) for i in range(max(s) + 1)]
 
 
-def swapPair(perm, i, j=None):
+def swapPair(perm, i, j=None) -> Tuple[int, ...]:
     """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
     perm = list(perm)
     if j is None:

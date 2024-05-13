@@ -1,13 +1,13 @@
 import collections
 import sys
-from typing import List
+from typing import List, Tuple
 
 from path_operations import conditionHpath, createSquareTube, createZigZagPath, cutCycle, incorporateSpursInZigZag, transform
 from permutation_graphs import binomial, extend, rotate, stutterPermutationQ, stutterPermutations, swapPair
 from rivertz import SetPerm
 
 
-def HpathNS(k0: int, k1: int) -> list:
+def HpathNS(k0: int, k1: int) -> List[Tuple[int, ...]]:
     odd_perms = []
     tuple_0 = tuple(k0 * [0])
     tuple_1 = tuple(k1 * [1])
@@ -57,8 +57,12 @@ def HpathNS(k0: int, k1: int) -> list:
         p11 = HpathNS(k0, k1 - 2)
         p1101 = HpathNS(k0 - 1, k1 - 3)
         p0101 = HpathNS(k0 - 2, k1 - 2)
-        p0001 = HpathNS(k0 - 3, k1 - 1)
-        p00 = HpathNS(k0 - 2, k1)
+        if k0 == k1:
+            p0001 = [tuple([1 if x == 0 else 0 for x in tup]) for tup in p1101]
+            p00 = [tuple([1 if x == 0 else 0 for x in tup]) for tup in p11]
+        else:
+            p0001 = HpathNS(k0 - 3, k1 - 1)
+            p00 = HpathNS(k0 - 2, k1)
 
         sp00 = extend(stutterPermutations([k0 - 3, k1 - 1]), (0, 0))
         sp11 = extend(stutterPermutations([k0 - 1, k1 - 3]), (1, 1))
@@ -94,7 +98,7 @@ def HpathNS(k0: int, k1: int) -> list:
         return path_ham
 
 
-def Hpath(*s):
+def Hpath(*s) -> List[Tuple[int, ...]]:
     """Returns a Hamiltonian path of signature s"""
     if not conditionHpath(s):
         return None
@@ -114,7 +118,7 @@ def Hpath(*s):
         return [tuple(s)]
 
 
-def HpathAlt(sig: List[int]) -> List[tuple]:
+def HpathAlt(sig: List[int]) -> List[Tuple[int, ...]]:
     """
     Generates a path based on the input signature `sig` from 1 2 0^{k2} to 0 2 1 0^{k2-1}.
 
