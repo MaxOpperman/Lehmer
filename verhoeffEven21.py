@@ -1,8 +1,9 @@
 import argparse
+import os
 import matplotlib.pyplot as plt
 
 
-def fig11(even_int: int):
+def fig11(even_int: int, save=False):
     diff_4 = even_int - 4
     # Create figure and axes
     fig, ax = plt.subplots()
@@ -20,7 +21,7 @@ def fig11(even_int: int):
     # Draw horizontal lines except for the diagonal positions where x == y
     for y_line in range(y + 1):
         for x_line in range(even_int):
-            if x != y:
+            if x_line != y_line-1:
                 ax.plot([x_line, x_line + 1], [y_line, y_line], color='black', linewidth=1)
 
     # Highlighted path coordinates
@@ -44,7 +45,7 @@ def fig11(even_int: int):
     ax.plot(path_x, path_y, color='blue', linewidth=5)
 
     # Draw black circles at key points
-    key_points = [(0, 1), (1, 1)]
+    key_points = [(0, 1), (0, 0), (x, 0), (x, y), (0, y), (1, 1)]
     for point in key_points:
         ax.plot(*point, 'ko', markersize=10)
 
@@ -67,6 +68,11 @@ def fig11(even_int: int):
     # Hide axes
     ax.axis('off')
 
+    # If save is enabled, save the figure
+    if save:
+        if not os.path.exists("./out"):
+            os.makedirs("./out")
+        plt.savefig(f"./out/fig11_{even_int}.png")
     # Show plot
     plt.show()
 
@@ -74,4 +80,6 @@ if __name__ == "__main__":
     lehmer_strategy_help = "Default: random choices\r\n"
     parser = argparse.ArgumentParser(description="Helper tool to create a Hamiltonian path from 120^{k0} to 0210^{k0-1}.")
     parser.add_argument("-e", "--even", type=str, help="Input even integer")
-    fig11(int(parser.parse_args().even))
+    parser.add_argument("-s", "--save", action="store_true", help="Save image in ./out directory")
+
+    fig11(int(parser.parse_args().even), parser.parse_args().save)
