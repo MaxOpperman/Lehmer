@@ -1,12 +1,9 @@
-import argparse
-import os
 import matplotlib.pyplot as plt
+import os
+import argparse
 
-
-def fig11(even_int: int, save=False):
+def fig11(ax, even_int: int):
     diff_4 = even_int - 4
-    # Create figure and axes
-    fig, ax = plt.subplots()
 
     # Set limits and aspect ratio
     x, y = 4+diff_4, 5+diff_4
@@ -68,18 +65,9 @@ def fig11(even_int: int, save=False):
     # Hide axes
     ax.axis('off')
 
-    # If save is enabled, save the figure
-    if save:
-        if not os.path.exists("./out"):
-            os.makedirs("./out")
-        plt.savefig(f"./out/fig11_{even_int}.png")
-    # Show plot
-    plt.show()
 
-def fig12(even_int: int, save=False):
+def fig12(ax, even_int: int):
     diff_4 = even_int - 4
-    # Create figure and axes
-    fig, ax = plt.subplots()
 
     # Set limits and aspect ratio
     x, y = 3+diff_4, 5+diff_4
@@ -142,20 +130,51 @@ def fig12(even_int: int, save=False):
     # Hide axes
     ax.axis('off')
 
+
+def combined_figure(even_int: int, save=False):
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 7))
+
+    # Draw both figures in the subplots
+    fig11(ax1, even_int)
+    fig12(ax2, even_int)
+
     # If save is enabled, save the figure
     if save:
         if not os.path.exists("./out"):
             os.makedirs("./out")
-        plt.savefig(f"./out/Verhoeff{odd_int}21.png")
-    # Show plot
+        plt.savefig(f"./out/VerhoeffCycleCover{even_int}EdgeCases.png")
+
+    # Show the combined plot
     plt.show()
 
+def plot_individual_figures(even_int: int, save=False):
+    # Plot fig11
+    fig, ax = plt.subplots()
+    fig11(ax, even_int)
+    if save:
+        if not os.path.exists("./out"):
+            os.makedirs("./out")
+        plt.savefig(f"./out/Verhoeff{even_int}11.png")
+    plt.show()
+
+    # Plot fig12
+    fig, ax = plt.subplots()
+    fig12(ax, even_int)
+    if save:
+        if not os.path.exists("./out"):
+            os.makedirs("./out")
+        plt.savefig(f"./out/Verhoeff{even_int-1}21And{even_int-1}11.png")
+    plt.show()
 
 if __name__ == "__main__":
-    lehmer_strategy_help = "Default: random choices\r\n"
-    parser = argparse.ArgumentParser(description="Helper tool to create a Hamiltonian path from 120^{k0} to 0210^{k0-1}.")
-    parser.add_argument("-e", "--even", type=str, help="Input even integer")
+    parser = argparse.ArgumentParser(description="Helper tool to create Hamiltonian paths.")
+    parser.add_argument("-e", "--even", type=int, required=True, help="Input even integer")
     parser.add_argument("-s", "--save", action="store_true", help="Save image in ./out directory")
+    parser.add_argument("-c", "--combine", action="store_true", help="Combine the graphs into one plot")
 
-    fig11(int(parser.parse_args().even), parser.parse_args().save)
-    fig12(int(parser.parse_args().even), parser.parse_args().save)
+    args = parser.parse_args()
+
+    if args.combine:
+        combined_figure(args.even, args.save)
+    else:
+        plot_individual_figures(args.even, args.save)
