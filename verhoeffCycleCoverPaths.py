@@ -142,10 +142,10 @@ def combined_figure(even_int: int, save=False):
     if save:
         if not os.path.exists("./out"):
             os.makedirs("./out")
-        plt.savefig(f"./out/VerhoeffCycleCover{even_int}EdgeCases.png")
-
-    # Show the combined plot
-    plt.show()
+        plt.savefig(f"./out/VerhoeffCycleCover{even_int}EdgeCases.png", dpi=300, bbox_inches='tight')
+    else:
+        # Show the combined plot
+        plt.show()
 
 def plot_individual_figures(even_int: int, save=False):
     # Plot fig11
@@ -154,8 +154,9 @@ def plot_individual_figures(even_int: int, save=False):
     if save:
         if not os.path.exists("./out"):
             os.makedirs("./out")
-        plt.savefig(f"./out/Verhoeff{even_int}11.png")
-    plt.show()
+        plt.savefig(f"./out/Verhoeff{even_int}11.png", dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
 
     # Plot fig12
     fig, ax = plt.subplots()
@@ -163,8 +164,9 @@ def plot_individual_figures(even_int: int, save=False):
     if save:
         if not os.path.exists("./out"):
             os.makedirs("./out")
-        plt.savefig(f"./out/Verhoeff{even_int-1}21And{even_int-1}11.png")
-    plt.show()
+        plt.savefig(f"./out/Verhoeff{even_int-1}21And{even_int-1}11.png", dpi=300, bbox_inches='tight')
+    else:
+        plt.show()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Helper tool to create Hamiltonian paths.")
