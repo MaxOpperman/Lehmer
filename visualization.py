@@ -150,7 +150,7 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
     # Step 2: Set spur tally at 0
     spur_tally = 0
     spur_origins = []
-    stutters = []
+    spur_tips = []
     # Step 3: The first node becomes B
     b = start_perm(signature)
 
@@ -159,7 +159,6 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
     # Step 4: If there is no path leaving B, go to Step 16
     while list(graph.neighbors(b)):
         # Step 5: Among the nodes connected to B of least multiplicity, select the node N of least serial number
-        # TODO This doesn't work because sometimes stutter permutations are chosen as part of the actual path
         connected_nodes = list(graph.neighbors(b))
         # Get the minimum number of connections among the connected nodes
         min_conn = min([len(list(graph.neighbors(node))) for node in connected_nodes])
@@ -177,7 +176,7 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
                 # add nodes to path and list of spurs
                 interchanges.append(b)
                 spur_origins.append(b)
-                stutters.append(node)
+                spur_tips.append(node)
             # Step 14: Disconnect B and N
             graph.remove_edge(b, node)
             # Step 15: Go to Step 10
@@ -200,13 +199,13 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
 
     # Step 16: Output initial marks, spur and node tallies, and list of interchange digits
     if cli_args.verbose:
-        if len(spur_origins) != len(stutters):
+        if len(spur_origins) != len(spur_tips):
             print("Spur origins:", spur_origins)
-            print("Stutters:", stutters)
+            print("Stutters:", spur_tips)
         else:
             print("Spur origin -> stutter:")
             for i in range(len(spur_origins)):
-                print("Spur {}:".format(i), spur_origins[i], "->", stutters[i])
+                print("Spur {}:".format(i), spur_origins[i], "->", spur_tips[i])
         if node_tally < graph.number_of_nodes():
             print("Node Tally:", node_tally, "and path length:", len(interchanges))
             print("!!!!! INCORRECT PATH; MISSING", graph.number_of_nodes() - node_tally, "NODES !!!!!")
@@ -221,4 +220,4 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
         print(f"Total Lehmer motion {total_path_motion(interchanges)}")
 
     # Step 17: Halt
-    return interchanges, spur_origins, stutters
+    return interchanges, spur_origins, spur_tips
