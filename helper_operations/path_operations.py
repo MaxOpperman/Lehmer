@@ -1,15 +1,28 @@
-from typing import List, Tuple
+import numpy as np
 
 
 def adjacent(s, t):
-    """"returns true if s and t adjacent, false otherwise"""
+    """returns true if s and t adjacent, false otherwise"""
     if len(s) != len(t):
         return False
+    if isinstance(s, np.ndarray):
+        diff = np.where(s != t)[0]
+        return (
+            diff.size == 2
+            and diff[0] + 1 == diff[1]
+            and s[diff[0]] == t[diff[1]]
+            and s[diff[1]] == t[diff[0]]
+        )
     diff = [i for i, (a, b) in enumerate(zip(s, t)) if a != b]
-    return len(diff) == 2 and diff[0] + 1 == diff[1] and s[diff[0]] == t[diff[1]] and s[diff[1]] == t[diff[0]]
+    return (
+        len(diff) == 2
+        and diff[0] + 1 == diff[1]
+        and s[diff[0]] == t[diff[1]]
+        and s[diff[1]] == t[diff[0]]
+    )
 
 
-def pathQ(p: List[tuple], verbose=True):
+def pathQ(p: list[tuple], verbose=True):
     """Returns True if p a path.
     :param verbose: whether the error in the path should be printed in console
     :param p, list of vertices
@@ -18,7 +31,9 @@ def pathQ(p: List[tuple], verbose=True):
     for i, item in enumerate(p):
         if i < len(p) - 1 and not adjacent(item, p[i + 1]):
             if verbose:
-                print(f"No path: index {i}->{i+1}. See: {i-1}-{i}-{i+1}; {p[i-1]}-{item}-{p[i+1]}")
+                print(
+                    f"No path: index {i}->{i+1}. See: {i-1}-{i}-{i+1}; {p[i-1]}-{item}-{p[i+1]}"
+                )
             return False
     return True
 
@@ -51,15 +66,15 @@ def stichPaths(p1, p2):
     return False
 
 
-def splitPathIn2(p: List[tuple], a: tuple) -> Tuple[List[tuple], List[tuple]]:
+def splitPathIn2(p: list[tuple], a: tuple) -> tuple[list[tuple], list[tuple]]:
     """Splits a path at vertex a. Element a appears in only the first path."""
     assert len(p) > 1
     A = p.index(a)
-    return p[:A+1], p[A+1:]
+    return p[: A + 1], p[A + 1 :]
 
 
 def cutCycle(c, a):
-    """Splits a cycle at vertex a. Vertex a appears on first place """
+    """Splits a cycle at vertex a. Vertex a appears on first place"""
     if len(c) == 1 and a in c:
         return c
     try:
@@ -67,6 +82,15 @@ def cutCycle(c, a):
     except AssertionError as err:
         print(f"{repr(err)} cycle: {c}, should be cut to {a}")
         quit()
+    # if the array is a numpy array, use numpy functions
+    if isinstance(c, np.ndarray):
+        # check whether a is in c
+        if not np.any(np.all(c == a, axis=1)):
+            print(f"Vertex {a} not in numpy cycle {c}")
+            quit()
+        index = np.where(np.all(c == a, axis=1))[0][0]
+        return np.roll(c, -index, axis=0)
+    # if the array is a list, use list functions (index instead of where)
     A = c.index(a)
     return c[A:] + c[:A]
 
@@ -84,7 +108,12 @@ def neighbor(p, q):
     if len(p) != len(q):
         return False
     diff = [i for i, (a, b) in enumerate(zip(p, q)) if a != b]
-    return len(diff) == 2 and diff[0] + 1 == diff[1] and p[diff[0]] == q[diff[1]] and p[diff[1]] == q[diff[0]]
+    return (
+        len(diff) == 2
+        and diff[0] + 1 == diff[1]
+        and p[diff[0]] == q[diff[1]]
+        and p[diff[1]] == q[diff[0]]
+    )
 
 
 def incorporateSpur(path, vertex, edges):
@@ -92,7 +121,7 @@ def incorporateSpur(path, vertex, edges):
     b = spurBaseIndex(path, vertex, edges)
     if not b:
         return False
-    return path[:b + 1] + [vertex] + path[b:]
+    return path[: b + 1] + [vertex] + path[b:]
 
 
 def incorporateSpurs(path, vertices, edges):
@@ -131,7 +160,7 @@ def createZigZagPathE(c, d):
     return C
 
 
-def createZigZagPath(c: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, ...]]:
+def createZigZagPath(c: list[tuple], u: tuple, v: tuple) -> list[tuple[int, ...]]:
     """
     :param c: cycle of even length, list of tuples
     :param u: tuple to append
@@ -146,22 +175,22 @@ def createZigZagPath(c: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, ...]
     return [item + module[i % 4] for i, item in enumerate(temp)]
 
 
-def incorporateSpurInZigZag(path, vertex_pair) -> List[Tuple[int, ...]]:
+def incorporateSpurInZigZag(path, vertex_pair) -> list[tuple[int, ...]]:
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
-    return path[:i+1] + vertex_pair + path[i+1:]
+    return path[: i + 1] + vertex_pair + path[i + 1 :]
 
 
-def incorporateSpursInZigZag(path, vertices, spur_suffixes) -> List[Tuple[int, ...]]:
-    C = [stut+suff for stut in vertices for suff in spur_suffixes]
+def incorporateSpursInZigZag(path, vertices, spur_suffixes) -> list[tuple[int, ...]]:
+    C = [stut + suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
-        path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index+1]])
+        path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index + 1]])
     return path
 
 
-def createSquareTube(path: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, ...]]:
+def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, ...]]:
     # interleave the elements of the four copies of the path list
-    temp = [item for sublist in zip(*([path]*4)) for item in sublist]
+    temp = [item for sublist in zip(*([path] * 4)) for item in sublist]
     uu = u + u
     uv = u + v
     vu = v + u
@@ -170,14 +199,15 @@ def createSquareTube(path: List[tuple], u: tuple, v: tuple) -> List[Tuple[int, .
     module2 = [uu, uv, vv, vu, vu, uu, uv, vv]
 
     # Combine the path with modules based on the index
-    result = [item + module1[i % 8] for i, item in enumerate(temp[:-8])] +\
-             [item + module2[i % 8] for i, item in enumerate(temp[-8:])]
+    result = [item + module1[i % 8] for i, item in enumerate(temp[:-8])] + [
+        item + module2[i % 8] for i, item in enumerate(temp[-8:])
+    ]
     return result
 
 
 def parallelEdgesQ(e1, e2, edges):
     """e1, e2 edges, edges a list of edges (in graph),
-     returns True if in edges exist edges f1, f2 st e1, f1, e2, f2 form a 4-cycle"""
+    returns True if in edges exist edges f1, f2 st e1, f1, e2, f2 form a 4-cycle"""
     p = 1
     r = 1
     if e1[0] == e2[0] or e1[0] == e2[1] or e1[1] == e2[0] or e1[1] == e2[1]:

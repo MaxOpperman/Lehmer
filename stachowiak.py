@@ -3,8 +3,14 @@ import itertools
 import math
 from typing import List, Tuple
 
-from path_operations import adjacent, cutCycle, cycleQ, pathQ, splitPathIn2
-from permutation_graphs import multinomial
+from helper_operations.path_operations import (
+    adjacent,
+    cutCycle,
+    cycleQ,
+    pathQ,
+    splitPathIn2,
+)
+from helper_operations.permutation_graphs import multinomial
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathAlt, HpathNS
 

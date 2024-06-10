@@ -1,15 +1,19 @@
 import collections
 import copy
 import sys
-from typing import List
 
-from path_operations import adjacent, cutCycle, spurBaseIndex
-from permutation_graphs import binomial, halveSignature, rotate, permutations, stutterPermutationQ
+from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
+from helper_operations.permutation_graphs import (
+    binomial,
+    halveSignature,
+    rotate,
+    permutations,
+    stutterPermutationQ,
+)
 from rivertz import SetPerm
 
 
-
-def stutterize(s: List[int]):
+def stutterize(s: list[int]):
     """Converts argument into stutter permutation by repeating every number."""
     return [[el for el in t for _ in range(2)] for t in s]
 
@@ -31,7 +35,8 @@ def stutterPermutations(s):
         else:
             return result
 
-def createZigZagPath(c: List[tuple], u: tuple, v: tuple) -> List[List[int]]:
+
+def createZigZagPath(c: list[list[int]], u: list[int], v: list[int]) -> list[list[int]]:
     """
     :param c: cycle of even length, list of tuples
     :param u: tuple to append
@@ -46,22 +51,28 @@ def createZigZagPath(c: List[tuple], u: tuple, v: tuple) -> List[List[int]]:
     return [item + module[i % 4] for i, item in enumerate(temp)]
 
 
-def incorporateSpurInZigZag(path, vertex_pair) -> List[List[int]]:
+def incorporateSpurInZigZag(
+    path: list[list[int]], vertex_pair: list[list[int]]
+) -> list[list[int]]:
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
-    return path[:i+1] + vertex_pair + path[i+1:]
+    return path[: i + 1] + vertex_pair + path[i + 1 :]
 
 
-def incorporateSpursInZigZag(path, vertices, spur_suffixes) -> List[List[int]]:
-    C = [stut+suff for stut in vertices for suff in spur_suffixes]
+def incorporateSpursInZigZag(
+    path: list[list[int]], vertices: list[list[int]], spur_suffixes: list[list[int]]
+) -> list[list[int]]:
+    C = [stut + suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
-        path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index+1]])
+        path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index + 1]])
     return path
 
 
-def createSquareTube(path: List[tuple], u: tuple, v: tuple) -> List[List[int]]:
+def createSquareTube(
+    path: list[list[int]], u: list[int], v: list[int]
+) -> list[list[int]]:
     # interleave the elements of the four copies of the path list
-    temp = [item for sublist in zip(*([path]*4)) for item in sublist]
+    temp = [item for sublist in zip(*([path] * 4)) for item in sublist]
     uu = u + u
     uv = u + v
     vu = v + u
@@ -70,12 +81,13 @@ def createSquareTube(path: List[tuple], u: tuple, v: tuple) -> List[List[int]]:
     module2 = [uu, uv, vv, vu, vu, uu, uv, vv]
 
     # Combine the path with modules based on the index
-    result = [item + module1[i % 8] for i, item in enumerate(temp[:-8])] +\
-             [item + module2[i % 8] for i, item in enumerate(temp[-8:])]
+    result = [item + module1[i % 8] for i, item in enumerate(temp[:-8])] + [
+        item + module2[i % 8] for i, item in enumerate(temp[-8:])
+    ]
     return result
 
 
-def swapPair(perm, i, j=None) -> List[int]:
+def swapPair(perm: list[int], i: int, j=None) -> list[int]:
     """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
     if j is None:
         j = i + 1
@@ -84,7 +96,7 @@ def swapPair(perm, i, j=None) -> List[int]:
     return perm
 
 
-def extend(lst: List[List[int]], e: List[int]) -> List[List[int]]:
+def extend(lst: list[list[int]], e: list[int]) -> list[list[int]]:
     """
      Extend every item in l with e
     :param lst: list of lists of integers
@@ -97,7 +109,7 @@ def extend(lst: List[List[int]], e: List[int]) -> List[List[int]]:
         return [i + [e] for i in lst]
 
 
-def HpathNS(k0: int, k1: int) -> List[List[int]]:
+def HpathNS(k0: int, k1: int) -> list[list[int]]:
     odd_perms = []
     tuple_0 = k0 * [0]
     tuple_1 = k1 * [1]
@@ -123,23 +135,33 @@ def HpathNS(k0: int, k1: int) -> List[List[int]]:
     if k0 < k1:
         return [[1 if x == 0 else 0 for x in tup] for tup in HpathNS(k1, k0)]
     if k0 % 2 == 1 and k1 % 2 == 0:
-        p1 = extend(HpathNS(k0, k1 - 1), [1])  # A Hamiltonian path from 0^k0 1^k1 to 1^(k1-1) 0^k0 1
-        p0 = extend(HpathNS(k0 - 1, k1), [0])  # A Hamiltonian cycle from 1^(k1-1) 0^(k0-1) 1 0
+        p1 = extend(
+            HpathNS(k0, k1 - 1), [1]
+        )  # A Hamiltonian path from 0^k0 1^k1 to 1^(k1-1) 0^k0 1
+        p0 = extend(
+            HpathNS(k0 - 1, k1), [0]
+        )  # A Hamiltonian cycle from 1^(k1-1) 0^(k0-1) 1 0
 
         return p1[:-1] + rotate(p0, 1) + [p1[-1]]
 
     elif k0 % 2 == 0 and k1 % 2 == 1:
-        p1 = extend(HpathNS(k0, k1 - 1), [1])  # A Hamiltonian cycle containing edge 0^(k0-1) 1^(k1-1) 0 1 ~ 0^(k0-2) 1 0 1^(k1-2) 0 1
-        p0 = extend(HpathNS(k0 - 1, k1), [0])  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^k1 0^k1
+        p1 = extend(
+            HpathNS(k0, k1 - 1), [1]
+        )  # A Hamiltonian cycle containing edge 0^(k0-1) 1^(k1-1) 0 1 ~ 0^(k0-2) 1 0 1^(k1-2) 0 1
+        p0 = extend(
+            HpathNS(k0 - 1, k1), [0]
+        )  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^k1 0^k1
         v = p0[0]
         return [v] + cutCycle(p1[::-1], swapPair(copy.deepcopy(v), -2)) + p0[1:]
     elif k0 % 2 == 0 and k1 % 2 == 0:
-        p1 = extend(HpathNS(k0, k1 - 1), [1])  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
+        p1 = extend(
+            HpathNS(k0, k1 - 1), [1]
+        )  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
         p0 = extend(HpathNS(k0 - 1, k1), [0])
-            
+
         if stutterPermutationQ(p0[-1]):
             p0 = p0[:-1]
-        if k0 == k1: # p0 is a path from 0^(k0-1) 1^k1 0 to 1^(k1-1) 0^(k0-1) 1 0
+        if k0 == k1:  # p0 is a path from 0^(k0-1) 1^k1 0 to 1^(k1-1) 0^(k0-1) 1 0
             return p1[::-1] + p0[::-1]
         return p1[::-1] + p0
     else:
@@ -159,14 +181,14 @@ def HpathNS(k0: int, k1: int) -> List[List[int]]:
         tube1, tube2, tube3 = tube[:3], tube[3:-2], tube[-2:]
 
         if len(p1101) == 0:
-            c11xy = [stut+suff for suff in [[0, 1], [1, 0]] for stut in sp11]
+            c11xy = [stut + suff for suff in [[0, 1], [1, 0]] for stut in sp11]
         else:
             ext_path = extend(cutCycle(p1101, p0101[0][:-1] + [0]), [1, 1])
             p11xy = rotate(createZigZagPath(ext_path, [1, 0], [0, 1]), 1)
             c11xy = incorporateSpursInZigZag(p11xy, sp11, [[0, 1], [1, 0]])
 
         if len(p0001) == 0:
-            c00xy = [stut+suff for suff in [[1, 0], [0, 1]] for stut in sp00]
+            c00xy = [stut + suff for suff in [[1, 0], [0, 1]] for stut in sp00]
         else:
             ext_path = extend(cutCycle(p0001, p0101[-1][:-1] + [1]), [0, 0])
             p00xy = rotate(createZigZagPath(ext_path, [0, 1], [1, 0]), 1)
@@ -175,13 +197,33 @@ def HpathNS(k0: int, k1: int) -> List[List[int]]:
         if k0 - 2 < k1:
             p00 = p00[::-1]
 
-        path_ham = extend(p11, [1, 1]) + tube1 + c00xy + tube2 + c11xy + tube3 + extend(p00, [0, 0])
+        path_ham = (
+            extend(p11, [1, 1])
+            + tube1
+            + c00xy
+            + tube2
+            + c11xy
+            + tube3
+            + extend(p00, [0, 0])
+        )
         if len(path_ham) != len(set(tuple(row) for row in path_ham)):
-            print("Path contains duplicates:", [item for item, count in collections.Counter([tuple(node) for node in path_ham]).items() if count > 1])
+            print(
+                "Path contains duplicates:",
+                [
+                    item
+                    for item, count in collections.Counter(
+                        [tuple(node) for node in path_ham]
+                    ).items()
+                    if count > 1
+                ],
+            )
         if len(path_ham) < binomial(k0, k1):
             rivertz_perms = []
             for p in SetPerm([k0, k1]):
                 rivertz_perms.append(p)
             corrected_tuples = [[x - 1 for x in item] for item in rivertz_perms]
-            print("Path is missing elements:", [item for item in corrected_tuples if item not in path_ham])
+            print(
+                "Path is missing elements:",
+                [item for item in corrected_tuples if item not in path_ham],
+            )
         return path_ham

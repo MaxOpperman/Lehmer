@@ -1,6 +1,6 @@
 import argparse
 
-from permutation_graphs import *
+from helper_operations.permutation_graphs import *
 from rivertz import SetPerm
 from visualization import *
 

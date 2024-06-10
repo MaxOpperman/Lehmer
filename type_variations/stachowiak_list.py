@@ -1,49 +1,54 @@
 import argparse
 import itertools
 import math
-from typing import List, Tuple
 
-from path_operations import adjacent, cutCycle, cycleQ, pathQ, splitPathIn2
-from permutation_graphs import multinomial
-from steinhaus_johnson_trotter_list import SteinhausJohnsonTrotter
-from verhoeff_list import HpathNS
+from helper_operations.path_operations import (
+    adjacent,
+    cutCycle,
+    cycleQ,
+    pathQ,
+    splitPathIn2,
+)
+from helper_operations.permutation_graphs import multinomial
+from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrotter
+from type_variations.verhoeff_list import HpathNS
 
 
-def generate_all_di(chain_p: list) -> List[list]:
-    """" This function corresponds to the start of the proof of Lemma 2 (case 2.1 if |P| even) """
+def generate_all_di(chain_p: list) -> list[list]:
+    """This function corresponds to the start of the proof of Lemma 2 (case 2.1 if |P| even)"""
     q = [0, 1]
     d_all = []
 
     for j in range(len(chain_p) + 1):
         d_i = []
         for i in range(len(chain_p) + 1 - j):
-            d_i.append(chain_p[:i] + [q[0]] + chain_p[i + j:] + [q[1]] + chain_p[:j])
+            d_i.append(chain_p[:i] + [q[0]] + chain_p[i + j :] + [q[1]] + chain_p[:j])
         for i in reversed(range(len(chain_p) + 1 - j)):
-            d_i.append(chain_p[:i] + [q[1]] + chain_p[i + j:] + [q[0]] + chain_p[:j])
+            d_i.append(chain_p[:i] + [q[1]] + chain_p[i + j :] + [q[0]] + chain_p[:j])
         d_all.append(d_i)
     return d_all
 
 
-def generate_all_di_prime(chain_p: list) -> List[list]:
-    """" This function corresponds to the start of the proof of Lemma 2 (case 2.2 if |P| even) """
+def generate_all_di_prime(chain_p: list) -> list[list]:
+    """This function corresponds to the start of the proof of Lemma 2 (case 2.2 if |P| even)"""
     q = [0, 1]
     d_all = []
 
     for j in range(len(chain_p) + 1):
         d_i = []
         for i in range(len(chain_p) + 1 - j):
-            d_i.append(chain_p[:i] + [q[1]] + chain_p[i + j:] + [q[0]] + chain_p[:j])
+            d_i.append(chain_p[:i] + [q[1]] + chain_p[i + j :] + [q[0]] + chain_p[:j])
         for i in reversed(range(len(chain_p) + 1 - j)):
-            d_i.append(chain_p[:i] + [q[0]] + chain_p[i + j:] + [q[1]] + chain_p[:j])
+            d_i.append(chain_p[:i] + [q[0]] + chain_p[i + j :] + [q[1]] + chain_p[:j])
         d_all.append(d_i)
     return d_all
 
 
 def lemma2_cycle(chain_p: list, case_2_1=True) -> list:
-    """"
-     This function generates the cycles of Lemma 2.
-     If |P| is even the last two nodes are discarded as in the Lemma.
-     Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the cycle will be as in case 2.2
+    """
+    This function generates the cycles of Lemma 2.
+    If |P| is even the last two nodes are discarded as in the Lemma.
+    Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the cycle will be as in case 2.2
     """
     if case_2_1:
         d_all = generate_all_di(chain_p)
@@ -70,9 +75,9 @@ def lemma2_cycle(chain_p: list, case_2_1=True) -> list:
 
 def lemma2_extended_path(chain_p: tuple, case_2_1=True) -> list:
     """
-     Extends the cycle of Lemma 2 with the last two elements in case |P| is even
-     if |P| odd the cycle is returned
-     Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the path will be as in case 2.2
+    Extends the cycle of Lemma 2 with the last two elements in case |P| is even
+    if |P| odd the cycle is returned
+    Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the path will be as in case 2.2
     """
     cycle = lemma2_cycle(chain_p, case_2_1)
     if len(chain_p) % 2 == 0:
@@ -85,10 +90,10 @@ def lemma2_extended_path(chain_p: tuple, case_2_1=True) -> list:
     return cycle
 
 
-def _lemma8_helper(sig_occ: List[Tuple[int, int]]) -> Tuple[List[list], List[list]]:
+def _lemma8_helper(sig_occ: list[tuple[int, int]]) -> tuple[list[list], list[list]]:
     """
-     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-     We assume sig_occ has the form [(char, 1), (char, 1), (char, q), (char, p)]
+    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
+    We assume sig_occ has the form [(char, 1), (char, 1), (char, q), (char, p)]
     """
     first_char = sig_occ[0][0]
     second_char = sig_occ[1][0]
@@ -100,7 +105,7 @@ def _lemma8_helper(sig_occ: List[Tuple[int, int]]) -> Tuple[List[list], List[lis
     l_p = [sig_occ[3][0]] * sig_occ[3][1]
     if sig_occ[3][1] == 1:
         q, q2, cycle1, cycle2 = [], [], [], []
-        for index in range(sig_occ[2][1]+1):
+        for index in range(sig_occ[2][1] + 1):
             q.append([first_char, second_char])
             q2.append([second_char, first_char])
             cycle1.append(k_q[index:] + l_p + k_q[:index])
@@ -110,9 +115,13 @@ def _lemma8_helper(sig_occ: List[Tuple[int, int]]) -> Tuple[List[list], List[lis
         return q, cycle1
     else:
         all_q, result, end_q, end_res = [], [], [], []
-        for i in reversed(range(sig_occ[2][1]+1)):
+        for i in reversed(range(sig_occ[2][1] + 1)):
             ge = []
-            q, g_i = _lemma8_helper(sig_occ[:2] + [(sig_occ[2][0], sig_occ[2][1]-i)] + [(sig_occ[3][0], sig_occ[3][1]-1)])
+            q, g_i = _lemma8_helper(
+                sig_occ[:2]
+                + [(sig_occ[2][0], sig_occ[2][1] - i)]
+                + [(sig_occ[3][0], sig_occ[3][1] - 1)]
+            )
             for j, suffix in enumerate(g_i):
                 node = k_q[:i] + [l_p[0]] + suffix
                 ge.append(node)
@@ -129,18 +138,18 @@ def _lemma8_helper(sig_occ: List[Tuple[int, int]]) -> Tuple[List[list], List[lis
         return all_q, result
 
 
-def _lemma7_constructor(sig: List[int]) -> Tuple[List[list], List[list]]:
+def _lemma7_constructor(sig: list[int]) -> tuple[list[list], list[list]]:
     """
-     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-     We assume sig has the form [1, 1, q, p]
+    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
+    We assume sig has the form [1, 1, q, p]
     """
     return _lemma8_helper([(0, 1), (1, 1), (2, sig[2]), (3, sig[3])])
 
 
-def lemma7(sig: List[int]) -> List[list]:
+def lemma7(sig: list[int]) -> list[list]:
     """
-     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-     We assume sig has the form [1, 1, q, p]
+    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
+    We assume sig has the form [1, 1, q, p]
     """
     q, suffix = _lemma7_constructor(sig)
     cycle = [q[i] + suffix[i] for i in range(len(q))]
@@ -148,7 +157,7 @@ def lemma7(sig: List[int]) -> List[list]:
     return cycle
 
 
-def _lemma8_subgraph_cutter(cyc: List[list], x: list, y: list) -> List[list]:
+def _lemma8_subgraph_cutter(cyc: list[list], x: list, y: list) -> list[list]:
     """
      Makes sure x is the start node of the subgraph and y is the end node
     :param cyc: cycle in a subgraph
@@ -180,7 +189,7 @@ def _lemma8_subgraph_cutter(cyc: List[list], x: list, y: list) -> List[list]:
     return cyc_cut
 
 
-def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> List[List[tuple]]:
+def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> list[list[tuple]]:
     """
     Creates the G_i sub graphs of Lemma 8 (by making the G_ij sub graphs and connecting them)
     :param k_q: chain of q elements "k"
@@ -195,42 +204,82 @@ def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> List[List[tuple]]:
             g_ij = []
             # O <= j < (p-i)/2
             if j < (len(l_p) - i) / 2:
-                l7_q_set, l7_suffix = _lemma8_helper([(0, 1), (3, 1), (2, len(k_q)), (3, i)])
+                l7_q_set, l7_suffix = _lemma8_helper(
+                    [(0, 1), (3, 1), (2, len(k_q)), (3, i)]
+                )
                 for l7_i in range(len(l7_q_set)):
-                    g_ij.append(l_p[:2 * j] + l7_q_set[l7_i] + l_p[:len(l_p) - i - 2 * j - 1] + [1] + l7_suffix[l7_i])
-                x_ij = l_p[:2 * j] + [0] + l_p[:len(l_p) - i - 2 * j] + [1] + l_p[:i] + k_q
-                y_ij = l_p[:2 * j + 1] + [0] + l_p[:len(l_p) - i - 2 * j - 1] + [1] + l_p[:i] + k_q
+                    g_ij.append(
+                        l_p[: 2 * j]
+                        + l7_q_set[l7_i]
+                        + l_p[: len(l_p) - i - 2 * j - 1]
+                        + [1]
+                        + l7_suffix[l7_i]
+                    )
+                x_ij = (
+                    l_p[: 2 * j]
+                    + [0]
+                    + l_p[: len(l_p) - i - 2 * j]
+                    + [1]
+                    + l_p[:i]
+                    + k_q
+                )
+                y_ij = (
+                    l_p[: 2 * j + 1]
+                    + [0]
+                    + l_p[: len(l_p) - i - 2 * j - 1]
+                    + [1]
+                    + l_p[:i]
+                    + k_q
+                )
             # j == (p-i)/2
             elif j == (len(l_p) - i) / 2:
                 l7_subgraph = lemma7(sig[:3] + [i])
                 for item in l7_subgraph:
-                    g_ij.append(l_p[:len(l_p) - i] + item)
-                x_ij = l_p[:len(l_p) - i] + [0, 1] + l_p[:i] + k_q
-                y_ij = l_p[:len(l_p) - i] + [1, 0] + l_p[:i] + k_q
+                    g_ij.append(l_p[: len(l_p) - i] + item)
+                x_ij = l_p[: len(l_p) - i] + [0, 1] + l_p[:i] + k_q
+                y_ij = l_p[: len(l_p) - i] + [1, 0] + l_p[:i] + k_q
             # (p-i)/2 < j <= p-i
             else:
-                l7_q_set, l7_suffix = _lemma8_helper([(3, 1), (1, 1), (2, sig[2]), (3, i)])
+                l7_q_set, l7_suffix = _lemma8_helper(
+                    [(3, 1), (1, 1), (2, sig[2]), (3, i)]
+                )
                 for l7_i in range(len(l7_q_set)):
                     g_ij.append(
-                        l_p[:2 * (len(l_p) - i - j)] + l7_q_set[l7_i] + l_p[:i + 2 * j - len(l_p) - 1] + [0] + l7_suffix[
-                            l7_i])
-                x_ij = l_p[:2 * (len(l_p) - i - j) + 1] + [1] + l_p[:i + 2 * j - len(l_p) - 1] + [0] + l_p[:i] + k_q
-                y_ij = l_p[:2 * (len(l_p) - i - j)] + [1] + l_p[:i + 2 * j - len(l_p)] + [0] + l_p[:i] + k_q
-            g_ij = _lemma8_subgraph_cutter(
-                g_ij,
-                x_ij,
-                y_ij
-            )
+                        l_p[: 2 * (len(l_p) - i - j)]
+                        + l7_q_set[l7_i]
+                        + l_p[: i + 2 * j - len(l_p) - 1]
+                        + [0]
+                        + l7_suffix[l7_i]
+                    )
+                x_ij = (
+                    l_p[: 2 * (len(l_p) - i - j) + 1]
+                    + [1]
+                    + l_p[: i + 2 * j - len(l_p) - 1]
+                    + [0]
+                    + l_p[:i]
+                    + k_q
+                )
+                y_ij = (
+                    l_p[: 2 * (len(l_p) - i - j)]
+                    + [1]
+                    + l_p[: i + 2 * j - len(l_p)]
+                    + [0]
+                    + l_p[:i]
+                    + k_q
+                )
+            g_ij = _lemma8_subgraph_cutter(g_ij, x_ij, y_ij)
             g_i.extend(g_ij)
 
-        if g_i[0] == ([0] + l_p[:len(l_p) - i] + [1] + l_p[:i] + k_q):
+        if g_i[0] == ([0] + l_p[: len(l_p) - i] + [1] + l_p[:i] + k_q):
             g_all.append(g_i)
         else:
             g_all.append(g_i[::-1])
     return g_all
 
 
-def _lemma9_glue_a_edges(k_r: List[int], k_s: List[int], l_p: List[int], p: int, sub_cycles):
+def _lemma9_glue_a_edges(
+    k_r: list[int], k_s: list[int], l_p: list[int], p: int, sub_cycles
+):
     """
     Glues the a_i edges from Lemma8 together to create the final cycle
     :param k_r: chain of r elements "k"
@@ -246,24 +295,39 @@ def _lemma9_glue_a_edges(k_r: List[int], k_s: List[int], l_p: List[int], p: int,
     if len(k_s) > 0:
         g_result_start = _lemma8_subgraph_cutter(
             sub_cycles[0],
-            k_r + [0] + l_p[:p - 1] + [1] + [k_s[0], l_p[0]] + k_s[1:],
-            k_r + [0] + l_p[:p - 1] + [1, l_p[0]] + k_s,
+            k_r + [0] + l_p[: p - 1] + [1] + [k_s[0], l_p[0]] + k_s[1:],
+            k_r + [0] + l_p[: p - 1] + [1, l_p[0]] + k_s,
         )
     else:
         g_result_start = _lemma8_subgraph_cutter(
             sub_cycles[0],
-            [0] + l_p[:p - 1] + [1] + [k_r[0], l_p[0]] + k_r[1:],
-            [0] + l_p[:p - 1] + [1, l_p[0]] + k_r,
+            [0] + l_p[: p - 1] + [1] + [k_r[0], l_p[0]] + k_r[1:],
+            [0] + l_p[: p - 1] + [1, l_p[0]] + k_r,
         )
     g_result_end = []
     # for each of the floor((p+1)/2) sub cycles
-    for i in range(1, len(sub_cycles)-((p+1) % 2)):
+    for i in range(1, len(sub_cycles) - ((p + 1) % 2)):
         # take the first a1 and a2 and make them into a cycle from a1 ~ all nodes in cycle ~ a2
-        a_2i_1 = k_r + [0] + l_p[:p - 2 * i] + [1] + l_p[:2 * i] + k_s
-        a_2i_2 = k_r + [0] + l_p[:p - 2 * i] + [1] + l_p[:2 * i - 1] + [k_s[0], l_p[0]] + k_s[1:]
+        a_2i_1 = k_r + [0] + l_p[: p - 2 * i] + [1] + l_p[: 2 * i] + k_s
+        a_2i_2 = (
+            k_r
+            + [0]
+            + l_p[: p - 2 * i]
+            + [1]
+            + l_p[: 2 * i - 1]
+            + [k_s[0], l_p[0]]
+            + k_s[1:]
+        )
         cyc = _lemma8_subgraph_cutter(sub_cycles[i], a_2i_1, a_2i_2)
         # then cut that cycle in 2 by splitting after the next a1 (and thus before the next a2)
-        next_a_2 = k_r + [0] + l_p[:max(p - ((2 * i) + 1), 0)] + [1] + l_p[:(2 * i) + 1] + k_s
+        next_a_2 = (
+            k_r
+            + [0]
+            + l_p[: max(p - ((2 * i) + 1), 0)]
+            + [1]
+            + l_p[: (2 * i) + 1]
+            + k_s
+        )
         p1, p2 = splitPathIn2(cyc, next_a_2)
         g_result_start.extend(p1)
         g_result_end.extend(p2[::-1])
@@ -271,37 +335,39 @@ def _lemma9_glue_a_edges(k_r: List[int], k_s: List[int], l_p: List[int], p: int,
         # if p is even, we are still missing the last cycle which we only have to sort from the last a1~nodes~a2
         a_last_1 = k_r + [0, 1] + l_p + k_s
         a_last_2 = k_r + [0, 1] + l_p[:-1] + [k_s[0], l_p[-1]] + k_s[1:]
-        g_result_start.extend(_lemma8_subgraph_cutter(sub_cycles[-1], a_last_1, a_last_2))
+        g_result_start.extend(
+            _lemma8_subgraph_cutter(sub_cycles[-1], a_last_1, a_last_2)
+        )
     g_result_start.extend(g_result_end[::-1])
     return g_result_start
 
 
-def lemma8(sig: List[int]) -> List[list]:
+def lemma8(sig: list[int]) -> list[list]:
     """
-     The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
-     We assume sig has the form [1, 1, q, p]
+    The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
+    We assume sig has the form [1, 1, q, p]
     """
     k_q = [2] * sig[2]
     l_p = [3] * sig[3]
     g_0, g_0_end = [], []
-    for i in range(sig[3]+1):
+    for i in range(sig[3] + 1):
         g_0.append(l_p[:i] + [0] + l_p[i:] + [1] + k_q)
         g_0_end.append(l_p[i:] + [1] + l_p[:i] + [0] + k_q)
     g_0.extend(g_0_end)
     g_all = [g_0] + _lemma8_g_i_sub_graphs(k_q, l_p, sig)
     sub_cycles = []
     for i in range(0, len(g_all) - (len(g_all) % 2), 2):
-        sub_cycles.append(g_all[i] + g_all[i+1][::-1])
+        sub_cycles.append(g_all[i] + g_all[i + 1][::-1])
     if len(g_all) % 2 == 1:
         sub_cycles.append(g_all[-1])
     g_result_start = _lemma9_glue_a_edges([], k_q, l_p, sig[3], sub_cycles)
     return g_result_start
 
 
-def lemma9(sig: List[int]) -> List[list]:
+def lemma9(sig: list[int]) -> list[list]:
     """
-     The graph G=GE( (k^r (0|1) k^s) | l^p) ) contains a Hamilton cycle for every p, r+s > O.
-     We assume sig has the form [1, 1, r, s, p]
+    The graph G=GE( (k^r (0|1) k^s) | l^p) ) contains a Hamilton cycle for every p, r+s > O.
+    We assume sig has the form [1, 1, r, s, p]
     """
     k_r = [2] * sig[2]
     k_s = [2] * sig[3]
@@ -321,12 +387,26 @@ def lemma9(sig: List[int]) -> List[list]:
             g = lemma9(sig[:2] + [sig[2] - 1, sig[3], i])
             recursive_lists = []
             for item in g:
-                recursive_lists.append(l_p[:len(l_p)-i] + k_r[:1] + item)
+                recursive_lists.append(l_p[: len(l_p) - i] + k_r[:1] + item)
             # a_i = l^{p-i} k l^i k^{r-1} 01 k^s
-            ai = l_p[:len(l_p)-i] + k_r[:1] + l_p[:i] + k_r[:len(k_r)-1] + [0, 1] + k_s
+            ai = (
+                l_p[: len(l_p) - i]
+                + k_r[:1]
+                + l_p[:i]
+                + k_r[: len(k_r) - 1]
+                + [0, 1]
+                + k_s
+            )
             ai_index = recursive_lists.index(ai)
             # l^{p-i} k l^i k^{r-1} 01 k^s
-            aj = l_p[:len(l_p)-i] + k_r[:1] + l_p[:i] + k_r[:len(k_r)-1] + [1, 0] + k_s
+            aj = (
+                l_p[: len(l_p) - i]
+                + k_r[:1]
+                + l_p[:i]
+                + k_r[: len(k_r) - 1]
+                + [1, 0]
+                + k_s
+            )
             aj_index = recursive_lists.index(aj)
 
             # fix the orientation of the list
@@ -357,13 +437,13 @@ def lemma9(sig: List[int]) -> List[list]:
 
 def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
     """
-     Cuts the cycle and gi to change them for lemma 10
-     :param cycle: cycle to cut for lemma 10
-     :param gi: subgraph to cut for lemma 10
-     :param edge_i: edge that should be at the start of gi
-     :param edge_j: edge that should be the point at which the cycle is cut (see return)
-     :return: cycle starts with edge_i[0] and edge_i[1] is the second node
-              gi starts with edge_j[0] and edge_j[1] is the last node
+    Cuts the cycle and gi to change them for lemma 10
+    :param cycle: cycle to cut for lemma 10
+    :param gi: subgraph to cut for lemma 10
+    :param edge_i: edge that should be at the start of gi
+    :param edge_j: edge that should be the point at which the cycle is cut (see return)
+    :return: cycle starts with edge_i[0] and edge_i[1] is the second node
+             gi starts with edge_j[0] and edge_j[1] is the last node
     """
     ind_node_i = gi.index(edge_i[0])
     # preparing gi so that node_i[0] the first and node_i[1] second in list
@@ -387,7 +467,7 @@ def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
     elif cycle[ind_node_j + 1] == edge_j[1]:
         # if node_j[1] is the second element in the cycle
         # change cycle to start with node_j[1] and then append the part until node_j[0]. Then reverse the whole cycle
-        cycle = cycle[ind_node_j + 1:] + cycle[:ind_node_j + 1]
+        cycle = cycle[ind_node_j + 1 :] + cycle[: ind_node_j + 1]
         cycle.reverse()
     else:
         # otherwise we have [node_j[1], node_j[0], ...] so we move node_j[0] to the start and append the part until node_j[1]
@@ -395,17 +475,17 @@ def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
     return cycle, gi
 
 
-def _lemma10_helper(K: List[list], p: int, new_color: int):
-    """"
-     :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
-     :param p: is the length of the last part of the signature (l^p)
-     :param new_color: is the new color to add to the graph
-     :return Hamiltonian path over Q | l^p
-     """
+def _lemma10_helper(K: list[list], p: int, new_color: int):
+    """
+    :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
+    :param p: is the length of the last part of the signature (l^p)
+    :param new_color: is the new color to add to the graph
+    :return Hamiltonian path over Q | l^p
+    """
     # G_i = GE(K_{2i-1} | l^p, K_{2i} | l^p) for 0 <= i <= n
     G = []
     l_p = [new_color] * p
-    for i in range(len(K)//2):
+    for i in range(len(K) // 2):
         # Constructing cycles Ci taking graphs 'including' vertices on 2*i and 2*i+1 position
         for j, item in enumerate(K[2 * i]):
             # determining r and s - location of a swap
@@ -449,9 +529,15 @@ def _lemma10_helper(K: List[list], p: int, new_color: int):
         # b_i = (k_{2i} l^p, k_{2i,1} \dots k_{2i,q-1} l k_{2i,q} l^{p-1})
         bi = [K[2 * i] + l_p, K[2 * i][:-1] + l_p[-1:] + [K[2 * i][-1]] + l_p[:-1]]
         # a_j = (l^p k_{2i-1}, l^{p-1} k_{2i-1,1} l k_{2i-1,2} \dots, k_{2i-1,q})
-        aj = [l_p + K[2 * i - 1], l_p[:-1] + [K[2 * i - 1][0]] + l_p[-1:] + K[2 * i - 1][1:]]
+        aj = [
+            l_p + K[2 * i - 1],
+            l_p[:-1] + [K[2 * i - 1][0]] + l_p[-1:] + K[2 * i - 1][1:],
+        ]
         # b_j = (k_{2i-1} l^p, k_{2i-1,1} \dots k_{2i-1,q-1} l k_{2i-1,q} l^{p-1})
-        bj = [K[2 * i - 1] + l_p, K[2 * i - 1][:-1] + l_p[-1:] + [K[2 * i - 1][-1]] + l_p[:-1]]
+        bj = [
+            K[2 * i - 1] + l_p,
+            K[2 * i - 1][:-1] + l_p[-1:] + [K[2 * i - 1][-1]] + l_p[:-1],
+        ]
         # if K_j and K_{j+1} differ in the first pair of elements, a_j and a_{j+1} are parallel
         if adjacent(ai[0], aj[0]) and adjacent(ai[1], aj[1]):
             cycle, gi = _lemma10_subcycle_cutter(cycle, gi, ai, aj)
@@ -472,7 +558,7 @@ def lemma10(sig):
 def lemma11(sig):
     """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
     if sum(sig[:2]) > 2:
-        path = HpathNS(sig[0], sig[1]) # K in the paper
+        path = HpathNS(sig[0], sig[1])  # K in the paper
         next_color = 2
     elif sig[2] == 1:
         # use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1
@@ -480,13 +566,17 @@ def lemma11(sig):
             next_color = sig.index(next(x for x in sig if x != 1))
         except StopIteration:
             next_color = len(sig)  # all elements are 1
-        path = SteinhausJohnsonTrotter.get_sjt_permutations(SteinhausJohnsonTrotter(), next_color)
+        path = SteinhausJohnsonTrotter.get_sjt_permutations(
+            SteinhausJohnsonTrotter(), next_color
+        )
     elif sig[2] != 0:
         # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])
         path = lemma2_extended_path([2] * sig[2])
         next_color = 3
     else:
-        raise ValueError("q = |Q| > 2 and GE(Q) has an even number of vertices is required for Lemma 11")
+        raise ValueError(
+            "q = |Q| > 2 and GE(Q) has an even number of vertices is required for Lemma 11"
+        )
     for ind, new_color in enumerate(sig[next_color:], start=next_color):
         cycle = _lemma10_helper(path, new_color, ind)
         path = cycle
@@ -494,10 +584,18 @@ def lemma11(sig):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Helper tool to find paths through permutation neighbor swap graphs.")
-    parser.add_argument("-s", "--signature"
-                        , type=str, help="Input permutation signature (comma separated)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Enable verbose mode")
+    parser = argparse.ArgumentParser(
+        description="Helper tool to find paths through permutation neighbor swap graphs."
+    )
+    parser.add_argument(
+        "-s",
+        "--signature",
+        type=str,
+        help="Input permutation signature (comma separated)",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose mode"
+    )
 
     args = parser.parse_args()
     s = [int(x) for x in args.signature.split(",")]
@@ -506,12 +604,18 @@ if __name__ == "__main__":
             perms_odd = HpathNS(s[0], s[1])
             if args.verbose:
                 print(f"Resulting path {perms_odd}")
-            print(f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(tuple(row) for row in perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
-                  f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}")
+            print(
+                f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(tuple(row) for row in perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
+                f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
+            )
         elif s[0] % 2 == 0 or s[1] % 2 == 0:
-           raise ValueError("The first two elements of the signature should be odd for Stachowiak's permutations")
+            raise ValueError(
+                "The first two elements of the signature should be odd for Stachowiak's permutations"
+            )
         else:
             l11 = lemma11(s)
             if args.verbose:
                 print(f"lemma 11 results {l11}")
-            print(f"lemma 11 {len(set(tuple(row) for row in l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}")
+            print(
+                f"lemma 11 {len(set(tuple(row) for row in l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}"
+            )

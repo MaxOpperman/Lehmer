@@ -7,7 +7,7 @@ This software is made available under the terms of the (To Be Supplied) License.
 """
 
 import pytest
-from permutation_graphs import *
+from helper_operations.permutation_graphs import *
 
 
 class TestMain:
@@ -68,7 +68,7 @@ class TestMain:
         result = signature(p)
         assert result == [3, 2, 1]
 
-    def check_permutations(self, s: List[int], ps: List[List[int]]):
+    def check_permutations(self, s: list[int], ps: list[list[int]]):
         """Check that all permutations in ps differ,  none are missing, and all have signature s"""
         assert len(ps) == len(set(tuple(p) for p in ps))  # no duplicates
         assert len(ps) == multinomial(s)  # no missing
