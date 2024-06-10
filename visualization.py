@@ -1,7 +1,6 @@
 import copy
 import math
 from argparse import Namespace
-from typing import List, Tuple
 
 import networkx as nx
 from matplotlib import pyplot as plt
@@ -10,7 +9,7 @@ from pathmarker import PathMarker
 from permutation_graphs import start_perm, defect, total_path_motion
 
 
-def visualize(dict_graph, dict_inv) -> Tuple[nx.Graph, dict]:
+def visualize(dict_graph, dict_inv) -> tuple[nx.Graph, dict]:
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(dict_inv.values()), 0)
 
@@ -23,35 +22,55 @@ def visualize(dict_graph, dict_inv) -> Tuple[nx.Graph, dict]:
     # draw the edges
     for perm1, values in dict_graph.items():
         for perm2 in values:
-            graph.add_edge(perm1, perm2, color='k')
+            graph.add_edge(perm1, perm2, color="k")
 
-    return graph, nx.get_edge_attributes(graph, 'color')
+    return graph, nx.get_edge_attributes(graph, "color")
 
 
-def find_path_colors(edge_colors: dict, graph: nx.Graph, cli_args: Namespace, signature: List[int]) -> Tuple[list, list]:
+def find_path_colors(
+    edge_colors: dict, graph: nx.Graph, cli_args: Namespace, signature: list[int]
+) -> tuple[list, list]:
     """
-     Finds the coloring if a possibly imperfect Hamiltonian path exits
+    Finds the coloring if a possibly imperfect Hamiltonian path exits
     """
-    h_nodes, spur_origins, spur_destinations = lehmer_path(copy.deepcopy(graph), cli_args, signature)
+    h_nodes, spur_origins, spur_destinations = lehmer_path(
+        copy.deepcopy(graph), cli_args, signature
+    )
     # Color the edges
     for ind in range(len(h_nodes) - 1):
         if (h_nodes[ind], h_nodes[ind + 1]) in edge_colors:
-            edge_colors[(h_nodes[ind], h_nodes[ind + 1])] = 'r'
+            edge_colors[(h_nodes[ind], h_nodes[ind + 1])] = "r"
         if (h_nodes[ind + 1], h_nodes[ind]) in edge_colors:
-            edge_colors[(h_nodes[ind + 1], h_nodes[ind])] = 'r'
+            edge_colors[(h_nodes[ind + 1], h_nodes[ind])] = "r"
     # Color the nodes
     if cli_args.color:
-        node_colors = ['green' if node in spur_origins else 'olive' if node in spur_destinations else
-                       'deeppink' if node in h_nodes else 'skyblue' for node in graph.nodes()]
+        node_colors = [
+            (
+                "green"
+                if node in spur_origins
+                else (
+                    "olive"
+                    if node in spur_destinations
+                    else "deeppink" if node in h_nodes else "skyblue"
+                )
+            )
+            for node in graph.nodes()
+        ]
     else:
-        node_colors = ['green' if node in spur_origins else 'olive' if node in spur_destinations else 'skyblue'
-                       for node in graph.nodes()]
+        node_colors = [
+            (
+                "green"
+                if node in spur_origins
+                else "olive" if node in spur_destinations else "skyblue"
+            )
+            for node in graph.nodes()
+        ]
     return node_colors, edge_colors.values()
 
 
 def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
     plt.figure(figsize=(19, 38))
-    pos = nx.get_node_attributes(graph, 'pos')
+    pos = nx.get_node_attributes(graph, "pos")
     nx.draw(
         graph,
         pos,
@@ -60,7 +79,7 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
         node_color=n_color,
         node_size=500,
         font_size=10,
-        font_weight='bold',
+        font_weight="bold",
         # width=4,
     )
 
@@ -73,7 +92,9 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
             node = None
             edge = None
             for n, (xp, yp) in pos.items():
-                if (x - xp) ** 2 + (y - yp) ** 2 < 0.01:  # Check if the click is close to a node
+                if (x - xp) ** 2 + (
+                    y - yp
+                ) ** 2 < 0.01:  # Check if the click is close to a node
                     node = n
                     break
             if node is None:
@@ -98,14 +119,14 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
 
     # Register key press event handler
     def onkeypress(event):
-        if event.key == 'c':
+        if event.key == "c":
             path_marker.reset_colors()
             path_marker.update_plot(nx, plt)
 
-    plt.gcf().canvas.mpl_connect('button_press_event', onclick)
-    plt.gcf().canvas.mpl_connect('key_press_event', onkeypress)
+    plt.gcf().canvas.mpl_connect("button_press_event", onclick)
+    plt.gcf().canvas.mpl_connect("key_press_event", onkeypress)
 
-    plt.axis('off')
+    plt.axis("off")
     plt.show()
 
 
@@ -131,8 +152,8 @@ def point_to_line_distance(x, y, x1, y1, x2, y2):
 
 def is_stutter_permutation(perm, max_arity):
     """
-     Returns whether the permutation is a stutter permutation
-     Always returns False when the permutation has the maximum arity in the graph
+    Returns whether the permutation is a stutter permutation
+    Always returns False when the permutation has the maximum arity in the graph
     """
     if max_arity:
         return False
@@ -144,12 +165,21 @@ def is_stutter_permutation(perm, max_arity):
     return True
 
 
-def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
+def lehmer_path(
+    graph: nx.Graph, cli_args: Namespace, signature: list[int]
+) -> tuple[list, list, list]:
+    """
+    Implementation Lehmer's permutations by adjacent interchanges algorithm
+    @param graph: The neighbor-swap graph
+    @param cli_args: Command line arguments
+    @param signature: The permutation signature
+    @return: Lehmer path, spur count, node count
+    """
     # Step 1: Set node tally at 1
     node_tally = 1
     # Step 2: Set spur tally at 0
     spur_tally = 0
-    spur_origins = []
+    spur_bases = []
     spur_tips = []
     # Step 3: The first node becomes B
     b = start_perm(signature)
@@ -164,7 +194,13 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
         min_conn = min([len(list(graph.neighbors(node))) for node in connected_nodes])
         # Filter the connected nodes to include only those with the minimum number of connections
         # In case of a tie, smaller serial number
-        node = min([node for node in connected_nodes if len(list(graph.neighbors(node))) == min_conn])
+        node = min(
+            [
+                node
+                for node in connected_nodes
+                if len(list(graph.neighbors(node))) == min_conn
+            ]
+        )
 
         # Step 6: If the multiplicity of N is 1, go to Step 12
         if graph.degree(node) == 1:
@@ -175,7 +211,7 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
                 spur_tally += 1
                 # add nodes to path and list of spurs
                 interchanges.append(b)
-                spur_origins.append(b)
+                spur_bases.append(b)
                 spur_tips.append(node)
             # Step 14: Disconnect B and N
             graph.remove_edge(b, node)
@@ -187,7 +223,9 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
         # Step 7: Store interchange digit from B to N in next storage place
         interchanges.append(node)
         # Step 8: Disconnect B from all connecting nodes, thus reducing by 1 the multiplicity of each such node
-        for neighbors in list(graph.neighbors(b)):  # Use list() to create a copy of the list before iterating
+        for neighbors in list(
+            graph.neighbors(b)
+        ):  # Use list() to create a copy of the list before iterating
             graph.remove_edge(b, neighbors)
 
         # Step 9: N becomes B
@@ -199,25 +237,39 @@ def lehmer_path(graph: nx.Graph, cli_args: Namespace, signature: List[int]):
 
     # Step 16: Output initial marks, spur and node tallies, and list of interchange digits
     if cli_args.verbose:
-        if len(spur_origins) != len(spur_tips):
-            print("Spur origins:", spur_origins)
+        if len(spur_bases) != len(spur_tips):
+            print("Spur origins:", spur_bases)
             print("Stutters:", spur_tips)
         else:
             print("Spur origin -> stutter:")
-            for i in range(len(spur_origins)):
-                print("Spur {}:".format(i), spur_origins[i], "->", spur_tips[i])
+            for i in range(len(spur_bases)):
+                print("Spur {}:".format(i), spur_bases[i], "->", spur_tips[i])
         if node_tally < graph.number_of_nodes():
             print("Node Tally:", node_tally, "and path length:", len(interchanges))
-            print("!!!!! INCORRECT PATH; MISSING", graph.number_of_nodes() - node_tally, "NODES !!!!!")
+            print(
+                "!!!!! INCORRECT PATH; MISSING",
+                graph.number_of_nodes() - node_tally,
+                "NODES !!!!!",
+            )
         else:
-            print("Node Tally:", node_tally, "which is CORRECT! And path length:", len(interchanges))
+            print(
+                "Node Tally:",
+                node_tally,
+                "which is CORRECT! And path length:",
+                len(interchanges),
+            )
         if spur_tally > 0 and spur_tally != defect(signature):
             print("Spur Tally:", spur_tally)
-            print("!!!!! INCORRECT NUMBER OF SPURS; FOUND", spur_tally, "BUT ONLY", max(defect(signature), 0),
-                  "IS CORRECT !!!!!")
+            print(
+                "!!!!! INCORRECT NUMBER OF SPURS; FOUND",
+                spur_tally,
+                "BUT ONLY",
+                max(defect(signature), 0),
+                "IS CORRECT !!!!!",
+            )
         else:
             print("Spur Tally:", spur_tally, "which is CORRECT!")
         print(f"Total Lehmer motion {total_path_motion(interchanges)}")
 
     # Step 17: Halt
-    return interchanges, spur_origins, spur_tips
+    return interchanges, spur_bases, spur_tips

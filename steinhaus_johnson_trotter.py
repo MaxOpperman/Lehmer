@@ -1,6 +1,7 @@
 # From https://www.geeksforgeeks.org/johnson-trotter-algorithm/
 # This Code is Contributed by Prasad Kandekar(prasad264)
 
+
 class SteinhausJohnsonTrotter:
     # Python program to print all permutations
     # using Johnson and Trotter algorithm.
@@ -67,7 +68,7 @@ class SteinhausJohnsonTrotter:
                     dir[a[i] - 1] = self.LEFT_TO_RIGHT
 
         for i in range(n):
-            print(a[i], end='')
+            print(a[i], end="")
         print("")
 
     # This function mainly calls printOnePerm()
@@ -79,7 +80,7 @@ class SteinhausJohnsonTrotter:
 
         # Printing the first permutation
         for i in range(n):
-            print(a[i], end='')
+            print(a[i], end="")
         print("")
 
         # To store current directions
@@ -90,7 +91,7 @@ class SteinhausJohnsonTrotter:
         # for generating permutations in the order.
         for i in range(1, self.fact(n)):
             self.printOnePerm(a, dir, n)
-    
+
     def get_sjt_permutations(self, n):
         """
         Generate permutations using the Steinhaus-Johnson-Trotter algorithm.
