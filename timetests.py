@@ -49,6 +49,7 @@ class TimeTests:
         [3, 3, 2, 1, 1],
         [3, 3, 4, 2],
     ]
+
     @staticmethod
     def setup(n):
         return TimeTests.signatures[n]
@@ -68,13 +69,17 @@ def time_tests(args: Namespace):
             TimeTests.signatures = sorted(TimeTests.signatures_l2, key=multinomial)
         elif l11_type == "Verhoeff":
             signature_type = "Verhoeff's binary case"
-            TimeTests.signatures = sorted(TimeTests.signatures_verhoeff, key=multinomial)
+            TimeTests.signatures = sorted(
+                TimeTests.signatures_verhoeff, key=multinomial
+            )
         elif l11_type == "SJT":
             signature_type = "Steinhaus-Johnson-Trotter (permutahedron)"
             TimeTests.signatures = sorted(TimeTests.signatures_sjt, key=multinomial)
         elif l11_type == "Stachowiak":
             signature_type = "Stachowiak's theorem"
-            TimeTests.signatures = sorted(TimeTests.sigantures_stachowiak, key=multinomial)
+            TimeTests.signatures = sorted(
+                TimeTests.sigantures_stachowiak, key=multinomial
+            )
         else:
             print("Invalid test type", l11_type, "not in list")
             break
@@ -85,10 +90,12 @@ def time_tests(args: Namespace):
 
         def wrapper_numpy(kernel, input):
             return kernel(np.array(input))
-        
+
         def get_kernels():
             kernels = [
-                lambda input: wrapper_list(type_variations.stachowiak_list.lemma11, input),
+                lambda input: wrapper_list(
+                    type_variations.stachowiak_list.lemma11, input
+                ),
                 lambda input: wrapper_list(stachowiak.lemma11, input),
                 lambda input: wrapper_list(
                     type_variations.stachowiak_tuple_verhoeff_list.lemma11, input
@@ -129,7 +136,7 @@ def time_tests(args: Namespace):
         )
 
         y_coordinates_dict = results
-        
+
         if args.graph:
             results.save(
                 f"./out/lemma11_comparison{file_name}.png",
@@ -144,7 +151,9 @@ def time_tests(args: Namespace):
                     "n & Signature & Stachowiak's theorem with lists & Stachowiak's theorem with tuples & Stachowiak tuples, Verhoeff lists \\\\\n"
                 )
                 file.write("\\hline\n")
-                for n, t in zip(y_coordinates_dict.n_range, y_coordinates_dict.timings_s.T):
+                for n, t in zip(
+                    y_coordinates_dict.n_range, y_coordinates_dict.timings_s.T
+                ):
                     lst = [str(n), f"{TimeTests.signatures[n]}"] + [
                         f"\\textcolor{{red}}{{{str(tt)}}}" if tt == min(t) else str(tt)
                         for tt in t
@@ -158,12 +167,16 @@ def time_tests(args: Namespace):
                 file.write(f"\\label{{tab: timeTests{file_name}}}\n")
                 file.write("\\end{table}\n")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Helper tool to find paths through permutation neighbor swap graphs."
     )
     parser.add_argument(
-        "-l", "--latex", action="store_true", help="Generate LaTeX tables for the results"
+        "-l",
+        "--latex",
+        action="store_true",
+        help="Generate LaTeX tables for the results",
     )
     parser.add_argument(
         "-g", "--graph", action="store_true", help="Generate graphs for the results"

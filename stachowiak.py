@@ -11,7 +11,7 @@ from helper_operations.path_operations import (
 )
 from helper_operations.permutation_graphs import multinomial
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
-from verhoeff import HpathAlt, HpathNS
+from verhoeff import HpathNS
 
 
 def generate_all_di(chain_p: tuple) -> list[list[int]]:
