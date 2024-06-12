@@ -116,12 +116,71 @@ def HpathAlt(sig: list[int]) -> list[tuple[int, ...]]:
     else:
         raise ValueError("k must be 2, 3 or greater than or equal to 4")
 
+def HpathEven_1_1(k: int) -> list[tuple[int, ...]]:
+    """
+    Generates a path based on the number of 0's `k` from 1 2 0^(k) to 0 2 1 0^(k-1)
+    @param k: The input value for k0
+    @return: The generated path
+    """
+    if k % 2 == 1:
+        raise ValueError("k must be even")
+    if k == 2:
+        path = [
+            (1, 2, 0, 0),
+            (2, 1, 0, 0),
+            (2, 0, 1, 0),
+            (2, 0, 0, 1),
+            (0, 2, 0, 1),
+            (0, 0, 2, 1),
+            (0, 0, 1, 2),
+            (0, 1, 0, 2),
+            (1, 0, 0, 2),
+            (1, 0, 2, 0),
+            (0, 1, 2, 0),
+            (0, 2, 1, 0),
+        ]
+        assert pathQ(path)
+        return path
+    k_0_tuple = tuple([0] * k)
+    bottom_path = [
+        (1, 2) + k_0_tuple,
+    ]
+    # construct the path on the bottom, incl the bottom-right corner node
+    for i in range(0, k+1):
+        bottom_path.append((2,) + k_0_tuple[:i] + (1,) + k_0_tuple[i:])
+    midpath = []
+    for i in range(0, k, 2):
+        # construct the path going up
+        up_path = (0,) + k_0_tuple[i+1:] + (1,) + k_0_tuple[1:i+1]
+        for j in range(1, len(up_path)-i):
+            midpath.append(up_path[:j] + (2,) + up_path[j:])
+        # construct the path going left (incl top-right corner node)
+        left_path = k_0_tuple[i:] + (2,) + k_0_tuple[:i]
+        for j in reversed(range(0, len(left_path)-i)):
+            midpath.append(left_path[:j] + (1,) + left_path[j:])
+        right_path = k_0_tuple[i+1:] + (2,) + k_0_tuple[:i+1]
+        # construct the path going right (incl top-right corner node)
+        for j in range(0, len(right_path)-i):
+            midpath.append(right_path[:j] + (1,) + right_path[j:])
+        # construct the path going down
+        down_path = k_0_tuple[i+1:] + (1,) + k_0_tuple[:i+1]
+        for j in reversed(range(1, len(down_path)-2-i)):
+            midpath.append(down_path[:j] + (2,) + down_path[j:])
+    print(bottom_path + midpath)
+    return bottom_path + midpath
+
 
 def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
+    """
+    Generates a path based on the number of 0's `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1.
+    @param k: The input value for k0
+    @return: The generated path
+    """
     if k % 2 == 0:
-        raise ValueError("k must be greater than 2")
+        raise ValueError("k must be odd")
     if k == 1:
-        return [
+        # base case
+        path = [
             (1, 2, 0, 1),
             (1, 0, 2, 1),
             (0, 1, 2, 1),
@@ -135,6 +194,8 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
             (2, 0, 1, 1),
             (0, 2, 1, 1),
         ]
+        assert pathQ(path)
+        return path
     k_0_tuple = tuple([0] * k)
     start_path = [
         (1, 2) + k_0_tuple + (1,),
@@ -143,7 +204,6 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
         (2, 0, 0, 1) + k_0_tuple[:-2] + (1,),
         (2, 0, 0, 0, 1) + k_0_tuple[:-3] + (1,),
     ]
-    # TODO generate longer paths
     if k > 3:
         end_path_1 = [
             (0, 2, 0, 0, 1) + k_0_tuple[:-3] + (1,),
@@ -155,7 +215,6 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
             (0, 1, 0, 0, 0, 2) + k_0_tuple[:-4] + (1,),
             (1, 0, 0, 0, 0, 2) + k_0_tuple[:-4] + (1,),
         ]
-        # TODO make the reversed L shapes
         mid_path = []
         for i in range(3, k):
             mid_path.append(
@@ -179,7 +238,6 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
             if prefix_zeros == 0:
                 for j in range(0, k + 1):
                     mid_path.append(k_0_tuple[j:] + (1,) + k_0_tuple[:j] + (1, 2))
-                # (1, 0, 0, 0, 0, 0, 1, 2)
                 for j in range(0, k):
                     mid_path.append(
                         k_0_tuple[:prefix_zeros]
@@ -188,7 +246,6 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
                         + k_0_tuple[j:]
                         + (2, 1)
                     )
-                # (0, 0, 0, 0, 1, 0, 2, 1)
             else:
                 for j in range(0, k - prefix_zeros + 1):
                     mid_path.append(
@@ -208,14 +265,6 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
                         + k_0_tuple[:prefix_zeros]
                         + (1,)
                     )
-                # mid_path.append((999999999999,))
-                # mid_path.append(
-                #     k_0_tuple[:k-prefix_zeros-1] + (1, 0, 2) + k_0_tuple[:prefix_zeros] + (1,)
-                # )
-                # for j in range(0, k-prefix_zeros):
-                #     mid_path.append(
-                #         k_0_tuple[:j+prefix_zeros] + (1,) + k_0_tuple[j+prefix_zeros+1:] + (2,) + k_0_tuple[:prefix_zeros] + (1,)
-                #     )
             temp = (
                 k_0_tuple[: k - 1 - prefix_zeros]
                 + (1,)
@@ -249,7 +298,7 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
         (0, 2, 0, 1, 0) + k_0_tuple[:-3] + (1,),
         (0, 2, 1, 0, 0) + k_0_tuple[:-3] + (1,),
     ]
-    print(mid_path)
+    assert pathQ(start_path + mid_path + end_path_1 + end_path_2)
     return start_path + mid_path + end_path_1 + end_path_2
 
 
@@ -307,10 +356,10 @@ def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
             transformed, (0,)
         )  # a path from a = 1 2 0^(k-1) 1 to b = 0 2 1 0^(k-2) 1
         # 1 2 0^{k2} to 0 2 1 0^{k2-1}.
-        print(f"SIG: {sig}, p2: {p2}, p1: {p1}, p0: {p0}")
         v = (1,) + tuple([0] * k) + (1, 2)
         c = p0 + p1
-        return cutCycle(p2, swapPair(v, 1)) + cutCycle(c, swapPair(v, -2))
+        print(f"SIG: {sig}, p2: {p2}, p1: {p1}, p0: {p0}, v: {v}")
+        return cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))
     elif len(sig) == 3 and k % 2 == 1 and sig[1] == 2 and sig[2] == 1:
         # odd-2-1 case
         # p12 = extend(HpathNS(k, 1), (1, 2))
@@ -318,9 +367,9 @@ def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
         p1 = extend(HpathCycleCover([k, 1, 1]), (1,))
         p10 = extend(HpathCycleCover([k - 1, 1, 1]), (1, 0))
         if k - 2 == 1:
-            transformed = HpathOdd_2_1(2)
+            transformed = HpathOdd_2_1(1)
         else:
-            transformed = HpathCycleCover([k - 2, 2, 1])[::-1]
+            transformed = HpathOdd_2_1(k - 2)[::-1]
         p00 = extend(transformed, (0, 0))
         sp02 = stutterPermutations([k - 1, 2])  # stutter permutations for p02, p20
         v1 = tuple([0] * k) + (1, 2, 1)
