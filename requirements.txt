@@ -2,3 +2,4 @@ numpy>=1.26.4
 matplotlib>=3.9.0
 perfplot>=0.10.2
 networkx>=3.3
+pytest>=8.2.2
