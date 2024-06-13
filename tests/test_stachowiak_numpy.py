@@ -8,17 +8,19 @@ This software is made available under the terms of the (To Be Supplied) License.
 
 import copy
 import math
+
 import numpy as np
 import pytest
-from helper_operations.path_operations import cycleQ, pathQ
-from helper_operations.permutation_graphs import HcycleQ, multinomial
+
+from helper_operations.path_operations import cycleQ
+from helper_operations.permutation_graphs import multinomial
 from type_variations.stachowiak_numpy import (
     _lemma10_helper,
-    lemma11,
     lemma2_extended_path,
     lemma7,
     lemma8,
     lemma9,
+    lemma11,
 )
 
 

@@ -8,7 +8,9 @@ This software is made available under the terms of the (To Be Supplied) License.
 
 import collections
 import math
+
 import pytest
+
 from helper_operations.path_operations import pathQ
 from helper_operations.permutation_graphs import HpathQ, binomial, stutterPermutations
 from verhoeff import HpathNS

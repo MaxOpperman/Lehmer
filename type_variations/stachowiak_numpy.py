@@ -2,11 +2,12 @@ import argparse
 import copy
 import math
 
+import numpy as np
+
 from helper_operations.path_operations import adjacent, cutCycle, cycleQ, pathQ
 from helper_operations.permutation_graphs import multinomial
 from type_variations.steinhaus_johnson_trotter_numpy import SteinhausJohnsonTrotter
 from type_variations.verhoeff_numpy import HpathNS
-import numpy as np
 
 
 def split_path_in_2(p: np.ndarray, a: np.array) -> tuple[np.ndarray, np.ndarray]:

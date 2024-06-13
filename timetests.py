@@ -1,17 +1,17 @@
-from argparse import Namespace
 import argparse
+import os
 import re
+from argparse import Namespace
+
 import numpy as np
 import perfplot
-from helper_operations.permutation_graphs import multinomial
+
 import stachowiak
-import perfplot
-import stachowiak
-import type_variations.stachowiak_numpy
 import type_variations.stachowiak_list
-import type_variations.stachowiak_tuple_verhoeff_list
 import type_variations.stachowiak_list_verhoeff_tuple
-import os
+import type_variations.stachowiak_numpy
+import type_variations.stachowiak_tuple_verhoeff_list
+from helper_operations.permutation_graphs import multinomial
 
 
 class TimeTests:

@@ -16,7 +16,6 @@ from helper_operations.permutation_graphs import (
     extend,
     multinomial,
     rotate,
-    shorten,
     stutterPermutations,
     swapPair,
 )

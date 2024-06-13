@@ -1,20 +1,22 @@
 import collections
 import itertools
 import math
+
 import pytest
-from helper_operations.path_operations import cycleQ, pathQ
-from helper_operations.permutation_graphs import (
-    HpathQ,
-    extend,
-    multinomial,
-    stutterPermutations,
-)
+
 from cycle_cover import (
     HpathCycleCover,
     HpathEven_1_1,
     HpathOdd_2_1,
     incorporatedOdd_2_1,
     parallelSubCycleOdd_2_1,
+)
+from helper_operations.path_operations import cycleQ, pathQ
+from helper_operations.permutation_graphs import (
+    HpathQ,
+    extend,
+    multinomial,
+    stutterPermutations,
 )
 
 

@@ -3,10 +3,11 @@ import copy
 import sys
 from itertools import permutations as itertoolspermutations
 
-from helper_operations.path_operations import adjacent, spurBaseIndex
-from helper_operations.permutation_graphs import binomial, rotate, stutterPermutationQ
-from rivertz import SetPerm
 import numpy as np
+
+from helper_operations.path_operations import adjacent, spurBaseIndex
+from helper_operations.permutation_graphs import binomial, stutterPermutationQ
+from rivertz import SetPerm
 
 
 def stutterize(perm: np.array) -> np.ndarray:

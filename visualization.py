@@ -4,9 +4,9 @@ from argparse import Namespace
 
 import networkx as nx
 from matplotlib import pyplot as plt
+from permutation_graphs import defect, start_perm, total_path_motion
 
 from pathmarker import PathMarker
-from permutation_graphs import start_perm, defect, total_path_motion
 
 
 def visualize(dict_graph, dict_inv) -> tuple[nx.Graph, dict]:

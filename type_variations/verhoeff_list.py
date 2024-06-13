@@ -6,8 +6,8 @@ from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
 from helper_operations.permutation_graphs import (
     binomial,
     halveSignature,
-    rotate,
     permutations,
+    rotate,
     stutterPermutationQ,
 )
 from rivertz import SetPerm

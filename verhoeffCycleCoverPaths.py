@@ -1,6 +1,7 @@
-import matplotlib.pyplot as plt
-import os
 import argparse
+import os
+
+import matplotlib.pyplot as plt
 
 
 def fig11(ax, even_int: int):
