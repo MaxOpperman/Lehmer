@@ -20,7 +20,6 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     swapPair,
 )
-from stachowiak import lemma2_extended_path
 from verhoeff import HpathNS
 
 
@@ -57,7 +56,7 @@ def Hpath(*s) -> list[tuple[int, ...]]:
 
 def HpathAlt(sig: list[int]) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the input signature `sig` from 1 2 0^{k2} to 0 2 1 0^{k2-1}.
+    Generates a path based on the input signature `sig` from 1 2 0^{k0} to 0 2 1 0^{k0-1}.
 
     Args:
         sig (list[int]): The input signature.
@@ -116,6 +115,7 @@ def HpathAlt(sig: list[int]) -> list[tuple[int, ...]]:
     else:
         raise ValueError("k must be 2, 3 or greater than or equal to 4")
 
+
 def HpathEven_1_1(k: int) -> list[tuple[int, ...]]:
     """
     Generates a path based on the number of 0's `k` from 1 2 0^(k) to 0 2 1 0^(k-1)
@@ -146,35 +146,34 @@ def HpathEven_1_1(k: int) -> list[tuple[int, ...]]:
         (1, 2) + k_0_tuple,
     ]
     # construct the path on the bottom, incl the bottom-right corner node
-    for i in range(0, k+1):
+    for i in range(0, k + 1):
         bottom_path.append((2,) + k_0_tuple[:i] + (1,) + k_0_tuple[i:])
     midpath = []
     for i in range(0, k, 2):
         # construct the path going up
-        up_path = (0,) + k_0_tuple[i+1:] + (1,) + k_0_tuple[1:i+1]
-        for j in range(1, len(up_path)-i):
+        up_path = (0,) + k_0_tuple[i + 1 :] + (1,) + k_0_tuple[1 : i + 1]
+        for j in range(1, len(up_path) - i):
             midpath.append(up_path[:j] + (2,) + up_path[j:])
         # construct the path going left (incl top-right corner node)
         left_path = k_0_tuple[i:] + (2,) + k_0_tuple[:i]
-        for j in reversed(range(0, len(left_path)-i)):
+        for j in reversed(range(0, len(left_path) - i)):
             midpath.append(left_path[:j] + (1,) + left_path[j:])
-        right_path = k_0_tuple[i+1:] + (2,) + k_0_tuple[:i+1]
+        right_path = k_0_tuple[i + 1 :] + (2,) + k_0_tuple[: i + 1]
         # construct the path going right (incl top-right corner node)
-        for j in range(0, len(right_path)-i):
+        for j in range(0, len(right_path) - i):
             midpath.append(right_path[:j] + (1,) + right_path[j:])
         # construct the path going down
-        down_path = k_0_tuple[i+1:] + (1,) + k_0_tuple[:i+1]
-        for j in reversed(range(1, len(down_path)-2-i)):
+        down_path = k_0_tuple[i + 1 :] + (1,) + k_0_tuple[: i + 1]
+        for j in reversed(range(1, len(down_path) - 2 - i)):
             midpath.append(down_path[:j] + (2,) + down_path[j:])
-    print(bottom_path + midpath)
     return bottom_path + midpath
 
 
 def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the number of 0's `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1.
-    @param k: The input value for k0
-    @return: The generated path
+    Generates a path based on the number of 0's `k` from 1 2 0^{k0} 1 to 0 2 1 0^{k0-1} 1.
+    @param k: The input value for k0, must be odd
+    @return: The generated path from a to b
     """
     if k % 2 == 0:
         raise ValueError("k must be odd")
@@ -197,13 +196,10 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
         assert pathQ(path)
         return path
     k_0_tuple = tuple([0] * k)
-    start_path = [
-        (1, 2) + k_0_tuple + (1,),
-        (2, 1) + k_0_tuple + (1,),
-        (2, 0, 1) + k_0_tuple[:-1] + (1,),
-        (2, 0, 0, 1) + k_0_tuple[:-2] + (1,),
-        (2, 0, 0, 0, 1) + k_0_tuple[:-3] + (1,),
-    ]
+    start_path = [(1, 2) + k_0_tuple + (1,)]
+    bottom_path = (2,) + k_0_tuple + (1,)
+    for i in range(1, len(bottom_path)):
+        start_path.append(bottom_path[:i] + (1,) + bottom_path[i:])
     if k > 3:
         end_path_1 = [
             (0, 2, 0, 0, 1) + k_0_tuple[:-3] + (1,),
@@ -216,13 +212,8 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
             (1, 0, 0, 0, 0, 2) + k_0_tuple[:-4] + (1,),
         ]
         mid_path = []
-        for i in range(3, k):
-            mid_path.append(
-                (2,) + k_0_tuple[: i + 1] + (1,) + k_0_tuple[i + 1 :] + (1,)
-            )
         for i in range(3, k, 2):
             prefix_zeros = i - 3
-            print(f"{i}; prefix_zeros: {prefix_zeros}")
             for j in range(1, k + 1 - prefix_zeros):
                 mid_path.append(
                     k_0_tuple[:j]
@@ -302,29 +293,69 @@ def HpathOdd_2_1(k: int) -> list[tuple[int, ...]]:
     return start_path + mid_path + end_path_1 + end_path_2
 
 
+def parallelSubCycleOdd_2_1(k: int) -> list[tuple[int, ...]]:
+    """
+    Generates the parallel cycle path from the 02 and 20 cycles with stutters
+    @param k: The input value for k0 (EVEN!) because we don't count the 0 in 02 or 20
+    @return: The generated path from 0 1 0^{k-1} 1 0 2 to 1 0^(k) 1 0 2
+    """
+    if k % 2 == 1:
+        raise ValueError(f"k must be even, you probably mean {k-1} and not {k}")
+    cycle_without_stutters = HpathNS(k, 2)
+    rotation = 2
+    cycle_20_02 = rotate(
+        createZigZagPath(cycle_without_stutters, (2, 0), (0, 2)), rotation
+    )
+    sp02 = stutterPermutations([k, 2])
+    cycle_with_stutters = incorporateSpursInZigZag(cycle_20_02, sp02, [(0, 2), (2, 0)])
+    return cycle_with_stutters
+
+
+def incorporatedOdd_2_1(k: int) -> list[tuple[int, ...]]:
+    """
+    Generates a path based on the number of 0's `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1
+    Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
+
+    @param k: The input value for k0, must be odd
+    @return: The generated path from a to b
+    """
+    if k % 2 == 0:
+        raise ValueError(f"k must be odd")
+    if k == 1:
+        return HpathOdd_2_1(1)
+    parallelCycles = parallelSubCycleOdd_2_1(k - 1)
+    a_b_path = HpathOdd_2_1(k)
+    # split the a_b_path in 2 at the parallel edge with parallelCycles
+    cut_node = swapPair(parallelCycles[0], -3)
+    split1, split2 = splitPathIn2(a_b_path, cut_node)
+    return split1 + parallelCycles + split2
+
+
 def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
     # sort list in descending order
     sorted_sig = sorted(sig, reverse=True)
     if sorted_sig != sig:
+        if sig == [1, 2, 1]:
+            return HpathOdd_2_1(1)
         indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
         indexed_sig.sort(reverse=True, key=lambda x: x[0])
-        # print(f"tr: {[sig.index(x) for x in sorted_sig]}, br: {[x[0] for x in indexed_sig]}/{[x[1] for x in indexed_sig]}, sig {sig}")
-        # print(f"Sig: {sig} sorted {sorted_sig}, RET {transform(HpathCycleCover(sorted_sig), [x[1] for x in indexed_sig])}")
         return transform(HpathCycleCover(sorted_sig), [x[1] for x in indexed_sig])
     k = sig[0]
     if len(sig) == 2:
         return HpathNS(sig[0], sig[1])
     elif 0 in sig:
         return HpathCycleCover(sig[:-1])
+    # Odd-1-1 AND Even-1-1 case
     elif len(sig) == 3 and sig[1] == 1 and sig[2] == 1:
-        # Odd-1-1 AND Even-1-1 case
-
         # Split off the trailing number x
-        p_path = HpathNS(k, 1)
+        # p_path is k|1 and (after transformation) also k|2
+        linear_path = HpathNS(k, 1)
         # a path from 0^k 1 2 to 1 0^k 2
-        p2 = extend(p_path, (2,))
-        # a path from 2 0^k 1 to 0^k 2 1
-        p1 = extend([tuple(2 if x == 1 else 0 for x in tup) for tup in p_path], (1,))
+        p2 = extend(linear_path, (2,))
+        # a path from 0^k 2 1 to 2 0^k 1
+        p1 = extend(
+            [tuple(2 if x == 1 else 0 for x in tup) for tup in linear_path], (1,)
+        )
         # by IH, a path/cycle from 1 0^k 2 (path to 2 0^k 1)
         p0 = extend(HpathCycleCover([k - 1, 1, 1]), (0,))
 
@@ -336,63 +367,39 @@ def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
             # reverse these, because sorting of signature reversed up the order
             p1 = p1[::-1]
             p0 = p0[::-1]
-        print(f"sig: {sig}, p2: {p2}, p1: {p1}, p0: {p0}")
+
         if k % 2 == 1:
             return p2[-1:] + p0 + p1[::-1] + p2[:-1]
         else:
             # Even k, also need to add 0^k0 1 2 and 0^k0 2 1
             return p2[-1:] + p0 + p2[:-1][::-1] + p1
+    # even-2-1 case
     elif len(sig) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
-        # even-2-1 case
-        p2 = extend(HpathNS(k, 2), (2,))  # a cycle
+        p2 = extend(HpathNS(k, 2), (2,))  # a cycle from 1 0^k 1 2 to 1 0 1 0^(k-1) 2
         p1 = extend(
-            transform(lemma2_extended_path(tuple([2] * k)), [1, 2, 0]), (1,)
-        )  # a path from c = 1 2 0^k 1 to d = 0 2 1 0^(k-1) 1 using Stachowiak's Lemma 2
-        if k == 2:
-            transformed = transform(HpathAlt([2, 1, 1]), [1, 2, 0])
-        else:
-            transformed = HpathAlt([k - 1, 2, 1])[::-1]
+            HpathEven_1_1(k),
+            (1,),
+        )  # a path from c = 1 2 0^k 1 to d = 0 2 1 0^(k-1) 1
         p0 = extend(
-            transformed, (0,)
-        )  # a path from a = 1 2 0^(k-1) 1 to b = 0 2 1 0^(k-2) 1
+            HpathCycleCover([k - 1, 2, 1])[::-1], (0,)
+        )  # a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0
         # 1 2 0^{k2} to 0 2 1 0^{k2-1}.
         v = (1,) + tuple([0] * k) + (1, 2)
         c = p0 + p1
-        print(f"SIG: {sig}, p2: {p2}, p1: {p1}, p0: {p0}, v: {v}")
+        # print(f"SIG EVEN_k: {sig}, v: {v}\n p2: {p2}\n p1: {p1}\n p0: {p0}\n")
         return cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))
+    # odd-2-1 case
     elif len(sig) == 3 and k % 2 == 1 and sig[1] == 2 and sig[2] == 1:
-        # odd-2-1 case
-        # p12 = extend(HpathNS(k, 1), (1, 2))
-        p02 = HpathNS(k - 1, 2)  # p20 is parallel to p02
-        p1 = extend(HpathCycleCover([k, 1, 1]), (1,))
-        p10 = extend(HpathCycleCover([k - 1, 1, 1]), (1, 0))
-        if k - 2 == 1:
-            transformed = HpathOdd_2_1(1)
-        else:
-            transformed = HpathOdd_2_1(k - 2)[::-1]
-        p00 = extend(transformed, (0, 0))
-        sp02 = stutterPermutations([k - 1, 2])  # stutter permutations for p02, p20
-        v1 = tuple([0] * k) + (1, 2, 1)
-        v2 = (1,) + tuple([0] * k) + (2, 1)
-        c0 = p10 + p00
-        cns = createZigZagPath(p02, (2, 0), (0, 2))
-        c2 = incorporateSpursInZigZag(cns, sp02, [(0, 2), (2, 0)])
-
-        # 3 segments
-        split1_0, split1_1 = splitPathIn2(p1, v1)
-        if v1 in split1_0:
-            split1_0, split1_2 = splitPathIn2(split1_0, swapPair(v2, -3))
-        else:
-            split1_1, split1_2 = splitPathIn2(split1_1, swapPair(v2, -3))
-
-        p1p12 = [
-            createZigZagPath(shorten(path, 2), (2, 1), (1, 2)) if i == 1 else path
-            for i, path in enumerate([split1_0, split1_1, split1_2])
-        ]
-        print(f"p1p12: {p1p12}, path: {pathQ(p1p12)}")
-        p = p1p12[:2] + rotate(c0, 2) + p1p12[2:]
-        split2_0, split2_1 = splitPathIn2(p, swapPair(v2, -2))
-        return split2_0 + rotate(c2, 2) + split2_1
+        # the path from a to b (_1 | _12) with parallel 02-20 cycles incorporated
+        p1_p12_p02_p20 = incorporatedOdd_2_1(k)
+        # path from c'10=120^{k_0-1}10 to d'10=0210^{k_0-1}10 (_10)
+        p10 = extend(HpathEven_1_1(k - 1), (1, 0))
+        # path from a'00=120^{k_0-2}100 to b'00=0210^{k_0-3}100 (_00)
+        p00 = extend(HpathCycleCover([k - 2, 2, 1]), (0, 0))
+        cycle = rotate(p10 + p00[::-1], 1)[::-1]
+        # print(f"SIG ODD_k: {sig}\n p1_p12_p02_p20: {p1_p12_p02_p20[::-1]}\n cycle: {cycle}\n")
+        # b = 0 2 1 0^(k-2) 1 to a = 1 2 0^(k-1) 1
+        return p1_p12_p02_p20[:1] + cycle + p1_p12_p02_p20[1:]
     elif sum(1 for n in sig if n % 2 == 1) >= 2:
         # stachowiak's odd case
         pass
@@ -424,7 +431,8 @@ if __name__ == "__main__":
         perms = HpathCycleCover(s)
         if args.verbose:
             print(f"Resulting path {perms}")
+        stut_count = len(stutterPermutations(s))
         print(
             f"Verhoeff's result for signature {s}: {len(set(tuple(row) for row in perms))}/{len(perms)}/{multinomial(s)} "
-            f"is a path: {pathQ(perms)} and a cycle: {cycleQ(perms)}"
+            f"(incl {stut_count} stutters {stut_count+len(perms)}) is a path: {pathQ(perms)} and a cycle: {cycleQ(perms)}"
         )

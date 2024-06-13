@@ -160,7 +160,9 @@ def createZigZagPathE(c, d):
     return C
 
 
-def createZigZagPath(c: list[tuple], u: tuple, v: tuple) -> list[tuple[int, ...]]:
+def createZigZagPath(
+    c: list[tuple[int, ...]], u: tuple[int, ...], v: tuple[int, ...]
+) -> list[tuple[int, ...]]:
     """
     :param c: cycle of even length, list of tuples
     :param u: tuple to append
