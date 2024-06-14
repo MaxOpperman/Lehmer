@@ -19,6 +19,7 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     swapPair,
 )
+from stachowiak import lemma11
 from verhoeff import HpathNS
 
 
@@ -399,9 +400,13 @@ def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
         # print(f"SIG ODD_k: {sig}\n p1_p12_p02_p20: {p1_p12_p02_p20[::-1]}\n cycle: {cycle}\n")
         # b = 0 2 1 0^(k-2) 1 to a = 1 2 0^(k-1) 1
         return p1_p12_p02_p20[:1] + cycle + p1_p12_p02_p20[1:]
+    # stachowiak's odd case
     elif sum(1 for n in sig if n % 2 == 1) >= 2:
-        # stachowiak's odd case
-        pass
+        # index the numbers in the signature such that we can transform them back later
+        indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
+        # put the odd numbers first in the signature
+        indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+        return transform(lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig])
     elif any(n % 2 == 1 for n in sig):
         # all-but-one even case
         pass
