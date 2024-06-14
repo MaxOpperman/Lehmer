@@ -15,6 +15,7 @@ from helper_operations.permutation_graphs import (
     extend,
     multinomial,
     rotate,
+    stutterPermutationQ,
     stutterPermutations,
     swapPair,
 )
@@ -330,6 +331,49 @@ def incorporatedOdd_2_1(k: int) -> list[tuple[int, ...]]:
     return split1 + parallelCycles + split2
 
 
+def extend_sub_cycle(full_cycle_old, end_cycle_old, end_tuple, new_cycle):
+    """
+    Extend the full_cycle and end_cycle with the new_cycle based on the end_tuple
+    @param full_cycle_old: The current starting part of the cycle, ends with something adjacent to new_cycle
+    @param end_cycle_old: The current ending part of the cycle
+    @param end_tuple: The tuple that the the new full_cycle should end with
+    @param new_cycle: The new cycle to be added
+    @return: The new full_cycle and end_cycle
+    """
+    print(f"full old {full_cycle_old}, end old {end_cycle_old[::-1]}, end tuple {end_tuple}, new cycle {new_cycle}")
+    # rotate based on the old starting part of the cycle
+    ordered_cycle = cutCycle(new_cycle, swapPair(full_cycle_old[-1], -3))
+    # check if start of full_cycle is adjacent to the new end of ordered_cycle
+    if not adjacent(full_cycle_old[0], ordered_cycle[-1]):
+        ordered_cycle = ordered_cycle[:1] + ordered_cycle[1:][::-1]
+    # split the ordered cycle based on the end_tuple
+    split_nodes = [node for i, node in enumerate(ordered_cycle[:-1]) if node[-len(end_tuple):] == end_tuple and ordered_cycle[i+1][-len(end_tuple):] == end_tuple]
+    if len(split_nodes) > 0 and not stutterPermutationQ(swapPair(split_nodes[0], -3)):
+        split_node = split_nodes[0]
+    else:
+        raise ValueError(f"No node found that ends with {end_tuple} or {split_nodes} is adjacent to a stutter permutation")
+    print(f"splitnode {split_node}")
+    split_cycle1, split_cycle2 = splitPathIn2(ordered_cycle, split_node)
+    full_cycle_old.extend(split_cycle1)
+    end_cycle_old.extend(split_cycle2[::-1])
+    return full_cycle_old, end_cycle_old
+
+    # print(f"full {full_cycle}, end cycle {end_cycle}")
+    # cut_node = swapPair(full_cycle[-1], -3)
+    # print(f"cyc {current_cycle[0]}-{current_cycle[-1]}, cut {cut_node} end tuple {end_tuple}")
+    # ordered_cycle = cutCycle(current_cycle, cut_node)
+    # split_nodes = [node for i, node in enumerate(ordered_cycle[:-1]) if node[-len(end_tuple):] == end_tuple and ordered_cycle[i+1][-len(end_tuple):] == end_tuple]
+    # if len(split_nodes) > 0:
+    #     split_node = split_nodes[0]
+    # else:
+    #     raise ValueError(f"No node found that ends with {end_tuple}")
+    # print(f"splitnode {split_node}")
+    # split_cycle1, split_cycle2 = splitPathIn2(ordered_cycle, split_node)
+    # full_cycle.extend(split_cycle1)
+    # end_cycle.extend(split_cycle2[::-1])
+    # return full_cycle, end_cycle
+
+
 def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
     # sort list in descending order
     sorted_sig = sorted(sig, reverse=True)
@@ -472,46 +516,15 @@ def HpathCycleCover(sig: list[int]) -> list[tuple[int, ...]]:
         # because we also need to have the last node end with (1, 0) we rotate by 1
         ordered_cycle = rotate(cutCycle(selected_sub_cycles[0], cut_node), 1)
 
+        # full cycle is now the _00 cycle
         full_cycle = ordered_cycle
         end_cycle = []
 
-        print(f"end tuples {end_tuples}")
+        print(f"end tuples {end_tuples}, {[first[0][-2:][::-1] for first in later_sub_cycles]}")
         for ind, current_cycle in enumerate(selected_sub_cycles[1:4], 1):
-            cut_node = swapPair(full_cycle[-1], -3)
-            print(f"cyc {current_cycle} {pathQ(current_cycle)}, cut {cut_node} end {ind} {end_tuples[ind]}, {end_tuples[ind+1]}")
-            ordered_cycle = cutCycle(current_cycle, cut_node)
-            end_tuple = end_tuples[ind]
-            split_nodes = [node for i, node in enumerate(ordered_cycle[:-1]) if node[-len(end_tuple):] == end_tuple and ordered_cycle[i+1][-len(end_tuple):] == end_tuple]
-            if len(split_nodes) >= 2:
-                split_node = split_nodes[0]
-            else:
-                raise ValueError(f"No node found that ends with {end_tuple}")
-            print(f"splitnode {split_node}")
-            split_cycle1, split_cycle2 = splitPathIn2(ordered_cycle, split_node)
-            full_cycle.extend(split_cycle1)
-            end_cycle.extend(split_cycle2[::-1])
-            print(full_cycle, end_cycle[::-1])
+            end_tuple = (ind,) + end_tuples[ind]
+            full_cycle, end_cycle = extend_sub_cycle(full_cycle, end_cycle, end_tuple, current_cycle)
         print(f"loop done")
-        # for ind, current_cycle in enumerate(all_sub_cycles[1:], 1):
-        #     cut_node = swapPair(full_cycle[-1], -3)
-        #     print(f"first {current_cycle[0]}, last {current_cycle[-1]}, cut {cut_node} split {(ind+1, ind)}")
-        #     ordered_cycle = cutCycle(current_cycle, cut_node)
-        #     print(f"ordered {ordered_cycle}")
-        #     if ind == len(all_sub_cycles) - 1:
-        #         full_cycle.extend(ordered_cycle)
-        #     else:
-                
-        #         end_tuple = (ind, ind-1)
-        #         split_nodes = [node for i, node in enumerate(ordered_cycle[:-1]) if node[-len(end_tuple):] == end_tuple and ordered_cycle[i+1][-len(end_tuple):] == end_tuple]
-        #         if len(split_nodes) >= 2:
-        #             split_node = split_nodes[1]
-        #         else:
-        #             raise ValueError(f"No node found that ends with {end_tuple}")
-        #         split_node2 = next(node for node in ordered_cycle if node[-2:] == (ind+1, ind))
-        #         print(f"splitnode {split_node} {split_node2}")
-        #         split_cycle1, split_cycle2 = splitPathIn2(ordered_cycle, split_node)
-        #         full_cycle.extend(split_cycle1)
-        #         end_cycle.extend(split_cycle2[::-1])
         full_cycle.extend(end_cycle[::-1])
         
         pass

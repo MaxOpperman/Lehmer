@@ -224,7 +224,7 @@ def selectByTail(s, tail):
 
 def stutterPermutationQ(s):
     # NO TESTS!
-    """Returns true if list/tuple is stutters, false otherwise"""
+    """Returns true if list/tuple is stutter permutation, false otherwise"""
     if len(s) == 1:
         return False
     for i in range(len(s) // 2):
