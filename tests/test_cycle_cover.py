@@ -386,3 +386,35 @@ class Test_HpathCycleCover_Even_2_1:
         assert pathQ(path)
         assert len(path) == len(set(path))
         assert len(path) == multinomial(signature) - len(stutterPermutations(signature))
+
+
+class Test_HpathCycleCover_All_But_One_Even:
+    def test_HpathCycleCover_2_2_1(self):
+        signature = [2, 2, 1]
+        path = HpathCycleCover(signature)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature) - len(stutterPermutations(signature))
+
+    def test_HpathCycleCover_2_2_3(self):
+        signature = [2, 2, 3]
+        path = HpathCycleCover(signature)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature) - len(stutterPermutations(signature))
+
+
+class Test_HpathCycleCover_All_Even:
+    def test_HpathCycleCover_2_2_2(self):
+        signature = [2, 2, 2]
+        path = HpathCycleCover(signature)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature) - len(stutterPermutations(signature))
+
+    def test_HpathCycleCover_4_2_2(self):
+        signature = [4, 2, 2]
+        path = HpathCycleCover(signature)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature) - len(stutterPermutations(signature))

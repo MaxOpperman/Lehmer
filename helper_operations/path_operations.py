@@ -66,7 +66,9 @@ def stichPaths(p1, p2):
     return False
 
 
-def splitPathIn2(p: list[tuple], a: tuple) -> tuple[list[tuple], list[tuple]]:
+def splitPathIn2(
+    p: list[tuple[int, ...]], a: tuple[int, ...]
+) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
     """Splits a path at vertex a. Element a appears in only the first path."""
     assert len(p) > 1
     A = p.index(a)
