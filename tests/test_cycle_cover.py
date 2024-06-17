@@ -326,8 +326,8 @@ class Test_HpathCycleCover_All_Even:
             stutterPermutations(signature)
         )
 
-    def test_HpathCycleCover_4_6_6(self):
-        signature = [4, 6, 6]
+    def test_HpathCycleCover_4_6_4(self):
+        signature = [4, 6, 4]
         cycles = HpathCycleCover(signature)
         assert len(cycles) == len(signature) * (len(signature) + 1) // 2
         total_length = recursive_cycle_check(cycles)

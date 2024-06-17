@@ -595,12 +595,14 @@ class Test_Lemma10_and_11:
 
     def test_lemma11_2(self):
         result = lemma11([2])
-        assert len(result) == 2
+        assert len(result) == 1
+        assert len(result[0]) == 2
         assert result == [(0, 0)]
 
     def test_lemma11_5(self):
         result = lemma11([5])
-        assert len(result) == 5
+        assert len(result) == 1
+        assert len(result[0]) == 5
         assert result == [(0, 0, 0, 0, 0)]
 
     def test_lemma11_3_3_2(self):
