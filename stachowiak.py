@@ -14,7 +14,7 @@ from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathNS
 
 
-def generate_all_di(chain_p: tuple) -> list[list[int]]:
+def generate_all_di(chain_p: tuple[int, ...]) -> list[list[int]]:
     """This function corresponds to the start of the proof of Lemma 2 (case 2.1 if |P| even)"""
     q = (0, 1)
     d_all = []
@@ -29,7 +29,7 @@ def generate_all_di(chain_p: tuple) -> list[list[int]]:
     return d_all
 
 
-def generate_all_di_prime(chain_p: tuple) -> list[list[int]]:
+def generate_all_di_prime(chain_p: tuple[int, ...]) -> list[list[int]]:
     """This function corresponds to the start of the proof of Lemma 2 (case 2.2 if |P| even)"""
     q = (0, 1)
     d_all = []
@@ -44,7 +44,7 @@ def generate_all_di_prime(chain_p: tuple) -> list[list[int]]:
     return d_all
 
 
-def lemma2_cycle(chain_p: tuple, case_2_1=True) -> list[tuple[int, ...]]:
+def lemma2_cycle(chain_p: tuple[int, ...], case_2_1=True) -> list[tuple[int, ...]]:
     """
     This function generates the cycles of Lemma 2.
     If |P| is even the last two nodes are discarded as in the Lemma.
@@ -73,7 +73,9 @@ def lemma2_cycle(chain_p: tuple, case_2_1=True) -> list[tuple[int, ...]]:
     return cycle
 
 
-def lemma2_extended_path(chain_p: tuple, case_2_1=True) -> list[tuple[int, ...]]:
+def lemma2_extended_path(
+    chain_p: tuple[int, ...], case_2_1=True
+) -> list[tuple[int, ...]]:
     """
     Extends the cycle of Lemma 2 with the last two elements in case |P| is even
     if |P| odd the cycle is returned

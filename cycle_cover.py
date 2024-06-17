@@ -8,6 +8,7 @@ from helper_operations.path_operations import (
     cycleQ,
     incorporateSpursInZigZag,
     pathQ,
+    recursive_cycle_check,
     splitPathIn2,
     transform,
     transform_cycle_cover,

@@ -35,13 +35,13 @@ jobs:
         pytest -m "not slow" --cov-report=html --cov=./ tests/ | tee ./pytest_output.txt
 
     - name: Check for failed tests
-        id: check_tests
-        run: |
-          if grep -q "=== FAILURES ===" test_output.txt && grep -q "FAILED" test_output.txt; then
-            echo "TEST_STATUS=Failed" >> $GITHUB_ENV
-          else
-            echo "TEST_STATUS=Passed" >> $GITHUB_ENV
-          fi
+      id: check_tests
+      run: |
+        if grep -q "=== FAILURES ===" test_output.txt && grep -q "FAILED" test_output.txt; then
+          echo "TEST_STATUS=Failed" >> $GITHUB_ENV
+        else
+          echo "TEST_STATUS=Passed" >> $GITHUB_ENV
+        fi
 
     - name: Create Test Status Badge
       uses: schneegans/dynamic-badges-action@v1.7.0
