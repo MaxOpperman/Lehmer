@@ -557,6 +557,7 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
+    @pytest.mark.slow
     def test_lemma9_1_1_4_7_4(self):
         signature = [1, 1, 4, 7, 4]
         result = lemma9(signature)
@@ -564,6 +565,7 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
+    @pytest.mark.slow
     def test_lemma9_1_1_8_7_5(self):
         signature = [1, 1, 8, 7, 5]
         result = lemma9(signature)
@@ -571,6 +573,7 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
+    @pytest.mark.slow
     def test_lemma9_1_1_6_6_6(self):
         signature = [1, 1, 6, 6, 6]
         result = lemma9(signature)

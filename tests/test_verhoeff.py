@@ -292,6 +292,7 @@ class Test_HpathNS_Odd_Odd:
         # check that there is a hamilton path
         assert HpathQ(result, [5, 5])
 
+    @pytest.mark.slow
     def test_HpathNS_5_9(self):
         result = HpathNS(5, 9)
         # make sure there are no duplicates
@@ -304,6 +305,7 @@ class Test_HpathNS_Odd_Odd:
         # check that there is a hamilton path
         assert pathQ(result)
 
+    @pytest.mark.slow
     def test_HpathNS_9_5(self):
         result = HpathNS(9, 5)
         # make sure there are no duplicates

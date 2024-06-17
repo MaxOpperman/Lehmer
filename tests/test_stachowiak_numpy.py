@@ -742,6 +742,7 @@ class Test_Lemma9_numpy:
         assert cycleQ(result)
         assert len(result) == len(set(tuple(row) for row in result))
 
+    @pytest.mark.slow
     def test_lemma9_1_1_4_7_4(self):
         signature = [1, 1, 4, 7, 4]
         result = lemma9(signature)
@@ -749,6 +750,7 @@ class Test_Lemma9_numpy:
         assert cycleQ(result)
         assert len(result) == len(set(tuple(row) for row in result))
 
+    @pytest.mark.slow
     def test_lemma9_1_1_6_6_4(self):
         signature = [1, 1, 6, 6, 4]
         result = lemma9(signature)
@@ -802,6 +804,7 @@ class Test_Lemma10_and_11_numpy:
         assert len(result) == multinomial([3, 3, 2, 1])
         assert cycleQ(result)
 
+    @pytest.mark.slow
     def test_lemma11_3_3_2_2(self):
         # we only have to add the last the last element (which occurs twice) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 2, 3)
