@@ -1,5 +1,5 @@
 # Permutation generation by neighbor-swaps
-![PyTest](https://github.com/MaxOpperman/Lehmer/blob/main/.github/workflows/python-app.yml/badge.svg)
+![PyTest](https://github.com/MaxOpperman/Lehmer/blob/main/.github/workflows/python-tests.yml/badge.svg)
 
 Gruaduation project about finding Lehmer's paths on neighbor-swap graphs of permutation generation.
 Primarily based on articles by T. Verhoeff: [The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations](https://doi.org/10.1007/s10623-016-0301-9) and by G. Stachowiak [Hamilton Paths in Graphs of Linear Extensions for Unions of Posets](https://doi.org/10.1137/0405016).
