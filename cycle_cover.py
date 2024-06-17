@@ -432,6 +432,10 @@ def extend_sub_cycle(
 
 def HpathCycleCover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     # sort list in descending order
+    if len(sig) == 0:
+        raise ValueError("Signature must have at least one element")
+    elif len(sig) == 1:
+        return [[(0,) * sig[0]]]
     sorted_sig = sorted(sig, reverse=True)
     if sorted_sig != sig:
         if sig == [1, 2, 1]:

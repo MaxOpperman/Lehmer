@@ -578,7 +578,11 @@ def lemma10(sig: list[int]) -> list[tuple[int, ...]]:
 
 def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
     """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
-    if sum(sig[:2]) > 2:
+    if len(sig) == 0:
+        raise ValueError("Signature must have at least one element")
+    elif len(sig) == 1:
+        return [(0,) * sig[0]]
+    elif sum(sig[:2]) > 2:
         path = HpathNS(sig[0], sig[1])  # K in the paper
         next_color = 2
     elif sig[2] == 1:

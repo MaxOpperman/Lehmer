@@ -5,6 +5,7 @@ import pytest
 from cycle_cover import HpathCycleCover
 from helper_operations.path_operations import cycleQ, pathQ
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
+from verhoeff import HpathNS
 
 
 def recursive_cycle_check(cycle, total_length=0):
@@ -17,6 +18,33 @@ def recursive_cycle_check(cycle, total_length=0):
         for sub_cycle in cycle:
             total_length = recursive_cycle_check(sub_cycle, total_length)
     return total_length
+
+
+class Test_HpathCycleCover_Edge_Cases:
+    def test_HpathCycleCover_Empty(self):
+        with pytest.raises(ValueError) as e_info:
+            HpathCycleCover([])
+
+    def test_HpathCycleCover_1_Element(self):
+        p = HpathCycleCover([2])
+        assert len(p) == 1
+        assert len(p[0]) == 1
+        assert len(p[0][0]) == 2
+
+    def test_HpathCycleCover_50(self):
+        p = HpathCycleCover([50])
+        assert len(p) == 1
+        assert len(p[0]) == 1
+        assert len(p[0][0]) == 50
+
+    def test_HpathCycleCover_Verhoeff(self):
+        signature = [4, 4]
+        p = HpathCycleCover(signature)
+        assert len(p) == 1
+        assert p[0] == HpathNS(4, 4)
+        assert recursive_cycle_check(p) == multinomial(signature) - len(
+            stutterPermutations(signature)
+        )
 
 
 class Test_HpathCycleCover_Even_1_1:

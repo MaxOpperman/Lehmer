@@ -589,6 +589,20 @@ class Test_Lemma10_and_11:
 
     l11sig_3_3_2 = lemma11([3, 3, 2])
 
+    def test_lemma11_empty(self):
+        with pytest.raises(ValueError) as e_info:
+            lemma11([])
+
+    def test_lemma11_2(self):
+        result = lemma11([2])
+        assert len(result) == 2
+        assert result == [(0, 0)]
+
+    def test_lemma11_5(self):
+        result = lemma11([5])
+        assert len(result) == 5
+        assert result == [(0, 0, 0, 0, 0)]
+
     def test_lemma11_3_3_2(self):
         result = copy.deepcopy(self.l11sig_3_3_2)
         assert len(set(result)) == len(result)
