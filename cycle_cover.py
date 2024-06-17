@@ -25,99 +25,6 @@ from stachowiak import lemma11
 from verhoeff import HpathNS
 
 
-def Hpath(*s) -> list[tuple[int, ...]]:
-    """Returns a Hamiltonian path of signature s"""
-    if not conditionHpath(s):
-        return None
-    elif sorted(s, reverse=True) != list(s):
-        list_s = list(s)
-        list_s.sort(reverse=True)
-        return transform(
-            Hpath(*list_s),
-            [
-                i
-                for i in sorted(
-                    range(len(list_s)), key=lambda x: list_s[x], reverse=True
-                )
-            ],
-        )
-    elif s[-1] == 0:
-        return Hpath(*s[:-1])
-    elif len(s) == 0:
-        return []
-    elif len(s) == 1:
-        return [tuple(list(range(s[0])))]
-    elif len(s) == 2 and s[1] == 1:
-        return [
-            tuple([1 if i == j else 0 for i in range(s[0], -1, -1)])
-            for j in range(s[0], -1, -1)
-        ]
-    else:
-        return [tuple(s)]
-
-
-def HpathAlt(sig: list[int]) -> list[tuple[int, ...]]:
-    """
-    Generates a path based on the input signature `sig` from 1 2 0^{k0} to 0 2 1 0^{k0-1}.
-
-    Args:
-        sig (list[int]): The input signature.
-
-    Returns:
-        list[tuple]: The generated path.
-
-    Raises:
-        ValueError: If `k0` is not 2, 3, or greater than or equal to 4.
-    """
-    k0 = sig[0]
-    if k0 == 2:
-        p2 = extend(Hpath(2, 1, 0), (2,))
-        p1 = extend(
-            [tuple([2 if i == 1 else i for i in tup]) for tup in Hpath(2, 0, 1)], (1,)
-        )
-        return (
-            [(1, 2, 0, 0), (2, 1, 0, 0), (2, 0, 1, 0)]
-            + p1
-            + p2[::-1]
-            + [(1, 0, 2, 0), (0, 1, 2, 0), (0, 2, 1, 0)]
-        )
-    elif k0 == 3:
-        p2 = extend(Hpath(3, 1, 0), (2,))
-        p1 = extend(
-            [tuple([2 if i == 1 else i for i in tup]) for tup in Hpath(3, 0, 1)], (1,)
-        )
-        return (
-            [(1, 2, 0, 0, 0), (2, 1, 0, 0, 0), (2, 0, 1, 0, 0), (2, 0, 0, 1, 0)]
-            + list(reversed(p1))
-            + p2
-            + [
-                (1, 0, 0, 2, 0),
-                (1, 0, 2, 0, 0),
-                (0, 1, 2, 0, 0),
-                (0, 1, 0, 2, 0),
-                (0, 0, 1, 2, 0),
-                (0, 0, 2, 1, 0),
-                (0, 2, 0, 1, 0),
-                (0, 2, 1, 0, 0),
-            ]
-        )
-    elif k0 >= 4:
-        p2 = extend(Hpath(k0, 1, 0), (2,))
-        p1 = extend(
-            [tuple([2 if i == 1 else i for i in tup]) for tup in Hpath(k0, 0, 1)], (1,)
-        )
-        p20 = extend(Hpath(k0 - 1, 1, 0), (2, 0))
-        p10 = extend(
-            [tuple([2 if i == 1 else i for i in tup]) for tup in Hpath(k0 - 1, 0, 1)],
-            (1, 0),
-        )
-        # by ind. hyp. a path from 1 2 0^(k-2) to 0 2 1 0^(k-3)
-        p00 = extend(HpathAlt(sig[:2] + [sig[2] - 2]), (0, 0))
-        return p00[:k0] + [p10[0]] + p1 + p2[::-1] + p20 + p10[1:][::-1] + p00[k0:]
-    else:
-        raise ValueError("k must be 2, 3 or greater than or equal to 4")
-
-
 def HpathEven_1_1(k: int) -> list[tuple[int, ...]]:
     """
     Generates a path based on the number of 0's `k` from 1 2 0^(k) to 0 2 1 0^(k-1)
@@ -333,103 +240,6 @@ def incorporatedOdd_2_1(k: int) -> list[tuple[int, ...]]:
     return split1 + parallelCycles + split2
 
 
-def split_node_bool(node: tuple[int, ...], end_tuple: tuple[int, ...]) -> bool:
-    """
-    Check if the node is a split node based on the end_tuple
-    @param node: The node to be checked
-    @param end_tuple: The tuple that the node should end with
-    @return: True if the node is a split node
-    """
-    return node[-len(end_tuple) :] == end_tuple and not stutterPermutationQ(
-        swapPair(node, -len(end_tuple))
-    )
-
-
-def find_split_node(
-    end_tuple: tuple[int, ...], ordered_cycle: list[tuple[int, ...]]
-) -> tuple[int, ...]:
-    """
-    Find the node that splits the cycle in two based on the end_tuple (which is not a stutter permutation)
-    @param end_tuple: The tuple that the first split of the cycle should end with
-    @param ordered_cycle: The cycle to be split
-    @return: The first node in a pair that ends with end_tuple
-    """
-    split_nodes = [
-        node
-        for i, node in enumerate(ordered_cycle[:-1])
-        if split_node_bool(node, end_tuple)
-        and split_node_bool(ordered_cycle[i + 1], end_tuple)
-    ]
-    # if there is such a split node
-    if len(split_nodes) > 0:
-        split_node = split_nodes[0]
-        print(f"case 1 {split_node}, index {ordered_cycle.index(split_node)}")
-    # if no split node is found, it likely is the last node
-    elif split_node_bool(ordered_cycle[0], end_tuple) and split_node_bool(
-        ordered_cycle[-1], end_tuple
-    ):
-        split_node = ordered_cycle[-1]
-        print(f"case 2 {split_node}, index {len(ordered_cycle)-1}")
-    else:
-        raise ValueError(
-            f"No node found that ends with {end_tuple}\n cycle {ordered_cycle}"
-        )
-    print(
-        f"split node {ordered_cycle[(ordered_cycle.index(split_node)-1)%len(ordered_cycle)]}-{split_node}-{ordered_cycle[(ordered_cycle.index(split_node)+1)%len(ordered_cycle)]} based on {end_tuple} in {ordered_cycle[0]}-{ordered_cycle[-1]}"
-    )
-    return split_node
-
-
-def extend_sub_cycle(
-    full_cycle_old: list[tuple[int, ...]],
-    end_cycle_old: list[tuple[int, ...]],
-    end_tuple: tuple[int, ...],
-    new_cycle: list[tuple[int, ...]],
-) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
-    """
-    Extend the full_cycle and end_cycle with the new_cycle based on the end_tuple
-    @param full_cycle_old: The current starting part of the cycle, ends with something adjacent to new_cycle
-    @param end_cycle_old: The current ending part of the cycle
-    @param end_tuple: The tuple that the the new full_cycle should end with
-    @param new_cycle: The new cycle to be added
-    @return: The new full_cycle and end_cycle
-    """
-    print(
-        f"old start {full_cycle_old[0]}-{full_cycle_old[-1]}, end tuple {end_tuple}, new cycle {new_cycle[0]}-{new_cycle[-1]}"
-    )
-    # rotate based on the old starting part of the cycle
-    ordered_cycle = cutCycle(new_cycle, swapPair(full_cycle_old[-1], -len(end_tuple)))
-    # check if start of full_cycle is adjacent to the new end of ordered_cycle
-    if len(end_cycle_old) == 0 and adjacent(full_cycle_old[0], ordered_cycle[1]):
-        ordered_cycle = ordered_cycle[:1] + ordered_cycle[1:][::-1]
-    elif len(end_cycle_old) > 0 and adjacent(end_cycle_old[0], ordered_cycle[1]):
-        ordered_cycle = ordered_cycle[:1] + ordered_cycle[1:][::-1]
-    elif (
-        len(end_cycle_old) == 0 and not adjacent(full_cycle_old[0], ordered_cycle[-1])
-    ) or (len(end_cycle_old) > 0 and not adjacent(end_cycle_old[0], ordered_cycle[-1])):
-        print(
-            f"ERROR! {full_cycle_old[0]}-{full_cycle_old[-1]} not adjacent to {ordered_cycle[0]}-{ordered_cycle[-1]}"
-        )
-        raise ValueError("Not adjacent")
-    print(
-        f"index {swapPair(full_cycle_old[0], -len(end_tuple))}, {ordered_cycle[0]}-{ordered_cycle[-1]}"
-    )
-    # the split node is the first node of a pair that ends with end_tuple
-    split_node = find_split_node(end_tuple, ordered_cycle)
-    split_cycle1, split_cycle2 = splitPathIn2(ordered_cycle, split_node)
-    if len(end_cycle_old) > 0 and len(split_cycle2) > 0:
-        print(
-            f"endcycle {end_cycle_old[0]}-{end_cycle_old[-1]}, new end {split_cycle2[0]}-{split_cycle2[-1]} adj {adjacent(end_cycle_old[0], split_cycle2[-1])}"
-        )
-    else:
-        print(
-            f"endcycle NO ELEMENTS {end_cycle_old}, new end {split_cycle2}, start {split_cycle1} {full_cycle_old[-1]}"
-        )
-    full_cycle_old.extend(split_cycle1)
-    end_cycle_old = split_cycle2 + end_cycle_old
-    return full_cycle_old, end_cycle_old
-
-
 def HpathCycleCover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     # sort list in descending order
     if len(sig) == 0:
@@ -593,7 +403,12 @@ if __name__ == "__main__":
         if args.verbose:
             print(f"Resulting path {perms}")
         stut_count = len(stutterPermutations(s))
-        print(
-            f"Verhoeff's result for signature {s}: {len(set(tuple(row) for row in perms))}/{len(perms)}/{multinomial(s)} "
-            f"(incl {stut_count} stutters {stut_count+len(perms)}) is a path: {pathQ(perms)} and a cycle: {cycleQ(perms)}"
-        )
+        try:
+            total_perms = recursive_cycle_check(perms)
+            print(
+                f"Verhoeff's result for signature {s}: {total_perms}/{multinomial(s)} "
+                f"(incl {stut_count} stutters {stut_count+len(perms)}) is a list of cycles."
+            )
+        except AssertionError as e:
+            print(f"List of cycles is not a valid cycle cover: {e}")
+            print(perms[0], cycleQ(perms[0]), pathQ(perms[0]))

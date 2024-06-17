@@ -292,3 +292,21 @@ def conditionHpath(sig):
     if st >= 2:
         return True
     return False
+
+
+def recursive_cycle_check(cycle, total_length=0) -> int:
+    """
+    Recursively check whether the given list is a cycle.
+    @param cycle: list of cycles
+    @param total_length: total length of the cycle, starts at 0.
+    @return: total length of the list of cycles
+    """
+    assert isinstance(cycle, list)
+    if isinstance(cycle[0][0], int):
+        assert cycleQ(cycle)
+        assert len(cycle) == len(set(cycle))
+        total_length += len(cycle)
+    else:
+        for sub_cycle in cycle:
+            total_length = recursive_cycle_check(sub_cycle, total_length)
+    return total_length

@@ -3,21 +3,9 @@ import math
 import pytest
 
 from cycle_cover import HpathCycleCover
-from helper_operations.path_operations import cycleQ, pathQ
+from helper_operations.path_operations import pathQ, recursive_cycle_check
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
 from verhoeff import HpathNS
-
-
-def recursive_cycle_check(cycle, total_length=0):
-    assert isinstance(cycle, list)
-    if isinstance(cycle[0][0], int):
-        assert cycleQ(cycle)
-        assert len(cycle) == len(set(cycle))
-        total_length += len(cycle)
-    else:
-        for sub_cycle in cycle:
-            total_length = recursive_cycle_check(sub_cycle, total_length)
-    return total_length
 
 
 class Test_HpathCycleCover_Edge_Cases:

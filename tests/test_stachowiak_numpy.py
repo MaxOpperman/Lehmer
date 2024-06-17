@@ -812,6 +812,7 @@ class Test_Lemma10_and_11_numpy:
         assert len(result) == multinomial([3, 3, 2, 2])
         assert cycleQ(result)
 
+    @pytest.mark.slow
     def test_lemma11_5_3_2(self):
         sig = [5, 3, 2]
         result = lemma11(sig)
