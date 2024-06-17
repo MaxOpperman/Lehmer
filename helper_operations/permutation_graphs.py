@@ -97,7 +97,6 @@ def graph(sig) -> dict[tuple, list[tuple]]:
     dic = {}
     for i in p:
         dic[tuple(i)] = generate_adj(i)
-    print(dic)
     return dic
 
 
@@ -118,9 +117,9 @@ def multiset(s):
     return per
 
 
-def extend(lst: list, e: tuple) -> list[tuple[int, ...]]:
+def extend(lst: list[tuple[int, ...]], e: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
-     Extend every item in l with e
+    Extend every item in l with e
     :param lst: list of tuples
     :param e: tuple to extend every item in l with
     :return:
@@ -129,6 +128,23 @@ def extend(lst: list, e: tuple) -> list[tuple[int, ...]]:
         return [i + e for i in lst]
     except TypeError:
         return [i + [e] for i in lst]
+
+
+def extend_cycle_cover(
+    lis3d: list[list[tuple[int, ...]]], e: tuple[int, ...]
+) -> list[list[tuple[int, ...]]]:
+    """
+    Extend every item in a list of unknown depth holding a list of permutations with e
+    :param lst: list of unknown depth with list of tuples
+    :param e: tuple to extend every item in l with
+    :return:
+    """
+    if isinstance(lis3d[0][0][0], int):
+        return [extend(l, e) for l in lis3d]
+    elif not isinstance(lis3d, list):
+        raise ValueError("The input is not a list")
+    else:
+        return [extend_cycle_cover(l, e) for l in lis3d]
 
 
 def shorten(lis, num):
@@ -272,5 +288,4 @@ def total_path_motion(path):
                                 f"Width of transposition {node} is {width}: {permutation_a}, {permutation_b}"
                             )
                         total_motion += width
-    print(path)
     return total_motion

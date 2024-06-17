@@ -242,8 +242,13 @@ def parallelEdges(edges):
     return P
 
 
-def transform(lis, tr):
-    """Transforms the permutation(s) according to the given renaming."""
+def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
+    """
+    Transforms the permutation(s) according to the given renaming.
+    @param lis: list of permutations
+    @param tr: transformation list, int at index i is the new name for i
+    @return: list of lists of transformed permutations
+    """
     l = []
     for i in lis:
         v = []
@@ -254,6 +259,23 @@ def transform(lis, tr):
                 return "list of transformations is too short"
         l.append(tuple(v))
     return l
+
+
+def transform_cycle_cover(
+    lis3d: list[list[tuple[int, ...]]], tr: list[int]
+) -> list[list[tuple[int, ...]]]:
+    """
+    Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
+    @param lis: list of lists of permutations
+    @param tr: transformation list, int at index i is the new name for i
+    @return: list of lists of transformed permutations
+    """
+    if isinstance(lis3d[0][0][0], int):
+        return [transform(l, tr) for l in lis3d]
+    elif not isinstance(lis3d, list):
+        raise ValueError("The input is not a list")
+    else:
+        return [transform_cycle_cover(l, tr) for l in lis3d]
 
 
 def conditionHpath(sig):
