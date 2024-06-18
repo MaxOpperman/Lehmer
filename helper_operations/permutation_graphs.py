@@ -87,16 +87,17 @@ def generate_adj(s) -> list[tuple[int, ...]]:
     v = []
     for i, item in enumerate(s):
         if i + 1 < len(s) and item != s[i + 1]:
-            v.append(tuple(swapPair(s, i)))
+            v.append("".join(map(str, swapPair(s, i))))
     return v
 
 
 def graph(sig) -> dict[tuple, list[tuple]]:
     """Returns a graph with signature sig in form of dictionary"""
     p = perm(sig)
+
     dic = {}
     for i in p:
-        dic[tuple(i)] = generate_adj(i)
+        dic["".join(map(str, i))] = generate_adj(i)
     return dic
 
 

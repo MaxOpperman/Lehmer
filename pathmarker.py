@@ -71,7 +71,7 @@ class PathMarker:
             self.pos,
             with_labels=True,
             node_color=self.node_colors,
-            node_size=500,
+            node_size=1000,
             font_size=10,
             font_weight="bold",
             edge_color=self.edge_colors,
@@ -84,7 +84,7 @@ class PathMarker:
             self.pos,
             nodelist=self.marked_nodes,
             node_color="royalblue",
-            node_size=400,
+            node_size=900,
         )
 
         # Draw right click marked nodes in color
@@ -93,7 +93,7 @@ class PathMarker:
             self.pos,
             nodelist=self.right_marked_nodes,
             node_color="darkturquoise",
-            node_size=400,
+            node_size=900,
         )
 
         # Draw marked edges in color

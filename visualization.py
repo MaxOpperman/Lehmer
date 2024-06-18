@@ -4,8 +4,8 @@ from argparse import Namespace
 
 import networkx as nx
 from matplotlib import pyplot as plt
-from permutation_graphs import defect, start_perm, total_path_motion
 
+from helper_operations.permutation_graphs import defect, start_perm, total_path_motion
 from pathmarker import PathMarker
 
 
@@ -15,7 +15,10 @@ def visualize(dict_graph, dict_inv) -> tuple[nx.Graph, dict]:
 
     # give the nodes their positions
     for node, k_partite in dict_inv.items():
-        graph.add_node(node, pos=(k_partite, partite_counts[k_partite]))
+        # rename node to be a string without the commas
+        graph.add_node(
+            "".join(map(str, node)), pos=(k_partite, partite_counts[k_partite])
+        )
         # keep track of the Y-axis value based on the number of nodes with the arity counts
         partite_counts[k_partite] += 1
 
@@ -77,7 +80,7 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
         with_labels=True,
         edge_color=e_color,
         node_color=n_color,
-        node_size=500,
+        node_size=1000,
         font_size=10,
         font_weight="bold",
         # width=4,
@@ -182,7 +185,7 @@ def lehmer_path(
     spur_bases = []
     spur_tips = []
     # Step 3: The first node becomes B
-    b = start_perm(signature)
+    b = "".join(map(str, start_perm(signature)))
 
     interchanges = [b]  # Store interchange digits
 
@@ -243,7 +246,12 @@ def lehmer_path(
         else:
             print("Spur origin -> stutter:")
             for i in range(len(spur_bases)):
-                print("Spur {}:".format(i), spur_bases[i], "->", spur_tips[i])
+                print(
+                    "Spur {}:".format(i),
+                    tuple([int(x) for x in spur_bases[i]]),
+                    "->",
+                    tuple([int(x) for x in spur_tips[i]]),
+                )
         if node_tally < graph.number_of_nodes():
             print("Node Tally:", node_tally, "and path length:", len(interchanges))
             print(
