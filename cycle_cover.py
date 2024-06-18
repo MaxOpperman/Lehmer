@@ -408,8 +408,8 @@ if __name__ == "__main__":
             total_perms = recursive_cycle_check(perms)
             print(
                 f"Verhoeff's result for signature {s}: {total_perms}/{multinomial(s)} "
-                f"(incl {stut_count} stutters {stut_count+len(perms)}) is a list of cycles."
+                f"(incl {stut_count} stutters {stut_count+total_perms}) is a list of cycles."
             )
         except AssertionError as e:
             print(f"List of cycles is not a valid cycle cover: {e}")
-            print(perms[0], cycleQ(perms[0]), pathQ(perms[0]))
+            print(f"Path: {pathQ(perms[0])}, Cycle: {cycleQ(perms[0])}")
