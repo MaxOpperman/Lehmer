@@ -1,8 +1,6 @@
 import argparse
 
 from helper_operations.path_operations import (
-    adjacent,
-    conditionHpath,
     createZigZagPath,
     cutCycle,
     cycleQ,
@@ -18,7 +16,6 @@ from helper_operations.permutation_graphs import (
     extend_cycle_cover,
     multinomial,
     rotate,
-    stutterPermutationQ,
     stutterPermutations,
     swapPair,
 )
