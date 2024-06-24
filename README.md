@@ -33,18 +33,19 @@ Then the lemmas from Stachowiak (Hamilton paths in graphs of linear extensions f
 To be exact, lemma 7, 8, 9, 10, and 11 are used to achieve this. But Lemma 2 is also programmed as a function of the script.
 
 ### Type variations
-There are multiple variations on Stachowiak's algorithm using different Python types. Using `timetests.py` these variations can be compared. The following arguments can be passed:
+There are multiple variations on Stachowiak's algorithm using different Python types. Using `python ./figure_generation_files/timetests.py` these variations can be compared. The following arguments can be passed:
 
 - `-l, --latex`: Generate LaTeX tables for the results (`False` by default)
-- `-g, --graph`: Generate graphs for the results (`False` by default)
+- `-g, --graph`: Generate graphs for the results and save them (`False` by default)
 - `-n, --numpy`: Incluce numpy in the tests (`False` by default)
 
-All results are stored in `./out`.
+All results are stored in `./out`. Then Numpy files are too slow to give a good comparison of the rest, so the option is given to leave out these tests.
 
 ### Testing
 For testing, the Pytest library was used. By running `pytest`, all tests are executed. Some tests are marked as slow.
 The slow tests can be executed seperately with `pytest -m slow` or excluded with `pytest -m "not slow"`.
 Currently, tests are written only for selected type variations. These are lists of tuples (for both Verhoeff and Stachowiak), and numpy arrays.
+To generate a coverage report: `pytest --cov-report=html --cov=./ tests/` with optional pytest parameters, e.g. `-m "not slow"`.
 
 The code also uses helper functions made by Ana Smerdu (Hamiltonian cycles in neighbor-swap graphs, 2019).
 These functions are tested too by their provided tests.
@@ -59,7 +60,7 @@ This will return a list of cycles of unknown depth. We know that the lowest leve
 
 
 ## Verhoeff Cycle Cover Edge Cases
-`python verhoeffCycleCover.py` visualizes the Figures 11 and 12 from [Verhoeff's work](https://doi.org/10.1007/s10623-016-0301-9). These paths are later also used in `cycle_cover.py`.
+`python ./figure_generation_files/verhoeffCycleCover.py` visualizes the Figures 11 and 12 from [Verhoeff's work](https://doi.org/10.1007/s10623-016-0301-9). These paths are later also used in `cycle_cover.py`.
 
 Usage:
 

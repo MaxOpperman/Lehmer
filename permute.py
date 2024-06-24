@@ -11,7 +11,7 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     total_path_motion,
 )
-from rivertz import SetPerm
+from figure_generation_files.rivertz import SetPerm
 from visualization import find_path_colors, plot_graph, visualize
 
 if __name__ == "__main__":

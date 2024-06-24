@@ -2,7 +2,7 @@ from bisect import bisect, insort
 from heapq import heappop, heappush
 from itertools import permutations as itertoolspermutations
 
-from helper_operations.path_operations import adjacent, cycleQ, pathQ
+from helper_operations.path_operations import adjacent, pathQ
 
 
 def binomial(k0: int, k1: int) -> int:
@@ -313,23 +313,24 @@ def selectByTail(
 
 
 def HpathQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
-    """Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature."""
+    """
+    Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature.
+    @param per: list of permutations ordered in a path
+    @param sig: signature as a list of integers
+    """
     if pathQ(per):
-        for i in nonStutterPermutations(sig):
-            try:
-                per.remove(i)
-            except ValueError:
-                return False
-        if not per:
-            return True
+        return set(per) == set(nonStutterPermutations(sig))
     return False
 
 
 def HcycleQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
     """
     Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature.
-
+    @param per: list of permutations, ordered in a cycle
+    @param sig: signature as a list of integers
     """
+    if len(per) <= 2:
+        return False
     return adjacent(per[0], per[-1]) and HpathQ(per, sig)
 
 

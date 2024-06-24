@@ -9,7 +9,7 @@ from helper_operations.permutation_graphs import (
     binomial,
     rotate,
 )
-from rivertz import SetPerm
+from figure_generation_files.rivertz import SetPerm
 
 
 def stutterize(s: list[int]):

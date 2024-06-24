@@ -8,13 +8,12 @@ from helper_operations.path_operations import (
     incorporateSpursInZigZag,
 )
 from helper_operations.permutation_graphs import (
-    binomial,
+    HpathQ,
     extend,
     rotate,
     stutterPermutations,
     swapPair,
 )
-from rivertz import SetPerm
 
 
 def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
@@ -113,22 +112,5 @@ def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
             + tube3
             + extend(p00, (0, 0))
         )
-        if len(path_ham) != len(set(path_ham)):
-            print(
-                "Path contains duplicates:",
-                [
-                    item
-                    for item, count in collections.Counter(path_ham).items()
-                    if count > 1
-                ],
-            )
-        if len(path_ham) < binomial(k0, k1):
-            rivertz_perms = []
-            for p in SetPerm([k0, k1]):
-                rivertz_perms.append(p)
-            corrected_tuples = [tuple([x - 1 for x in item]) for item in rivertz_perms]
-            print(
-                "Path is missing elements:",
-                [item for item in corrected_tuples if item not in path_ham],
-            )
+        assert HpathQ(path_ham, [k0, k1])
         return path_ham
