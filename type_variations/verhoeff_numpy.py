@@ -6,7 +6,7 @@ from itertools import permutations as itertoolspermutations
 import numpy as np
 
 from helper_operations.path_operations import adjacent, spurBaseIndex
-from helper_operations.permutation_graphs import binomial, stutterPermutationQ
+from helper_operations.permutation_graphs import binomial
 from rivertz import SetPerm
 
 
@@ -191,8 +191,7 @@ def HpathNS(k0: int, k1: int) -> np.ndarray:
     elif k0 % 2 == 0 and k1 % 2 == 0:
         p1 = extend(HpathNS(k0, k1 - 1), np.array([1]))
         p0 = extend(HpathNS(k0 - 1, k1), np.array([0]))
-        if stutterPermutationQ(p0[-1]):
-            p0 = p0[:-1]
+
         if k0 == k1:
             return np.concatenate((p1[::-1], p0[::-1]))
         return np.concatenate((p1[::-1], p0))

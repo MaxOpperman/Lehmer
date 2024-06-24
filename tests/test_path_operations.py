@@ -469,8 +469,70 @@ class TestPathOperations:
         ]
 
     def test_transformCycleCover_depth2(self):
-        # TODO: Add more test cases
-        assert True
+        p = [
+            [
+                [
+                    [
+                        (0, 0, 1, 1),
+                        (0, 1, 0, 1),
+                        (1, 0, 0, 1),
+                        (0, 1, 1, 0),
+                        (1, 0, 1, 0),
+                        (1, 1, 0, 0),
+                    ]
+                ]
+            ],
+            [[(0, 1), (1, 0)]],
+        ]
+        assert transform_cycle_cover(p, [4, 2]) == [
+            [
+                [
+                    [
+                        (4, 4, 2, 2),
+                        (4, 2, 4, 2),
+                        (2, 4, 4, 2),
+                        (4, 2, 2, 4),
+                        (2, 4, 2, 4),
+                        (2, 2, 4, 4),
+                    ]
+                ]
+            ],
+            [[(4, 2), (2, 4)]],
+        ]
+
+    def test_transformCycleCover_depth3(self):
+        p = [
+            [
+                [
+                    [
+                        (0, 0, 1, 1),
+                        (0, 1, 0, 1),
+                        (1, 0, 0, 1),
+                        (0, 1, 1, 0),
+                        (1, 0, 1, 0),
+                        (1, 1, 0, 0),
+                    ]
+                ]
+            ],
+            [[(0, 1), (1, 0)]],
+            [[[[(3,)]]]],
+        ]
+        assert transform_cycle_cover(p, [2, 1, 3, 0]) == [
+            [
+                [
+                    [
+                        (2, 2, 1, 1),
+                        (2, 1, 2, 1),
+                        (1, 2, 2, 1),
+                        (2, 1, 1, 2),
+                        (1, 2, 1, 2),
+                        (1, 1, 2, 2),
+                    ]
+                ]
+            ],
+            [[(2, 1), (1, 2)]],
+            [[[[(0,)]]]],
+        ]
 
     def test_transformCycleCover_empty_transformer(self):
         with pytest.raises(ValueError):

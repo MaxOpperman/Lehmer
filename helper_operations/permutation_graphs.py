@@ -1,12 +1,15 @@
+from bisect import bisect, insort
+from heapq import heappop, heappush
 from itertools import permutations as itertoolspermutations
 
-from helper_operations.path_operations import cycleQ, pathQ
+from helper_operations.path_operations import adjacent, cycleQ, pathQ
 
 
 def binomial(k0: int, k1: int) -> int:
     """Returns binomial coefficient k0+k1 choose k0, which equals k0+k1 choose k1.
     Assumption: 0 <= k0 and 0 <= k1
     """
+    assert k0 >= 0 and k1 >= 0
     if k0 == 0:
         return 1
     elif k1 < k0:
@@ -19,6 +22,7 @@ def binomial(k0: int, k1: int) -> int:
 def multinomial(s: list[int]) -> int:
     """Returns multinomial coefficient for list s.
     Assumption: all(0 <= k for k in s)"""
+    assert all(0 <= k for k in s)
     if len(s) <= 1:
         return 1
     t = sorted(s)
@@ -27,8 +31,12 @@ def multinomial(s: list[int]) -> int:
     return binomial(k0, k1) * multinomial(t[1:])
 
 
-def perm(sig) -> list[list]:
-    """Returns all permutations with signature sig"""
+def perm(sig: list[int]) -> list[list[int]]:
+    """
+    Returns all permutations with signature sig
+    @param sig: signature as a list of integers
+    @return: list of permutations as lists of integers
+    """
     first_perm = []
     for index, item in enumerate(sig):
         first_perm.extend([index] * item)
@@ -36,86 +44,109 @@ def perm(sig) -> list[list]:
     return [list(p) for p in set(itertoolspermutations(first_perm))]
 
 
-def start_perm(sig) -> tuple[int, ...]:
-    """Returns the permutation of the least serial number"""
-    return tuple(sum([[i] * count for i, count in enumerate(sig)], []))
+def get_num_of_inversions(permutation: tuple[int, ...]) -> int:
+    """
+    Count the number of inversions in a permutation using merge sort
+    From https://www.geeksforgeeks.org/inversion-count-in-array-using-merge-sort/
+    @param permutation: list of integers
+    @return: number of inversions
+    """
+    if len(permutation) <= 1:
+        return 0
+    sortList = []
+    result = 0
+    # Heapsort, O(N*log(N))
+    for i, v in enumerate(permutation):
+        heappush(sortList, (v, i))
+    # Create a sorted list of indexes
+    x = []
+    while sortList:
+        # O(log(N))
+        v, i = heappop(sortList)
+        # Find the current minimum's index
+        # the index y can represent how many minimums on the left
+        y = bisect(x, i)
+        # i can represent how many elements on the left
+        # i - y can find how many bigger nums on the left
+        result += i - y
+
+        insort(x, i)
+
+    return result
 
 
-def non_stutters(sig) -> list[tuple[int, ...]]:
-    """Returns all non-Stutters permutations of signature sig"""
-    return [tuple(p) for p in perm(sig) if not stutterPermutationQ(p)]
+def count_inversions(sig: list[int]) -> dict[tuple, int]:
+    """
+    Count the number of inversions for all permutations of a signature
+    @param sig: signature as a list of integers
+    @return: dictionary with permutations as keys and number of inversions as values
+    """
+    if len(sig) == 0:
+        return dict()
+    return {tuple(i): get_num_of_inversions(i) for i in perm(sig)}
 
 
-def stutters_sig(sig) -> list:
-    """Returns all Stutters permutations of signature sig"""
-    return [i for i in perm(sig) if stutterPermutationQ(i)]
-
-
-def stutters_perm(s) -> list:
-    """Returns all stutters permutations from set s of permutations?"""
-    return [p for p in s if stutterPermutationQ(p)]
-
-
-def defect(s) -> int:
+def defect(s: list[int]) -> int:
     """
     Returns the number of spurs of a given signature according to Lehmer's definition for the defect:
     The number of even permutations - number of odd permutations
+    @param s: signature as a list of integers
+    @return: absolute difference between the number of even and odd permutations
     """
+    if len(s) < 2:
+        return 0
     inv_dict = count_inversions(s)
     even_count = sum(1 for value in inv_dict.values() if value % 2 == 0)
-    return even_count - (len(inv_dict) - even_count) - 1
+    return abs(even_count - (len(inv_dict) - even_count))
 
 
-def count_inversions(sig) -> dict[tuple, int]:
+def swapPair(perm: tuple[int, ...], i: int, j: int = None) -> tuple[int, ...]:
     """
-    Count the number of inversions for all permutations of a signature
+    Swaps elements in perm at positions i and j (or i and i+1 if j is not provided).
+    @param perm: permutation as a tuple of integers
+    @param i: first index
+    @param j: second index (optional, default is i+1)
+    @return: new permutation as a tuple of integers
     """
-    p = perm(sig)
-    dic = {}
-    for i in p:
-        inversions = 0
-        for j in range(len(i)):
-            for k in range(j + 1, len(i)):
-                if i[j] > i[k]:
-                    inversions += 1
-        dic[tuple(i)] = inversions
-    return dic
+    perm = list(perm)
+    if j is None:
+        j = i + 1
+    if i > len(perm) - 1 or j > len(perm) - 1:
+        raise ValueError(f"Index {i} out of range for permutation {perm}")
+    if i < len(perm) and j < len(perm):
+        perm[i], perm[j] = perm[j], perm[i]
+    return tuple(perm)
 
 
-def generate_adj(s) -> list[tuple[int, ...]]:
-    """Returns all adjacent elts of element s"""
+def generate_adj(p: list[int]) -> list[tuple[int, ...]]:
+    """
+    Returns all adjacent elements of permutation p
+    @param p: list of integers
+    @return: list of tuples of integers, the new permutations generated by neighbor-swapping
+    """
     v = []
-    for i, item in enumerate(s):
-        if i + 1 < len(s) and item != s[i + 1]:
-            v.append("".join(map(str, swapPair(s, i))))
+    for i, item in enumerate(p):
+        if i + 1 < len(p) and item != p[i + 1]:
+            v.append(swapPair(p, i))
     return v
 
 
-def graph(sig) -> dict[tuple, list[tuple]]:
-    """Returns a graph with signature sig in form of dictionary"""
+def graph(sig: list[int]) -> dict[str, set[str]]:
+    """
+    Returns a graph with signature sig in form of dictionary of strings
+    @param sig: signature as a list of integers
+    @return: dictionary with permutations as keys and adjacent permutations as values
+    """
+    if len(sig) == 0:
+        return dict()
     p = perm(sig)
 
     dic = {}
     for i in p:
-        dic["".join(map(str, i))] = generate_adj(i)
+        dic["".join(map(str, i))] = set(
+            ["".join(map(str, el)) for el in generate_adj(i)]
+        )
     return dic
-
-
-def mul(sez, e):
-    """Adds 'e' to all elements(lists) in list sez"""
-    if not sez:
-        return [e]
-    for i in sez:
-        i.append(e)
-    return sez
-
-
-def multiset(s):
-    """Tried with return [] but got list of lists so did it like this:"""
-    per = []
-    for i, item in enumerate(s):
-        per.extend(item * [i])
-    return per
 
 
 def extend(lst: list[tuple[int, ...]], e: tuple[int, ...]) -> list[tuple[int, ...]]:
@@ -125,10 +156,7 @@ def extend(lst: list[tuple[int, ...]], e: tuple[int, ...]) -> list[tuple[int, ..
     :param e: tuple to extend every item in l with
     :return:
     """
-    try:
-        return [i + e for i in lst]
-    except TypeError:
-        return [i + [e] for i in lst]
+    return [i + e for i in lst]
 
 
 def extend_cycle_cover(
@@ -140,6 +168,7 @@ def extend_cycle_cover(
     :param e: tuple to extend every item in l with
     :return:
     """
+    assert len(lis3d) > 0
     if isinstance(lis3d[0][0][0], int):
         return [extend(l, e) for l in lis3d]
     elif not isinstance(lis3d, list):
@@ -148,112 +177,145 @@ def extend_cycle_cover(
         return [extend_cycle_cover(l, e) for l in lis3d]
 
 
-def shorten(lis, num):
+def shorten(lis: list[tuple[int, ...]], num: int) -> list[tuple[int, ...]]:
+    """
+    Shorten every item in l by num elements from the end
+    @param lis: list of permutations
+    @param num: number of elements to remove from the back
+    @return: list of shortened permutations
+    """
+    assert len(lis) > 0
+    assert all(len(i) >= num for i in lis)
+    if num == 0:
+        return lis
+    if num < 0:
+        return [i[-num:] for i in lis]
     return [i[:-num] for i in lis]
 
 
-def signature(s):
-    """Returns signature of element s"""
-    if not s:
+def signature(permutation: tuple[int, ...]) -> list[int]:
+    """
+    Returns signature of a permutation.
+    @param permutation: permutation as a tuple of integers
+    @return: signature as a list of integers
+    """
+    if not permutation:
         return []
-    return [s.count(i) for i in range(max(s) + 1)]
+    return [permutation.count(i) for i in range(max(permutation) + 1)]
 
 
-def swapPair(perm, i, j=None) -> tuple[int, ...]:
-    """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
-    perm = list(perm)
-    if j is None:
-        j = i + 1
-    if i < len(perm) and j < len(perm):
-        perm[i], perm[j] = perm[j], perm[i]
-    return tuple(perm)
-
-
-def edgeIndex(e, f):
-    return [i for i, (a, b) in enumerate(zip(e, f)) if a != b][0]
-
-
-def rotate(l, n):
-    """Rotates the list l by n positions."""
+def rotate(l: list, n: int) -> list:
+    """
+    Rotates the list l by n positions to the left
+    @param l: list to rotate
+    @param n: number of positions to rotate
+    """
+    if len(l) <= 1:
+        return l
     return l[n % len(l) :] + l[: n % len(l)]
 
 
-def halveSignature(sig):
-    """Halves the signature. ([2, 4, 6] --> [1, 2, 3]), rounding down."""
+def _halveSignature(sig: list[int]) -> list[int]:
+    """
+    Halves the signature. ([2, 4, 6] --> [1, 2, 3]), rounding down.
+    @param sig: signature as a list of integers
+    @return: halved signature as a list of integers
+    """
+    if any(i < 0 for i in sig):
+        raise ValueError("Signature must be a list of non-negative integers.")
     return [i // 2 for i in sig]
 
 
-def multiset(freq):
-    """Generates the lexicographically smallest list with given occurrence frequencies."""
-    if isinstance(freq, int):
-        freq = [freq]
-    return [i for i, f in enumerate(freq) for _ in range(f)]
-
-
-def permutations(s):
-    """Generates all possible permutations of a given list of integers."""
+def multiset(s: list[int]) -> tuple[int, ...]:
+    """
+    Generates the lexicographically smallest list with given signature.
+    @param s: list of integers, each representing the frequency of the corresponding element (signature)
+    @return: lexicographically smallest permutation with the given signature
+    """
     if isinstance(s, int):
         s = [s]
+    if not all(i >= 0 for i in s):
+        raise ValueError("Signature must be a list of non-negative integers.")
+    return tuple([i for i, f in enumerate(s) for _ in range(f)])
+
+
+def _permutations(s: list[int]) -> list[tuple[int, ...]]:
+    """
+    Generates all possible permutations of a given list of integers.
+    @param s: list of integers, the signature
+    @return: list of permutations as tuples of integers
+    """
+    if isinstance(s, int):
+        s = [s]
+    if len(s) == 0:
+        return []
     # for itertools permutations:
     # Elements are treated as unique based on their position, not on their value.
     return list(set(itertoolspermutations(multiset(s))))
 
 
-def stutterPermutations(s):
-    """Generates stutter permutations of a given list of integers."""
-    odds = selectOdds(s)
-    if len(odds) >= 2:
+def _selectOdds(sig: tuple[int, ...]) -> tuple[int, ...]:
+    """
+    Returns list of numbers with odd occurrence frequencies in the given signature.
+    @param sig: signature as a tuple of integers
+    @return: tuple of integers with odd occurrence frequencies
+    """
+    return tuple([i for i, item in enumerate(sig) if item % 2 == 1])
+
+
+def stutterPermutations(s: list[int]) -> list[tuple[int, ...]]:
+    """
+    Generates stutter permutations of a given signature.
+    @param s: signature of the permutations as a list of integers
+    @return: stutter permutations as a list of tuples of integers
+    """
+    odds = _selectOdds(s)
+    if len(odds) >= 2 or len(s) == 0 or (len(s) == 1 and s[0] == 0):
         return []
     else:
-        result = stutterize(permutations(halveSignature(s)))
+        result = _stutterize(_permutations(_halveSignature(s)))
         if len(odds) == 1:
             return extend(result, odds)
         else:
             return result
 
 
-def stutterCounter(sig: list[int]):
-    # NO TESTS!
-    """Returns the number of stutter permutations in a graph with signature sig."""
-    return len(stutters_sig(sig))
+def nonStutterPermutations(s: list[int]) -> list[tuple[int, ...]]:
+    """
+    Returns all non-stutter permutations of signature sig
+    @param sig: signature of the permutations as a list of integers
+    @return: non-stutter permutations as a list of tuples of integers
+    """
+    if len(s) == 0 or (len(s) == 1 and s[0] == 0):
+        return []
+    return [tuple(p) for p in perm(s) if not tuple(p) in stutterPermutations(s)]
 
 
-def nonStutterCount(sig: list[int]):
-    # NO TESTS!
-    """Returns the number of non-stutter permutations in a graph with signature sig."""
-    return len(non_stutters(sig))
+def _stutterize(p_list: list[tuple[int, ...]]) -> list[tuple[int, ...]]:
+    """
+    Converts a list of permutations into stutter permutation by repeating every number twice
+    @param p: a list of permutations as a list of tuples of integers
+    @return: all stutter permutations as a list of tuples of integers
+    """
+    return [tuple([el for el in t for _ in range(2)]) for t in p_list]
 
 
-def stutterize(s: list[int]):
-    """Converts argument into stutter permutation by repeating every number."""
-    return [tuple([el for el in t for _ in range(2)]) for t in s]
+def selectByTail(
+    permutations: list[tuple[int, ...]], tail: tuple[int, ...]
+) -> list[tuple[int, ...]]:
+    """
+    Select permutations with a given tail 'tail'
+    @param s: list of permutations
+    @param tail: elements of the tail to select
+    @return: list of permutations with the given tail
+    """
+    return [i for i in permutations if i[-len(tail) :] == tail]
 
 
-def selectOdds(sig: tuple):
-    """Returns list of numbers with odd occurrence frequencies in the given signature."""
-    return tuple([i for i, item in enumerate(sig) if item % 2 == 1])
-
-
-def selectByTail(s, tail):
-    """Select permutations with a given tail 'tail'"""
-    return [i for i in s if i[-len(tail) :] == tail]
-
-
-def stutterPermutationQ(s):
-    # NO TESTS!
-    """Returns true if list/tuple is stutter permutation, false otherwise"""
-    if len(s) == 1:
-        return False
-    for i in range(len(s) // 2):
-        if s[2 * i] != s[2 * i + 1]:
-            return False
-    return True
-
-
-def HpathQ(per, sig):
+def HpathQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
     """Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature."""
     if pathQ(per):
-        for i in non_stutters(sig):
+        for i in nonStutterPermutations(sig):
             try:
                 per.remove(i)
             except ValueError:
@@ -263,17 +325,19 @@ def HpathQ(per, sig):
     return False
 
 
-def HcycleQ(per, sig):
-    """Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature."""
-    if cycleQ(per):
-        return HpathQ(per, sig)
-    else:
-        return False
-
-
-def total_path_motion(path):
+def HcycleQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
     """
-    Returns the sum of the widths (difference in index between the two transposed elements) for all nodes in the path
+    Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature.
+
+    """
+    return adjacent(per[0], per[-1]) and HpathQ(per, sig)
+
+
+def total_path_motion(path: list[tuple[int, ...]]) -> int:
+    """
+    Returns the sum of the transposition widths (difference in index between the two transposed elements) for all nodes in the path
+    @param path: list of permutations
+    @return: total motion as an integer
     """
     total_motion = 0
     for node in range(len(path) - 1):

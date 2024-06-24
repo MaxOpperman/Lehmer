@@ -704,7 +704,6 @@ def _lemma10_helper(K: np.ndarray, p: int, new_color: int) -> np.ndarray:
     )
 
     cycle = G_np[0]
-    # TODO, hier zit de fout onder
     # K_j = k_{j,1} k_{j,2} \dots k_{j,q}
     for i, gi in enumerate(copy.deepcopy(G_np[1:]), start=1):
         # a_i = (l^p k_{2i}, l^{p-1} k_{2i,1} l k{2i,2} \dots k_{2i,q})

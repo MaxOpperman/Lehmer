@@ -5,10 +5,10 @@ from helper_operations.permutation_graphs import (
     count_inversions,
     graph,
     multinomial,
-    non_stutters,
+    nonStutterPermutations,
     pathQ,
     perm,
-    stutters_sig,
+    stutterPermutations,
     total_path_motion,
 )
 from rivertz import SetPerm
@@ -63,8 +63,8 @@ if __name__ == "__main__":
     sig = [int(x) for x in args.signature.split(",")]
     if len(sig) > 0:
         perms = perm(sig)
-        stutter = stutters_sig(sig)
-        non_stutter = non_stutters(sig)
+        stutter = stutterPermutations(sig)
+        non_stutter = nonStutterPermutations(sig)
         print(
             f"There are {multinomial(sig)} permutations and computed {len(perms)}, of which {len(stutter)} are "
             f"stutters and {len(non_stutter)} are non-stutters"

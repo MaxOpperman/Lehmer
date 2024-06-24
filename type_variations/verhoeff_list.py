@@ -4,11 +4,10 @@ import sys
 
 from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
 from helper_operations.permutation_graphs import (
+    _halveSignature,
+    _permutations,
     binomial,
-    halveSignature,
-    permutations,
     rotate,
-    stutterPermutationQ,
 )
 from rivertz import SetPerm
 
@@ -29,7 +28,7 @@ def stutterPermutations(s):
     if len(odds) >= 2:
         return []
     else:
-        result = stutterize(permutations(halveSignature(s)))
+        result = stutterize(_permutations(_halveSignature(s)))
         if len(odds) == 1:
             return extend(result, odds)
         else:
@@ -159,8 +158,6 @@ def HpathNS(k0: int, k1: int) -> list[list[int]]:
         )  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
         p0 = extend(HpathNS(k0 - 1, k1), [0])
 
-        if stutterPermutationQ(p0[-1]):
-            p0 = p0[:-1]
         if k0 == k1:  # p0 is a path from 0^(k0-1) 1^k1 0 to 1^(k1-1) 0^(k0-1) 1 0
             return p1[::-1] + p0[::-1]
         return p1[::-1] + p0

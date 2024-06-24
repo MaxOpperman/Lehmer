@@ -5,11 +5,13 @@ from argparse import Namespace
 import networkx as nx
 from matplotlib import pyplot as plt
 
-from helper_operations.permutation_graphs import defect, start_perm, total_path_motion
+from helper_operations.permutation_graphs import defect, multiset, total_path_motion
 from pathmarker import PathMarker
 
 
-def visualize(dict_graph, dict_inv) -> tuple[nx.Graph, dict]:
+def visualize(
+    dict_graph: dict[str, set[str]], dict_inv: dict[tuple, int]
+) -> tuple[nx.Graph, dict]:
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(dict_inv.values()), 0)
 
@@ -185,7 +187,7 @@ def lehmer_path(
     spur_bases = []
     spur_tips = []
     # Step 3: The first node becomes B
-    b = "".join(map(str, start_perm(signature)))
+    b = "".join(map(str, multiset(signature)))
 
     interchanges = [b]  # Store interchange digits
 
@@ -266,13 +268,13 @@ def lehmer_path(
                 "which is CORRECT! And path length:",
                 len(interchanges),
             )
-        if spur_tally > 0 and spur_tally != defect(signature):
+        if spur_tally > 0 and spur_tally != defect(signature) + 1:
             print("Spur Tally:", spur_tally)
             print(
                 "!!!!! INCORRECT NUMBER OF SPURS; FOUND",
                 spur_tally,
                 "BUT ONLY",
-                max(defect(signature), 0),
+                max(defect(signature) - 1, 0),
                 "IS CORRECT !!!!!",
             )
         else:
