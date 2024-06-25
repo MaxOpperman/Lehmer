@@ -9,32 +9,21 @@ This software is made available under the terms of the (To Be Supplied) License.
 import pytest
 
 from helper_operations.permutation_graphs import (
-    HpathQ,
-    _halveSignature,
-    _permutations,
-    _stutterize,
     binomial,
     count_inversions,
     defect,
-    extend,
-    extend_cycle_cover,
     generate_adj,
     get_num_of_inversions,
     graph,
     multinomial,
-    multiset,
-    nonStutterPermutations,
     perm,
-    rotate,
-    selectByTail,
-    shorten,
     signature,
-    stutterPermutations,
-    swapPair,
 )
 
 
 class TestPermutationGraphs:
+    # Class that tests the helper_operations.permutation_graphs module
+    # In specific, the functions are used to manipulate permutations
     def test_binomial_negative(self):
         with pytest.raises(AssertionError):
             binomial(-1, 0)

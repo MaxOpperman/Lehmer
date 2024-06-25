@@ -7,7 +7,6 @@ This software is made available under the terms of the (To Be Supplied) License.
 """
 
 import collections
-import math
 
 import pytest
 

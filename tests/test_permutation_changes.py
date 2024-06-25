@@ -1,9 +1,17 @@
 import pytest
 
-from helper_operations.permutation_graphs import extend, rotate, selectByTail, shorten, swapPair
+from helper_operations.permutation_graphs import (
+    extend,
+    rotate,
+    selectByTail,
+    shorten,
+    swapPair,
+)
 
 
 class TestPermutationChanges:
+    # Class that tests the helper_operations.permutation_graphs module
+    # In specific, the functions are used to manipulate permutations
     def test_swapPair_empty(self):
         p = tuple()
         with pytest.raises(ValueError):
@@ -54,7 +62,7 @@ class TestPermutationChanges:
         assert swapPair(p, -1, 0) == (2, 0, 0, 1, 0)
         assert swapPair(p, -2, 0) == (1, 0, 0, 0, 2)
         assert swapPair(p, 0, -1) == (2, 0, 0, 1, 0)
-    
+
     def test_extend_empty_list(self):
         p = []
         result = extend(p, (0,))

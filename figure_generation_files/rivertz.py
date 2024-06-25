@@ -6,7 +6,6 @@ The original source code is available at: https://doi.org/10.48550/arXiv.2309.11
 Therefore we also did not test this file as it is not part of our codebase.
 """
 
-
 from abc import ABC
 from collections.abc import Iterator
 

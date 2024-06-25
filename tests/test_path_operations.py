@@ -1,6 +1,23 @@
 import pytest
 
-from helper_operations.path_operations import *
+from helper_operations.path_operations import (
+    adjacent,
+    createSquareTube,
+    createZigZagPath,
+    cutCycle,
+    cycleQ,
+    incorporateSpurInZigZag,
+    incorporateSpursInZigZag,
+    mul,
+    neighbor,
+    pathEdges,
+    pathQ,
+    recursive_cycle_check,
+    splitPathIn2,
+    spurBaseIndex,
+    transform,
+    transform_cycle_cover,
+)
 
 
 class TestPathOperations:

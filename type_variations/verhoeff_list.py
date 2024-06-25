@@ -2,6 +2,7 @@ import collections
 import copy
 import sys
 
+from figure_generation_files.rivertz import SetPerm
 from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
 from helper_operations.permutation_graphs import (
     _halveSignature,
@@ -9,7 +10,6 @@ from helper_operations.permutation_graphs import (
     binomial,
     rotate,
 )
-from figure_generation_files.rivertz import SetPerm
 
 
 def stutterize(s: list[int]):

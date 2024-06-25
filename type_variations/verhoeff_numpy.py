@@ -5,9 +5,9 @@ from itertools import permutations as itertoolspermutations
 
 import numpy as np
 
+from figure_generation_files.rivertz import SetPerm
 from helper_operations.path_operations import adjacent, spurBaseIndex
 from helper_operations.permutation_graphs import binomial
-from figure_generation_files.rivertz import SetPerm
 
 
 def stutterize(perm: np.array) -> np.ndarray:

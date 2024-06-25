@@ -1,8 +1,22 @@
 import pytest
-from helper_operations.permutation_graphs import HcycleQ, HpathQ, _halveSignature, _permutations, _stutterize, extend_cycle_cover, multinomial, multiset, nonStutterPermutations, stutterPermutations
+
+from helper_operations.permutation_graphs import (
+    HcycleQ,
+    HpathQ,
+    _halveSignature,
+    _permutations,
+    _stutterize,
+    extend_cycle_cover,
+    multinomial,
+    multiset,
+    nonStutterPermutations,
+    stutterPermutations,
+)
 
 
-class TestPermutationGraphs:
+class TestStutterProperties:
+    # Class that tests the helper_operations.permutation_graphs module
+    # In specific, the functions that are related to stutter permutations and their properties
     def test_halve_signature_empty(self):
         s = []
         result = _halveSignature(s)
@@ -353,14 +367,20 @@ class TestPermutationGraphs:
         assert HpathQ(p, [1, 1]) == True
 
     def test_HpathQ_2_2(self):
-        assert HpathQ([
-            (0, 0, 1, 1),
-            (0, 1, 0, 1),
-            (1, 0, 0, 1),
-            (0, 1, 1, 0),
-            (1, 0, 1, 0),
-            (1, 1, 0, 0),
-        ], [2, 2]) == False
+        assert (
+            HpathQ(
+                [
+                    (0, 0, 1, 1),
+                    (0, 1, 0, 1),
+                    (1, 0, 0, 1),
+                    (0, 1, 1, 0),
+                    (1, 0, 1, 0),
+                    (1, 1, 0, 0),
+                ],
+                [2, 2],
+            )
+            == False
+        )
         assert (
             HpathQ([(0, 1, 0, 1), (1, 0, 0, 1), (1, 0, 1, 0), (0, 1, 1, 0)], [2, 2])
             == True
@@ -383,38 +403,44 @@ class TestPermutationGraphs:
             HpathQ([(0, 1, 0, 1), (1, 0, 0, 1), (1, 0, 1, 0), (0, 1, 1, 0)], [2, 0, 2])
             == False
         )
-    
+
     def test_HcycleQ_empty(self):
         p = []
         result = HcycleQ(p, [])
         assert result == False
-    
+
     def test_HcycleQ_0(self):
         p = [tuple()]
         result = HcycleQ(p, [0])
         assert result == False
-    
+
     def test_HcycleQ_1(self):
         p = [(0,)]
         assert HcycleQ(p, [0]) == False
         assert HcycleQ(p, [1]) == False
-    
+
     def test_HcycleQ_1_1(self):
         # a cycle must be of length at least 3
         p = [(0, 1), (1, 0)]
         assert HcycleQ(p, [0, 1]) == False
         assert HcycleQ(p, [1, 0]) == False
         assert HcycleQ(p, [1, 1]) == False
-    
+
     def test_HcycleQ_2_2(self):
-        assert HcycleQ([
-            (0, 0, 1, 1),
-            (0, 1, 0, 1),
-            (1, 0, 0, 1),
-            (0, 1, 1, 0),
-            (1, 0, 1, 0),
-            (1, 1, 0, 0),
-        ], [2, 2]) == False
+        assert (
+            HcycleQ(
+                [
+                    (0, 0, 1, 1),
+                    (0, 1, 0, 1),
+                    (1, 0, 0, 1),
+                    (0, 1, 1, 0),
+                    (1, 0, 1, 0),
+                    (1, 1, 0, 0),
+                ],
+                [2, 2],
+            )
+            == False
+        )
         assert (
             HcycleQ([(0, 1, 0, 1), (1, 0, 0, 1), (1, 0, 1, 0), (0, 1, 1, 0)], [2, 2])
             == True
@@ -437,7 +463,7 @@ class TestPermutationGraphs:
             HcycleQ([(0, 1, 0, 1), (1, 0, 0, 1), (1, 0, 1, 0), (0, 1, 1, 0)], [2, 0, 2])
             == False
         )
-    
+
     def test_Hpath_HpathQ_vs_HcycleQ(self):
         # 001 is a stutter permutation
         assert HpathQ([(0, 1, 0), (1, 0, 0)], [2, 1]) == True
@@ -445,11 +471,43 @@ class TestPermutationGraphs:
         assert HcycleQ([(0, 1, 0), (0, 0, 1)], [2, 1]) == False
 
         # [2, 1, 1] signature
-        assert HpathQ([
-            (0, 0, 1, 2), (0, 0, 2, 1), (0, 2, 0, 1), (0, 2, 1, 0), (0, 1, 2, 0), (0, 1, 0, 2),
-            (1, 0, 0, 2), (1, 0, 2, 0), (1, 2, 0, 0), (2, 1, 0, 0), (2, 0, 1, 0), (2, 0, 0, 1),            
-        ], [2, 1, 1]) == True
-        assert HcycleQ([
-            (0, 0, 1, 2), (0, 0, 2, 1), (0, 2, 0, 1), (0, 2, 1, 0), (0, 1, 2, 0), (0, 1, 0, 2),
-            (1, 0, 0, 2), (1, 0, 2, 0), (1, 2, 0, 0), (2, 1, 0, 0), (2, 0, 1, 0), (2, 0, 0, 1),            
-        ], [2, 1, 1]) == False
+        assert (
+            HpathQ(
+                [
+                    (0, 0, 1, 2),
+                    (0, 0, 2, 1),
+                    (0, 2, 0, 1),
+                    (0, 2, 1, 0),
+                    (0, 1, 2, 0),
+                    (0, 1, 0, 2),
+                    (1, 0, 0, 2),
+                    (1, 0, 2, 0),
+                    (1, 2, 0, 0),
+                    (2, 1, 0, 0),
+                    (2, 0, 1, 0),
+                    (2, 0, 0, 1),
+                ],
+                [2, 1, 1],
+            )
+            == True
+        )
+        assert (
+            HcycleQ(
+                [
+                    (0, 0, 1, 2),
+                    (0, 0, 2, 1),
+                    (0, 2, 0, 1),
+                    (0, 2, 1, 0),
+                    (0, 1, 2, 0),
+                    (0, 1, 0, 2),
+                    (1, 0, 0, 2),
+                    (1, 0, 2, 0),
+                    (1, 2, 0, 0),
+                    (2, 1, 0, 0),
+                    (2, 0, 1, 0),
+                    (2, 0, 0, 1),
+                ],
+                [2, 1, 1],
+            )
+            == False
+        )

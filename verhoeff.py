@@ -1,4 +1,3 @@
-import collections
 import sys
 
 from helper_operations.path_operations import (
