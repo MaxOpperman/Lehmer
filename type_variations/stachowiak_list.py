@@ -14,7 +14,28 @@ from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrott
 from type_variations.verhoeff_list import HpathNS
 
 
-def generate_all_di(chain_p: list) -> list[list]:
+def transform_list(lis: list[list[int]], tr: list[int]) -> list[list[int]]:
+    """
+    Transforms the permutation(s) according to the given renaming.
+    @param lis: list of permutations
+    @param tr: transformation list, int at index i is the new name for i
+    @return: list of lists of transformed permutations
+    """
+    l = []
+    for i in lis:
+        v = []
+        for j in i:
+            try:
+                v.append(tr[j])
+            except IndexError:
+                raise ValueError(
+                    f"Index {j} is larger than the length of the transformation list {tr}"
+                )
+        l.append(v)
+    return l
+
+
+def generate_all_di(chain_p: list[int]) -> list[list[int]]:
     """This function corresponds to the start of the proof of Lemma 2 (case 2.1 if |P| even)"""
     q = [0, 1]
     d_all = []
@@ -29,7 +50,7 @@ def generate_all_di(chain_p: list) -> list[list]:
     return d_all
 
 
-def generate_all_di_prime(chain_p: list) -> list[list]:
+def generate_all_di_prime(chain_p: list[int]) -> list[list[int]]:
     """This function corresponds to the start of the proof of Lemma 2 (case 2.2 if |P| even)"""
     q = [0, 1]
     d_all = []
@@ -44,7 +65,7 @@ def generate_all_di_prime(chain_p: list) -> list[list]:
     return d_all
 
 
-def lemma2_cycle(chain_p: list, case_2_1=True) -> list:
+def lemma2_cycle(chain_p: list[int], case_2_1=True) -> list[int]:
     """
     This function generates the cycles of Lemma 2.
     If |P| is even the last two nodes are discarded as in the Lemma.
@@ -73,7 +94,7 @@ def lemma2_cycle(chain_p: list, case_2_1=True) -> list:
     return cycle
 
 
-def lemma2_extended_path(chain_p: tuple, case_2_1=True) -> list:
+def lemma2_extended_path(chain_p: list[int], case_2_1=True) -> list[int]:
     """
     Extends the cycle of Lemma 2 with the last two elements in case |P| is even
     if |P| odd the cycle is returned
@@ -90,7 +111,9 @@ def lemma2_extended_path(chain_p: tuple, case_2_1=True) -> list:
     return cycle
 
 
-def _lemma8_helper(sig_occ: list[tuple[int, int]]) -> tuple[list[list], list[list]]:
+def _lemma8_helper(
+    sig_occ: list[tuple[int, int]]
+) -> tuple[list[list[int]], list[list[int]]]:
     """
     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
     We assume sig_occ has the form [(char, 1), (char, 1), (char, q), (char, p)]
@@ -138,7 +161,7 @@ def _lemma8_helper(sig_occ: list[tuple[int, int]]) -> tuple[list[list], list[lis
         return all_q, result
 
 
-def _lemma7_constructor(sig: list[int]) -> tuple[list[list], list[list]]:
+def _lemma7_constructor(sig: list[int]) -> tuple[list[list[int]], list[list[int]]]:
     """
     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
     We assume sig has the form [1, 1, q, p]
@@ -146,7 +169,7 @@ def _lemma7_constructor(sig: list[int]) -> tuple[list[list], list[list]]:
     return _lemma8_helper([(0, 1), (1, 1), (2, sig[2]), (3, sig[3])])
 
 
-def lemma7(sig: list[int]) -> list[list]:
+def lemma7(sig: list[int]) -> list[list[int]]:
     """
     The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
     We assume sig has the form [1, 1, q, p]
@@ -157,7 +180,9 @@ def lemma7(sig: list[int]) -> list[list]:
     return cycle
 
 
-def _lemma8_subgraph_cutter(cyc: list[list], x: list, y: list) -> list[list]:
+def _lemma8_subgraph_cutter(
+    cyc: list[list[int]], x: list[int], y: list[int]
+) -> list[list[int]]:
     """
      Makes sure x is the start node of the subgraph and y is the end node
     :param cyc: cycle in a subgraph
@@ -189,7 +214,9 @@ def _lemma8_subgraph_cutter(cyc: list[list], x: list, y: list) -> list[list]:
     return cyc_cut
 
 
-def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> list[list[tuple]]:
+def _lemma8_g_i_sub_graphs(
+    k_q: list[int], l_p: list[int], sig: list[int]
+) -> list[list[tuple]]:
     """
     Creates the G_i sub graphs of Lemma 8 (by making the G_ij sub graphs and connecting them)
     :param k_q: chain of q elements "k"
@@ -278,7 +305,7 @@ def _lemma8_g_i_sub_graphs(k_q, l_p, sig) -> list[list[tuple]]:
 
 
 def _lemma9_glue_a_edges(
-    k_r: list[int], k_s: list[int], l_p: list[int], p: int, sub_cycles
+    k_r: list[int], k_s: list[int], l_p: list[int], p: int, sub_cycles: list[list[int]]
 ):
     """
     Glues the a_i edges from Lemma8 together to create the final cycle
@@ -342,7 +369,7 @@ def _lemma9_glue_a_edges(
     return g_result_start
 
 
-def lemma8(sig: list[int]) -> list[list]:
+def lemma8(sig: list[int]) -> list[list[int]]:
     """
     The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
     We assume sig has the form [1, 1, q, p]
@@ -364,7 +391,7 @@ def lemma8(sig: list[int]) -> list[list]:
     return g_result_start
 
 
-def lemma9(sig: list[int]) -> list[list]:
+def lemma9(sig: list[int]) -> list[list[int]]:
     """
     The graph G=GE( (k^r (0|1) k^s) | l^p) ) contains a Hamilton cycle for every p, r+s > O.
     We assume sig has the form [1, 1, r, s, p]
@@ -435,7 +462,12 @@ def lemma9(sig: list[int]) -> list[list]:
         return cycle
 
 
-def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
+def _lemma10_subcycle_cutter(
+    cycle: list[list[int]],
+    gi: list[list[int]],
+    edge_i: list[list[int]],
+    edge_j: list[list[int]],
+) -> tuple[list[list[int]], list[list[int]]]:
     """
     Cuts the cycle and gi to change them for lemma 10
     :param cycle: cycle to cut for lemma 10
@@ -475,7 +507,7 @@ def _lemma10_subcycle_cutter(cycle, gi, edge_i, edge_j):
     return cycle, gi
 
 
-def _lemma10_helper(K: list[list], p: int, new_color: int):
+def _lemma10_helper(K: list[list[int]], p: int, new_color: int) -> list[list[int]]:
     """
     :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
     :param p: is the length of the last part of the signature (l^p)
@@ -548,16 +580,40 @@ def _lemma10_helper(K: list[list], p: int, new_color: int):
     return cycle
 
 
-def lemma10(sig):
+def lemma10(sig: list[int]) -> list[list[int]]:
     """If q = |Q| > 2, Q is even and GE(Q) contains a Hamiltonian path and p > 0 then GE(Q|l^p) has a Hamiltonian cycle."""
     K = HpathNS(sig[0], sig[1])
     cycle = _lemma10_helper(K, sig[2], 2)
     return cycle
 
 
-def lemma11(sig):
+def lemma11(sig: list[int]) -> list[list[int]]:
     """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
-    if sum(sig[:2]) > 2:
+    if len(sig) == 0:
+        raise ValueError("Signature must have at least one element")
+    elif len(sig) == 1:
+        return [[0] * sig[0]]
+    elif len(sig) == 2 and sig[0] == sig[1] == 1:
+        return [[0, 1], [1, 0]]
+    elif sum(1 for n in sig if n % 2 == 1) < 2:
+        raise ValueError("At least two odd numbers are required for Lemma 11")
+    # index the numbers in the signature such that we can transform them back later
+    indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
+    # put the odd numbers first in the signature
+    indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+
+    # if the order is optimal (i.e. the first two elements are the largest odd numbers)
+    # and the number of odd numbers is at least 2
+
+    if sig != [x[0] for x in indexed_sig]:
+        # if the order contains trailing 0's, remove them
+        while indexed_sig[-1][0] == 0:
+            indexed_sig.pop()
+        # return that solution given by this lemma (transformed, if needed)
+        return transform_list(
+            lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
+        )
+    elif sum(sig[:2]) > 2:
         path = HpathNS(sig[0], sig[1])  # K in the paper
         next_color = 2
     elif sig[2] == 1:
@@ -607,10 +663,6 @@ if __name__ == "__main__":
             print(
                 f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(tuple(row) for row in perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
                 f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
-            )
-        elif s[0] % 2 == 0 or s[1] % 2 == 0:
-            raise ValueError(
-                "The first two elements of the signature should be odd for Stachowiak's permutations"
             )
         else:
             l11 = lemma11(s)

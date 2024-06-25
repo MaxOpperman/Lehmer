@@ -2,7 +2,7 @@ from bisect import bisect, insort
 from heapq import heappop, heappush
 from itertools import permutations as itertoolspermutations
 
-from helper_operations.path_operations import adjacent, pathQ
+from helper_operations.path_operations import adjacent, cycleQ, pathQ
 
 
 def binomial(k0: int, k1: int) -> int:
@@ -325,13 +325,46 @@ def HpathQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
 
 def HcycleQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
     """
-    Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature.
+    Determines whether the list of permutations is a Hamiltonian cycle on the non-stutter permutations of the given signature.
     @param per: list of permutations, ordered in a cycle
     @param sig: signature as a list of integers
     """
     if len(per) <= 2:
         return False
     return adjacent(per[0], per[-1]) and HpathQ(per, sig)
+
+
+def LargeHpathQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
+    """
+    Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature.
+    @param per: list of permutations, ordered in a path
+    @param sig: signature as a list of integers
+    """
+    # there are no duplicates, the length is correct, and it is a path
+    if len(per) <= 2:
+        return False
+    # there are no duplicates, the length is correct, and it is a cycle
+    if sum(1 for n in sig if n % 2 == 1) < 2:
+        expected_length = multinomial(sig) - len(nonStutterPermutations(sig))
+    else:
+        expected_length = multinomial(sig)
+    return len(set(per)) == len(per) and len(per) == expected_length and pathQ(per)
+
+
+def LargeHcycleQ(per: list[tuple[int, ...]], sig: list[int]) -> bool:
+    """
+    Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature.
+    @param per: list of permutations, ordered in a cycle
+    @param sig: signature as a list of integers
+    """
+    if len(per) <= 2:
+        return False
+    # there are no duplicates, the length is correct, and it is a cycle
+    if sum(1 for n in sig if n % 2 == 1) < 2:
+        expected_length = multinomial(sig) - len(nonStutterPermutations(sig))
+    else:
+        expected_length = multinomial(sig)
+    return len(set(per)) == len(per) and len(per) == expected_length and cycleQ(per)
 
 
 def total_path_motion(path: list[tuple[int, ...]]) -> int:

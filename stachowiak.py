@@ -8,8 +8,9 @@ from helper_operations.path_operations import (
     cycleQ,
     pathQ,
     splitPathIn2,
+    transform,
 )
-from helper_operations.permutation_graphs import multinomial
+from helper_operations.permutation_graphs import get_num_of_inversions, multinomial
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathNS
 
@@ -164,7 +165,7 @@ def lemma7(sig: list[int]) -> list[tuple[int, ...]]:
 
 
 def _lemma8_subgraph_cutter(
-    cyc: list[tuple], x: tuple, y: tuple
+    cyc: list[tuple[int, ...]], x: tuple[int, ...], y: tuple[int, ...]
 ) -> list[tuple[int, ...]]:
     """
      Makes sure x is the start node of the subgraph and y is the end node
@@ -495,8 +496,11 @@ def _lemma10_subcycle_cutter(
     return cycle, gi
 
 
-def _lemma10_helper(K: list[tuple], p: int, new_color: int) -> list[tuple[int, ...]]:
+def _lemma10_helper(
+    K: list[tuple[int, ...]], p: int, new_color: int
+) -> list[tuple[int, ...]]:
     """
+    Helper function for lemma 10, constructs a cycle by adding color new_color, which occurs p times, to the graph
     :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
     :param p: is the length of the last part of the signature (l^p)
     :param new_color: is the new color to add to the graph
@@ -584,10 +588,31 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
         raise ValueError("Signature must have at least one element")
     elif len(sig) == 1:
         return [(0,) * sig[0]]
+    elif len(sig) == 2 and sig[0] == sig[1] == 1:
+        return [(0, 1), (1, 0)]
+    elif sum(1 for n in sig if n % 2 == 1) < 2:
+        raise ValueError("At least two odd numbers are required for Lemma 11")
+    # index the numbers in the signature such that we can transform them back later
+    indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
+    # put the odd numbers first in the signature
+    indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+
+    # if the order is optimal (i.e. the first two elements are the largest odd numbers)
+    # and the number of odd numbers is at least 2
+    if sig != [x[0] for x in indexed_sig]:
+        # if the order contains trailing 0's, remove them
+        while indexed_sig[-1][0] == 0:
+            indexed_sig.pop()
+        # return that solution given by this lemma (transformed, if needed)
+        return transform(
+            lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
+        )
+    # if the first two elements in the signature can form a cycle (so more than two permutations)
     elif sum(sig[:2]) > 2:
+        # Verhoeff's Theorem to find this cycle (or path if one of the elements is 1)
         path = HpathNS(sig[0], sig[1])  # K in the paper
         next_color = 2
-    elif sig[2] == 1:
+    elif sum(1 for n in sig if n % 2 == 1) > 2:
         # use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1
         try:
             next_color = sig.index(next(x for x in sig if x != 1))
@@ -610,16 +635,6 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
     return path
 
 
-def get_inversion_count(arr, n):
-    inv_count = 0
-    for i in range(n):
-        for j in range(i + 1, n):
-            if arr[i] > arr[j]:
-                inv_count += 1
-
-    return inv_count
-
-
 def get_parity_counts(sig: list[int]) -> tuple[int, int]:
     """
     Get the parity counts of the signature
@@ -632,7 +647,7 @@ def get_parity_counts(sig: list[int]) -> tuple[int, int]:
     perms = list(set(list(itertools.permutations(initial_perm))))
     even_count, odd_count = 0, 0
     for perm in perms:
-        inv_count = get_inversion_count(perm, len(perm))
+        inv_count = get_num_of_inversions(perm)
         if inv_count % 2 == 0:
             even_count += 1
         else:
@@ -681,10 +696,6 @@ if __name__ == "__main__":
             print(
                 f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
                 f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
-            )
-        elif s[0] % 2 == 0 or s[1] % 2 == 0:
-            raise ValueError(
-                "The first two elements of the signature should be odd for Stachowiak's permutations"
             )
         else:
             l11 = lemma11(s)

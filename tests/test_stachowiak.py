@@ -12,8 +12,13 @@ import math
 import numpy as np
 import pytest
 
-from helper_operations.path_operations import cycleQ
-from helper_operations.permutation_graphs import HcycleQ, multinomial
+from helper_operations.path_operations import cycleQ, pathQ
+from helper_operations.permutation_graphs import (
+    HcycleQ,
+    HpathQ,
+    LargeHcycleQ,
+    multinomial,
+)
 from stachowiak import (
     _lemma10_helper,
     lemma2_extended_path,
@@ -593,104 +598,105 @@ class Test_Lemma10_and_11:
     l11sig_3_3_2 = lemma11([3, 3, 2])
 
     def test_lemma11_empty(self):
-        with pytest.raises(ValueError) as e_info:
+        with pytest.raises(ValueError):
             lemma11([])
 
     def test_lemma11_2(self):
         result = lemma11([2])
-        assert len(result) == 1
-        assert len(result[0]) == 2
         assert result == [(0, 0)]
 
     def test_lemma11_5(self):
         result = lemma11([5])
-        assert len(result) == 1
-        assert len(result[0]) == 5
         assert result == [(0, 0, 0, 0, 0)]
+
+    def test_lemma11_1_1(self):
+        result = lemma11([1, 1])
+        assert HpathQ(result, [1, 1])
+
+    # at least two odd numbers
+    def test_lemma11_not_enough_odd_numbers(self):
+        with pytest.raises(ValueError):
+            lemma11([1, 2])
+        with pytest.raises(ValueError):
+            lemma11([5, 4])
+        with pytest.raises(ValueError):
+            lemma11([6, 7])
+        with pytest.raises(ValueError):
+            lemma11([2, 2])
+
+    def test_lemma11_different_order_1_1_4(self):
+        assert HpathQ(lemma11([4, 1, 1]), [4, 1, 1])
+        assert HpathQ(lemma11([1, 4, 1]), [1, 4, 1])
+        assert HpathQ(lemma11([5, 1, 1]), [5, 1, 1])
+        assert HpathQ(lemma11([1, 5, 1]), [1, 5, 1])
+
+    def test_lemma11_4_2_3_1(self):
+        assert HpathQ(lemma11([4, 2, 3, 1]), [4, 2, 3, 1])
+
+    def test_lemma11_3_2_3_1(self):
+        assert HpathQ(lemma11([3, 2, 3, 1]), [3, 2, 3, 1])
+
+    def test_lemma11_1_2_3_5(self):
+        assert HpathQ(lemma11([1, 2, 3, 5]), [1, 2, 3, 5])
 
     def test_lemma11_3_3_2(self):
         result = copy.deepcopy(self.l11sig_3_3_2)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial([3, 3, 2])
         assert HcycleQ(result, [3, 3, 2])
 
     def test_lemma11_3_3_1_2(self):
         sig = [3, 3, 1, 2]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_7(self):
         sig = [3, 3, 7]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_10(self):
         sig = [3, 3, 10]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_2_1(self):
-        # we only have to add the last the last element (which occurs once) to the path
+        # we only have to add the last element (which occurs once) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 1, 3)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial([3, 3, 2, 1])
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, [3, 3, 2, 1])
 
     def test_lemma11_3_3_2_2(self):
-        # we only have to add the last the last element (which occurs twice) to the path
+        # we only have to add the last the last element (whihc occurs twice) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 2, 3)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial([3, 3, 2, 2])
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, [3, 3, 2, 2])
 
     def test_lemma11_5_3_2(self):
         sig = [5, 3, 2]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_3(self):
         sig = [5, 5, 3]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
 
 @pytest.mark.slow
 class Test_Lemma11_Large:
-
     def test_lemma11_7_7_2(self):
         sig = [7, 7, 2]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_4(self):
         sig = [5, 5, 4]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_5_6(self):
         sig = [3, 5, 6]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_1_3(self):
         sig = [5, 5, 1, 3]
         result = lemma11(sig)
-        assert len(set(result)) == len(result)
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert LargeHcycleQ(result, sig)

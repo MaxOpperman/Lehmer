@@ -11,7 +11,12 @@ import collections
 import pytest
 
 from helper_operations.path_operations import pathQ
-from helper_operations.permutation_graphs import HpathQ, binomial, stutterPermutations
+from helper_operations.permutation_graphs import (
+    HpathQ,
+    LargeHpathQ,
+    binomial,
+    stutterPermutations,
+)
 from verhoeff import HpathNS
 
 
@@ -279,55 +284,36 @@ class Test_HpathNS_Odd_Odd:
         ]
         assert result == expected_result
 
+    def test_HpathNS_5_3(self):
+        result = HpathNS(5, 3)
+        assert LargeHpathQ(result, [5, 3])
+
+    def test_HpathNS_3_5(self):
+        result = HpathNS(3, 5)
+        assert LargeHpathQ(result, [3, 5])
+
     def test_HpathNS_5_5(self):
         result = HpathNS(5, 5)
-        # make sure there are no duplicates
-        dups = [
-            item for item, count in collections.Counter(result).items() if count > 1
-        ]
-        assert len(dups) == 0
-        # make sure that all combinations have been found
-        assert len(result) == binomial(5, 5)
-        # check that there is a hamilton path
-        assert HpathQ(result, [5, 5])
+        assert LargeHpathQ(result, [5, 5])
+
+    def test_HpathNS_5_7(self):
+        result = HpathNS(5, 7)
+        assert LargeHpathQ(result, [5, 7])
+
+    @pytest.mark.slow
+    def test_HpathNS_7_7(self):
+        result = HpathNS(7, 7)
+        assert LargeHpathQ(result, [7, 7])
 
     @pytest.mark.slow
     def test_HpathNS_5_9(self):
         result = HpathNS(5, 9)
-        # make sure there are no duplicates
-        dups = [
-            item for item, count in collections.Counter(result).items() if count > 1
-        ]
-        assert len(dups) == 0
-        # make sure that all combinations have been found
-        assert len(result) == binomial(5, 9)
-        # check that there is a hamilton path
-        assert pathQ(result)
+        assert LargeHpathQ(result, [5, 9])
 
     @pytest.mark.slow
     def test_HpathNS_9_5(self):
         result = HpathNS(9, 5)
-        # make sure there are no duplicates
-        dups = [
-            item for item, count in collections.Counter(result).items() if count > 1
-        ]
-        assert len(dups) == 0
-        # make sure that all combinations have been found
-        assert len(result) == binomial(9, 5)
-        # check that there is a hamilton path
-        assert pathQ(result)
-
-    def test_HpathNS_7_7(self):
-        result = HpathNS(7, 7)
-        # make sure there are no duplicates
-        dups = [
-            item for item, count in collections.Counter(result).items() if count > 1
-        ]
-        assert len(dups) == 0
-        # make sure that all combinations have been found
-        assert len(result) == binomial(7, 7)
-        # check that there is a hamilton path
-        assert pathQ(result)
+        assert LargeHpathQ(result, [9, 5])
 
 
 @pytest.mark.slow
