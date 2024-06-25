@@ -830,7 +830,6 @@ class Test_Lemma10_and_11_numpy:
 
 @pytest.mark.slow
 class Test_Lemma11_Large_numpy:
-
     def test_lemma11_7_7_2(self):
         sig = [7, 7, 2]
         result = lemma11(sig)
