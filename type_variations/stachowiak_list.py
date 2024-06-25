@@ -10,7 +10,7 @@ from helper_operations.path_operations import (
     splitPathIn2,
 )
 from helper_operations.permutation_graphs import multinomial
-from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrotter
+from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrotterList
 from type_variations.verhoeff_list import HpathNS
 
 
@@ -194,17 +194,17 @@ def _lemma8_subgraph_cutter(
         assert adjacent(x, y)
     except AssertionError as err:
         print(f"{repr(err)} not adjacent for x: {x}, y: {y}")
-        quit()
+        raise err
     try:
         assert cycleQ(cyc)
     except AssertionError as err:
         print(f"{repr(err)} not a cycle: {cyc}")
-        quit()
+        raise err
     try:
         assert x in cyc and y in cyc
     except AssertionError as err:
         print(f"{repr(err)} for x: {x}, y: {y}, not in cycle: {cyc}")
-        quit()
+        raise err
     cyc_cut = cutCycle(cyc, x)
     if cyc_cut[1] == y:
         res = (cyc_cut[1:] + cyc_cut[:1])[::-1]
@@ -606,9 +606,6 @@ def lemma11(sig: list[int]) -> list[list[int]]:
     # and the number of odd numbers is at least 2
 
     if sig != [x[0] for x in indexed_sig]:
-        # if the order contains trailing 0's, remove them
-        while indexed_sig[-1][0] == 0:
-            indexed_sig.pop()
         # return that solution given by this lemma (transformed, if needed)
         return transform_list(
             lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
@@ -622,8 +619,8 @@ def lemma11(sig: list[int]) -> list[list[int]]:
             next_color = sig.index(next(x for x in sig if x != 1))
         except StopIteration:
             next_color = len(sig)  # all elements are 1
-        path = SteinhausJohnsonTrotter.get_sjt_permutations(
-            SteinhausJohnsonTrotter(), next_color
+        path = SteinhausJohnsonTrotterList.get_sjt_permutations(
+            SteinhausJohnsonTrotterList(), next_color
         )
     elif sig[2] != 0:
         # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])

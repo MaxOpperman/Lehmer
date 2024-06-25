@@ -99,7 +99,7 @@ def cutCycle(c: list[tuple[int, ...]], a: tuple[int, ...]) -> list[tuple[int, ..
         # check whether a is in c
         if not np.any(np.all(c == a, axis=1)):
             print(f"Vertex {a} not in numpy cycle {c}")
-            quit()
+            raise ValueError(f"Vertex {a} not in numpy cycle {c}")
         index = np.where(np.all(c == a, axis=1))[0][0]
         return np.roll(c, -index, axis=0)
     # if the array is a list, use list functions (index instead of where)

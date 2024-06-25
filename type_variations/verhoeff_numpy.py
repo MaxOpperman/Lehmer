@@ -132,9 +132,9 @@ def extend(lst: np.ndarray, e: np.ndarray) -> np.ndarray:
         return np.array([np.concatenate((i, e)) for i in lst])
     except TypeError:
         return np.array([np.concatenate((i, [e])) for i in lst])
-    except ValueError:
+    except ValueError as err:
         print("Error in extend function", lst, e)
-        quit()
+        raise err
 
 
 def HpathNS(k0: int, k1: int) -> np.ndarray:

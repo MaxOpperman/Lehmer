@@ -48,3 +48,36 @@ class TestStachowiakListVerhoeffTuple:
             [3, 5, 2, 1]
         )
         assert stachowiak_tuple_verhoeff_list.lemma11([5, 5, 2]) == lemma11([5, 5, 2])
+
+
+class TestStachowiakListSJT:
+    def test_stachowiak_list_l11_only_1s(self):
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1]) == lemma11([1, 1, 1])
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 1]) == lemma11(
+            [1, 1, 1, 1]
+        )
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 1, 1]) == lemma11(
+            [1, 1, 1, 1, 1]
+        )
+
+    def test_stachowiak_list_l11_1_1_1_even(self):
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 2]) == lemma11(
+            [1, 1, 1, 2]
+        )
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 4, 2]) == lemma11(
+            [1, 1, 1, 4, 2]
+        )
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 6]) == lemma11(
+            [1, 1, 1, 6]
+        )
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 1, 1, 2]) == lemma11(
+            [1, 1, 1, 1, 2]
+        )
+
+
+class TestStachowiakListVerhoeffTupleLemma2:
+    def test_stachowiak_list_l11_lemma2(self):
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 2]) == lemma11([1, 1, 2])
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 4]) == lemma11([1, 1, 4])
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 8]) == lemma11([1, 1, 8])
+        assert stachowiak_tuple_verhoeff_list.lemma11([1, 1, 14]) == lemma11([1, 1, 14])

@@ -767,11 +767,31 @@ class Test_Lemma10_and_11_numpy:
     This way we can be sure that the permutations are all found and that they form a cycle.
     """
 
+    def test_lemma11_1_1_1_1(self):
+        sig = [1, 1, 1, 1]
+        result = lemma11(sig)
+        assert len(result) == len(set(tuple(row) for row in result))
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_1_1_4(self):
+        sig = [1, 1, 4]
+        result = lemma11(sig)
+        assert len(result) == len(set(tuple(row) for row in result))
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_1_1_4_2(self):
+        sig = [1, 1, 4, 2]
+        result = lemma11(sig)
+        assert len(result) == len(set(tuple(row) for row in result))
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
     l11sig_3_3_2 = lemma11(np.array([3, 3, 2]))
 
     def test_lemma11_3_3_2(self):
         result = copy.deepcopy(self.l11sig_3_3_2)
-        print(result)
         assert len(result) == len(set(tuple(row) for row in result))
         assert len(result) == multinomial([3, 3, 2])
         assert cycleQ(result)

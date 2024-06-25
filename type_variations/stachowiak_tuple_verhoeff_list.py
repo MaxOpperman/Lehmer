@@ -41,9 +41,6 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
     # if the order is optimal (i.e. the first two elements are the largest odd numbers)
     # and the number of odd numbers is at least 2
     if sig != [x[0] for x in indexed_sig]:
-        # if the order contains trailing 0's, remove them
-        while indexed_sig[-1][0] == 0:
-            indexed_sig.pop()
         # return that solution given by this lemma (transformed, if needed)
         return transform(
             lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]

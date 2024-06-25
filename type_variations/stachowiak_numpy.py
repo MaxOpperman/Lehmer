@@ -6,7 +6,7 @@ import numpy as np
 
 from helper_operations.path_operations import adjacent, cutCycle, cycleQ, pathQ
 from helper_operations.permutation_graphs import multinomial
-from type_variations.steinhaus_johnson_trotter_numpy import SteinhausJohnsonTrotter
+from type_variations.steinhaus_johnson_trotter_numpy import SteinhausJohnsonTrotterNumpy
 from type_variations.verhoeff_numpy import HpathNS
 
 
@@ -220,7 +220,7 @@ def lemma7(sig: np.ndarray) -> np.ndarray:
         assert cycleQ(cycle)
     except AssertionError as e:
         print(f"{repr(e)} in Lemma 7 for cycle: {cycle}")
-        quit()
+        raise e
     return cycle
 
 
@@ -236,17 +236,17 @@ def _cycle_cut_start_end(cyc: np.ndarray, x: np.array, y: np.array) -> np.ndarra
         assert adjacent(x, y)
     except AssertionError as err:
         print(f"{repr(err)} not adjacent for x: {x}, y: {y}")
-        quit()
+        raise err
     try:
         assert cycleQ(cyc)
     except AssertionError as err:
         print(f"{repr(err)} in 'cycle-cut-start-end' not a cycle: {cyc}")
-        quit()
+        raise err
     try:
         assert x in cyc and y in cyc
     except AssertionError as err:
         print(f"{repr(err)} for x: {x}, y: {y}, not in cycle: {cyc}")
-        quit()
+        raise err
     cyc_cut = cutCycle(cyc, x)
     if np.array_equal(cyc_cut[1], y):
         res = np.flip(np.vstack((cyc_cut[1:], cyc_cut[:1])), axis=0)
@@ -770,8 +770,8 @@ def lemma11(sig: np.ndarray) -> np.ndarray:
             next_color = np.where(sig != 1)[0][0]
         except IndexError:
             next_color = len(sig)  # all elements are 1
-        path = SteinhausJohnsonTrotter.get_sjt_permutations(
-            SteinhausJohnsonTrotter(), next_color
+        path = SteinhausJohnsonTrotterNumpy.get_sjt_permutations(
+            SteinhausJohnsonTrotterNumpy(), next_color
         )
     elif sig[2] != 0:
         # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])

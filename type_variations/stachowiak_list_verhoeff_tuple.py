@@ -8,7 +8,7 @@ from type_variations.stachowiak_list import (
     lemma2_extended_path,
     transform_list,
 )
-from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrotter
+from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrotterList
 from verhoeff import HpathNS
 
 
@@ -38,9 +38,6 @@ def lemma11(sig: list[int]) -> list[list[int]]:
     # and the number of odd numbers is at least 2
 
     if sig != [x[0] for x in indexed_sig]:
-        # if the order contains trailing 0's, remove them
-        while indexed_sig[-1][0] == 0:
-            indexed_sig.pop()
         # return that solution given by this lemma (transformed, if needed)
         return transform_list(
             lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
@@ -56,8 +53,8 @@ def lemma11(sig: list[int]) -> list[list[int]]:
             next_color = sig.index(next(x for x in sig if x != 1))
         except StopIteration:
             next_color = len(sig)  # all elements are 1
-        path = SteinhausJohnsonTrotter.get_sjt_permutations(
-            SteinhausJohnsonTrotter(), next_color
+        path = SteinhausJohnsonTrotterList.get_sjt_permutations(
+            SteinhausJohnsonTrotterList(), next_color
         )
     elif sig[2] != 0:
         # use Stachowiak's lemma 2 to find a Hamiltonian path in GE(Q|P[1])

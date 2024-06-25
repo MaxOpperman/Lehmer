@@ -10,7 +10,11 @@ from helper_operations.path_operations import (
     splitPathIn2,
     transform,
 )
-from helper_operations.permutation_graphs import get_num_of_inversions, multinomial
+from helper_operations.permutation_graphs import (
+    defect,
+    get_num_of_inversions,
+    multinomial,
+)
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathNS
 
@@ -178,17 +182,17 @@ def _lemma8_subgraph_cutter(
         assert adjacent(x, y)
     except AssertionError as err:
         print(f"{repr(err)} not adjacent for x: {x}, y: {y}")
-        quit()
+        raise err
     try:
         assert cycleQ(cyc)
     except AssertionError as err:
         print(f"{repr(err)} not a cycle: {cyc}")
-        quit()
+        raise err
     try:
         assert x in cyc and y in cyc
     except AssertionError as err:
         print(f"{repr(err)} for x: {x}, y: {y}, not in cycle: {cyc}")
-        quit()
+        raise err
     cyc_cut = cutCycle(cyc, x)
     if cyc_cut[1] == y:
         res = (cyc_cut[1:] + cyc_cut[:1])[::-1]
@@ -600,9 +604,6 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
     # if the order is optimal (i.e. the first two elements are the largest odd numbers)
     # and the number of odd numbers is at least 2
     if sig != [x[0] for x in indexed_sig]:
-        # if the order contains trailing 0's, remove them
-        while indexed_sig[-1][0] == 0:
-            indexed_sig.pop()
         # return that solution given by this lemma (transformed, if needed)
         return transform(
             lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
@@ -635,26 +636,6 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
     return path
 
 
-def get_parity_counts(sig: list[int]) -> tuple[int, int]:
-    """
-    Get the parity counts of the signature
-    :param sig: signature of the permutation
-    :return: tuple of the parity counts (even, odd)
-    """
-    initial_perm = []
-    for idx, count in enumerate(sig):
-        initial_perm.extend([idx] * count)
-    perms = list(set(list(itertools.permutations(initial_perm))))
-    even_count, odd_count = 0, 0
-    for perm in perms:
-        inv_count = get_num_of_inversions(perm)
-        if inv_count % 2 == 0:
-            even_count += 1
-        else:
-            odd_count += 1
-    return even_count, odd_count
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Helper tool to find paths through permutation neighbor swap graphs."
@@ -678,15 +659,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
     s = [int(x) for x in args.signature.split(",")]
     if args.parities:
-        even, odd = get_parity_counts(s)
-        print(f"Even: {even}, Odd: {odd} -> diff={abs(even-odd)} for n={sum(s)}")
-        if sum(s) % 2 == 0 and abs(even - odd) > 0:
+        defect_g = defect(s)
+        print(f"Defect {defect_g} for n={sum(s)}")
+        if defect_g > 0:
             print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} EVEN and diff={abs(even-odd)} != 0"
+                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} EVEN and defect={defect_g} != 0"
             )
-        elif sum(s) % 2 == 1 and abs(even - odd) != 1:
+        elif defect_g > 1:
             print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} ODD and diff={abs(even-odd)} != 1"
+                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} ODD and defect={defect_g} != 1"
             )
     if len(s) > 1:
         if len(s) == 2:
