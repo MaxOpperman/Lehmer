@@ -249,36 +249,24 @@ def lehmer_path(
             print("Spur origin -> stutter:")
             for i in range(len(spur_bases)):
                 print(
-                    "Spur {}:".format(i),
-                    tuple([int(x) for x in spur_bases[i]]),
-                    "->",
-                    tuple([int(x) for x in spur_tips[i]]),
+                    f"Spur {i}: {tuple([int(x) for x in spur_bases[i]])} -> {tuple([int(x) for x in spur_tips[i]])}"
                 )
         if node_tally < graph.number_of_nodes():
-            print("Node Tally:", node_tally, "and path length:", len(interchanges))
+            print(f"Node Tally: {node_tally} and path length: {len(interchanges)}")
             print(
-                "!!!!! INCORRECT PATH; MISSING",
-                graph.number_of_nodes() - node_tally,
-                "NODES !!!!!",
+                f"Incorrect path, missing {graph.number_of_nodes() - node_tally} nodes"
             )
         else:
             print(
-                "Node Tally:",
-                node_tally,
-                "which is CORRECT! And path length:",
-                len(interchanges),
+                f"Node Tally: {node_tally} which is correct. The path length is {len(interchanges)}"
             )
         if spur_tally > 0 and spur_tally != defect(signature) + 1:
-            print("Spur Tally:", spur_tally)
+            print(f"Spur Tally: {spur_tally}")
             print(
-                "!!!!! INCORRECT NUMBER OF SPURS; FOUND",
-                spur_tally,
-                "BUT ONLY",
-                max(defect(signature) - 1, 0),
-                "IS CORRECT !!!!!",
+                f"The number of spurs is not optimal. Found {spur_tally} but expected {max(defect(signature) - 1, 0)}"
             )
         else:
-            print("Spur Tally:", spur_tally, "which is CORRECT!")
+            print(f"Spur Tally: {spur_tally} is optimal!")
         print(f"Total Lehmer motion {total_path_motion(interchanges)}")
 
     # Step 17: Halt

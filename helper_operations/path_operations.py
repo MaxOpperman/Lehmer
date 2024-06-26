@@ -217,6 +217,28 @@ def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, .
     return result
 
 
+def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]:
+    """
+    Sorts the signature using a given function and provides array to transform it back
+    @param s: signature as a list of integers
+    @param func: lambda function of tuples of form (value, index) to sort the signature
+    @return: tuple of two lists of integers;
+        the first list is the sorted signature,
+        the second list is the transformation array (used in `tranform`)
+    """
+    if len(s) == 0:
+        return [], []
+    elif any(s_i < 0 for s_i in s):
+        raise ValueError("Signature must be a list of non-negative integers.")
+    elif not callable(func):
+        raise ValueError("Function must be callable.")
+    # index the numbers in the signature such that we can transform them back later
+    indexed_sig = [(value, idx) for idx, value in enumerate(s)]
+    # put the odd numbers first in the signature
+    indexed_sig.sort(reverse=True, key=func)
+    return [x[0] for x in indexed_sig], [x[1] for x in indexed_sig]
+
+
 def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
     """
     Transforms the permutation(s) according to the given renaming.

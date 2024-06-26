@@ -207,7 +207,7 @@ def plot_individual_figures(even_int: int, save=False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Helper tool to create Hamiltonian paths."
+        description="Generate figures for Verhoeff's cycle cover edge cases."
     )
     parser.add_argument(
         "-e", "--even", type=int, required=True, help="Input even integer"

@@ -6,15 +6,12 @@ from helper_operations.path_operations import (
     adjacent,
     cutCycle,
     cycleQ,
+    get_transformer,
     pathQ,
     splitPathIn2,
     transform,
 )
-from helper_operations.permutation_graphs import (
-    defect,
-    get_num_of_inversions,
-    multinomial,
-)
+from helper_operations.permutation_graphs import defect, multinomial
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathNS
 
@@ -596,18 +593,13 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
         return [(0, 1), (1, 0)]
     elif sum(1 for n in sig if n % 2 == 1) < 2:
         raise ValueError("At least two odd numbers are required for Lemma 11")
-    # index the numbers in the signature such that we can transform them back later
-    indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
-    # put the odd numbers first in the signature
-    indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+    sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
 
     # if the order is optimal (i.e. the first two elements are the largest odd numbers)
     # and the number of odd numbers is at least 2
-    if sig != [x[0] for x in indexed_sig]:
+    if sig != sorted_sig:
         # return that solution given by this lemma (transformed, if needed)
-        return transform(
-            lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
-        )
+        return transform(lemma11(sorted_sig), transformer)
     # if the first two elements in the signature can form a cycle (so more than two permutations)
     elif sum(sig[:2]) > 2:
         # Verhoeff's Theorem to find this cycle (or path if one of the elements is 1)
@@ -638,7 +630,7 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Helper tool to find paths through permutation neighbor swap graphs."
+        description="Uses Stachowiak's theorems to find Hamiltonian cycles in neighbor-swap graphs"
     )
     parser.add_argument(
         "-s",

@@ -1,8 +1,4 @@
-import argparse
-import math
-
-from helper_operations.path_operations import cycleQ, pathQ
-from helper_operations.permutation_graphs import multinomial
+from helper_operations.path_operations import get_transformer
 from type_variations.stachowiak_list import (
     _lemma10_helper,
     lemma2_extended_path,
@@ -29,19 +25,14 @@ def lemma11(sig: list[int]) -> list[list[int]]:
         return [[0, 1], [1, 0]]
     elif sum(1 for n in sig if n % 2 == 1) < 2:
         raise ValueError("At least two odd numbers are required for Lemma 11")
-    # index the numbers in the signature such that we can transform them back later
-    indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
-    # put the odd numbers first in the signature
-    indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+    sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
 
     # if the order is optimal (i.e. the first two elements are the largest odd numbers)
     # and the number of odd numbers is at least 2
 
-    if sig != [x[0] for x in indexed_sig]:
+    if sig != sorted_sig:
         # return that solution given by this lemma (transformed, if needed)
-        return transform_list(
-            lemma11([x[0] for x in indexed_sig]), [x[1] for x in indexed_sig]
-        )
+        return transform_list(lemma11(sorted_sig), transformer)
     elif sum(sig[:2]) > 2:
         path = [
             list(tuple_perm) for tuple_perm in HpathNS(sig[0], sig[1])
@@ -68,37 +59,3 @@ def lemma11(sig: list[int]) -> list[list[int]]:
         cycle = _lemma10_helper(path, new_color, ind)
         path = cycle
     return path
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Helper tool to find paths through permutation neighbor swap graphs."
-    )
-    parser.add_argument(
-        "-s",
-        "--signature",
-        type=str,
-        help="Input permutation signature (comma separated)",
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
-    )
-
-    args = parser.parse_args()
-    s = [int(x) for x in args.signature.split(",")]
-    if len(s) > 1:
-        if len(s) == 2:
-            perms_odd = [list(tuple_perm) for tuple_perm in HpathNS(s[0], s[1])]
-            if args.verbose:
-                print(f"Resulting path {perms_odd}")
-            print(
-                f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(tuple(row) for row in perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
-                f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
-            )
-        else:
-            l11 = lemma11(s)
-            if args.verbose:
-                print(f"lemma 11 results {l11}")
-            print(
-                f"lemma 11 {len(set(tuple(row) for row in l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}"
-            )

@@ -81,7 +81,7 @@ if __name__ == "__main__":
             if pathQ(rivertz_perms):
                 print("Rivertz permutations are a path!")
                 if HpathQ(rivertz_perms, sig):
-                    print("Rivertz permutations are even a Hamiltonian path!!!")
+                    print("Rivertz permutations are even a Hamiltonian path!")
             else:
                 print(
                     "ERROR! Rivertz permutations are not a path (see above for the mistake in the path)"

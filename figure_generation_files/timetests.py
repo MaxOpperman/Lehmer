@@ -170,7 +170,7 @@ def time_tests(args: Namespace):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description="Helper tool to find paths through permutation neighbor swap graphs."
+        description="Compare the time performance of different implementations of Stachowiak's theorem."
     )
     parser.add_argument(
         "-l",

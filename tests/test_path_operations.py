@@ -6,6 +6,7 @@ from helper_operations.path_operations import (
     createZigZagPath,
     cutCycle,
     cycleQ,
+    get_transformer,
     incorporateSpurInZigZag,
     incorporateSpursInZigZag,
     mul,
@@ -479,6 +480,103 @@ class TestPathOperations:
 
     def test_transform_not_path(self):
         assert transform([(0, 1), (1, 2)], [1, 2, 3]) == [(1, 2), (2, 3)]
+
+    def test_get_transformer_empty(self):
+        assert get_transformer([], lambda x: x[0]) == ([], [])
+        assert get_transformer([], lambda x: [x[0] % 2, x[0]]) == ([], [])
+
+    def test_get_transformer_negative_signature(self):
+        with pytest.raises(ValueError):
+            get_transformer([-2], lambda x: x[0])
+        with pytest.raises(ValueError):
+            get_transformer([3, 4, 5, -3], lambda x: x[0])
+        with pytest.raises(ValueError):
+            get_transformer([3, -1, 5, 4], lambda x: [x[0] % 2, x[0]])
+
+    def test_get_transformer_one_element(self):
+        assert get_transformer([0], lambda x: x[0]) == ([0], [0])
+        assert get_transformer([0], lambda x: [x[0] % 2, x[0]]) == ([0], [0])
+
+    def test_get_transformer_function_not_callable(self):
+        assert get_transformer([], 0) == ([], [])
+        with pytest.raises(ValueError):
+            get_transformer([0], 0)
+        with pytest.raises(ValueError):
+            get_transformer([0], [0])
+        with pytest.raises(ValueError):
+            get_transformer([1, 2, 3], None)
+
+    def test_get_transformer_multiple_elements_odd_first(self):
+        assert get_transformer([2, 3, 4, 5], lambda x: [x[0] % 2, x[0]]) == (
+            [5, 3, 4, 2],
+            [3, 1, 2, 0],
+        )
+        assert get_transformer([9, 4, 4, 9], lambda x: [x[0] % 2, x[0]]) == (
+            [9, 9, 4, 4],
+            [0, 3, 1, 2],
+        )
+        assert get_transformer([4, 9, 9, 4], lambda x: [x[0] % 2, x[0]]) == (
+            [9, 9, 4, 4],
+            [1, 2, 0, 3],
+        )
+        assert get_transformer([5, 0, 3, 4, 7, 6], lambda x: [x[0] % 2, x[0]]) == (
+            [7, 5, 3, 6, 4, 0],
+            [4, 0, 2, 5, 3, 1],
+        )
+
+    def test_get_transformer_multiple_elements_even_first(self):
+        assert get_transformer([3, 4, 5, 6], lambda x: [x[0] % 2 == 0, x[0]]) == (
+            [6, 4, 5, 3],
+            [3, 1, 2, 0],
+        )
+        assert get_transformer([4, 9, 9, 4], lambda x: [x[0] % 2 == 0, x[0]]) == (
+            [4, 4, 9, 9],
+            [0, 3, 1, 2],
+        )
+        assert get_transformer([9, 4, 4, 9], lambda x: [x[0] % 2 == 0, x[0]]) == (
+            [4, 4, 9, 9],
+            [1, 2, 0, 3],
+        )
+        assert get_transformer([0, 5, 6, 7, 4, 3], lambda x: [x[0] % 2 == 0, x[0]]) == (
+            [6, 4, 0, 7, 5, 3],
+            [2, 4, 0, 3, 1, 5],
+        )
+
+    def test_get_transformer_multiple_elements_descending(self):
+        assert get_transformer([4, 5, 6, 7, 8], lambda x: x[0]) == (
+            [8, 7, 6, 5, 4],
+            [4, 3, 2, 1, 0],
+        )
+        assert get_transformer([8, 7, 6, 5, 4], lambda x: x[0]) == (
+            [8, 7, 6, 5, 4],
+            [0, 1, 2, 3, 4],
+        )
+        assert get_transformer([8, 6, 7, 2, 5], lambda x: x[0]) == (
+            [8, 7, 6, 5, 2],
+            [0, 2, 1, 4, 3],
+        )
+        assert get_transformer([6, 6, 8, 8], lambda x: x[0]) == (
+            [8, 8, 6, 6],
+            [2, 3, 0, 1],
+        )
+
+    def test_get_transformer_multiple_elements_ascending(self):
+        assert get_transformer([8, 7, 6, 5, 4], lambda x: -x[0]) == (
+            [4, 5, 6, 7, 8],
+            [4, 3, 2, 1, 0],
+        )
+        assert get_transformer([4, 5, 6, 7, 8], lambda x: -x[0]) == (
+            [4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4],
+        )
+        assert get_transformer([8, 6, 7, 2, 5], lambda x: -x[0]) == (
+            [2, 5, 6, 7, 8],
+            [3, 4, 1, 2, 0],
+        )
+        assert get_transformer([8, 8, 6, 6], lambda x: -x[0]) == (
+            [6, 6, 8, 8],
+            [2, 3, 0, 1],
+        )
 
     def test_transformCycleCover_depth1(self):
         assert transform_cycle_cover([[(0, 1), (1, 0)]], [1, 2, 3]) == [

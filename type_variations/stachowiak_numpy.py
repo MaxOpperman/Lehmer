@@ -1,6 +1,4 @@
-import argparse
 import copy
-import math
 
 import numpy as np
 
@@ -785,43 +783,3 @@ def lemma11(sig: np.ndarray) -> np.ndarray:
         cycle = _lemma10_helper(path, new_color, ind)
         path = cycle
     return path
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Helper tool to find paths through permutation neighbor swap graphs."
-    )
-    parser.add_argument(
-        "-s",
-        "--signature",
-        type=str,
-        help="Input permutation signature (comma separated)",
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
-    )
-
-    args = parser.parse_args()
-    s = np.array([int(x) for x in args.signature.split(",")])
-    if len(s) > 1:
-        if len(s) == 2:
-            perms_odd = HpathNS(s[0], s[1])
-            if args.verbose:
-                print(f"Resulting path {perms_odd}")
-            print(
-                f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(np.unique(perms_odd, axis=1))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
-                f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
-            )
-        elif s[0] % 2 == 0 or s[1] % 2 == 0:
-            raise ValueError(
-                "The first two elements of the signature should be odd for Stachowiak's permutations"
-            )
-        else:
-            if len(s) == 3:
-                pass
-            l11 = lemma11(s)
-            if args.verbose:
-                print(f"lemma 11 results {l11}")
-            print(
-                f"lemma 11 {len(set(tuple(row) for row in l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}"
-            )
