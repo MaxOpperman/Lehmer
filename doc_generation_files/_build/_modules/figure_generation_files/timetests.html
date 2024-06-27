@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>figure_generation_files.timetests &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">figure_generation_files.timetests</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for figure_generation_files.timetests</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="kn">import</span> <span class="n">Namespace</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">perfplot</span>
+
+<span class="kn">import</span> <span class="nn">stachowiak</span>
+<span class="kn">import</span> <span class="nn">type_variations.stachowiak_list</span>
+<span class="kn">import</span> <span class="nn">type_variations.stachowiak_list_verhoeff_tuple</span>
+<span class="kn">import</span> <span class="nn">type_variations.stachowiak_numpy</span>
+<span class="kn">import</span> <span class="nn">type_variations.stachowiak_tuple_verhoeff_list</span>
+<span class="kn">from</span> <span class="nn">helper_operations.permutation_graphs</span> <span class="kn">import</span> <span class="n">multinomial</span>
+
+
+<div class="viewcode-block" id="TimeTests">
+<a class="viewcode-back" href="../../autoapi/figure_generation_files/timetests/index.html#figure_generation_files.timetests.TimeTests">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeTests</span><span class="p">:</span>
+    <span class="n">signatures</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">signatures_l2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">24</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">22</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">18</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">14</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">signatures_verhoeff</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">11</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">9</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">11</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">7</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">signatures_sjt</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+    <span class="p">]</span>
+    <span class="n">sigantures_stachowiak</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span>
+        <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span>
+    <span class="p">]</span>
+
+<div class="viewcode-block" id="TimeTests.setup">
+<a class="viewcode-back" href="../../autoapi/figure_generation_files/timetests/index.html#figure_generation_files.timetests.TimeTests.setup">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span><span class="p">[</span><span class="n">n</span><span class="p">]</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="time_tests">
+<a class="viewcode-back" href="../../autoapi/figure_generation_files/timetests/index.html#figure_generation_files.timetests.time_tests">[docs]</a>
+<span class="k">def</span> <span class="nf">time_tests</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Namespace</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">&quot;./out&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">graph</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">latex</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">&quot;./out&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">l11_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Lemma2&quot;</span><span class="p">,</span> <span class="s2">&quot;Verhoeff&quot;</span><span class="p">,</span> <span class="s2">&quot;SJT&quot;</span><span class="p">,</span> <span class="s2">&quot;Stachowiak&quot;</span><span class="p">]:</span>
+        <span class="n">file_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">l11_type</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">numpy</span><span class="p">:</span>
+            <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;_numpy&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">file_name</span> <span class="o">+=</span> <span class="s2">&quot;_without_numpy&quot;</span>
+        <span class="k">if</span> <span class="n">l11_type</span> <span class="o">==</span> <span class="s2">&quot;Lemma2&quot;</span><span class="p">:</span>
+            <span class="n">signature_type</span> <span class="o">=</span> <span class="s2">&quot;Stachowiak Lemma 2&quot;</span>
+            <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures_l2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">multinomial</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l11_type</span> <span class="o">==</span> <span class="s2">&quot;Verhoeff&quot;</span><span class="p">:</span>
+            <span class="n">signature_type</span> <span class="o">=</span> <span class="s2">&quot;Verhoeff&#39;s binary case&quot;</span>
+            <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures_verhoeff</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">multinomial</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l11_type</span> <span class="o">==</span> <span class="s2">&quot;SJT&quot;</span><span class="p">:</span>
+            <span class="n">signature_type</span> <span class="o">=</span> <span class="s2">&quot;Steinhaus-Johnson-Trotter (permutahedron)&quot;</span>
+            <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures_sjt</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">multinomial</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">l11_type</span> <span class="o">==</span> <span class="s2">&quot;Stachowiak&quot;</span><span class="p">:</span>
+            <span class="n">signature_type</span> <span class="o">=</span> <span class="s2">&quot;Stachowiak&#39;s theorem&quot;</span>
+            <span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="n">TimeTests</span><span class="o">.</span><span class="n">sigantures_stachowiak</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">multinomial</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Invalid test type&quot;</span><span class="p">,</span> <span class="n">l11_type</span><span class="p">,</span> <span class="s2">&quot;not in list&quot;</span><span class="p">)</span>
+            <span class="k">break</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Performing time tests for </span><span class="si">{</span><span class="n">signature_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wrapper_list</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">kernel</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">wrapper_numpy</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="nb">input</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">kernel</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="nb">input</span><span class="p">))</span>
+
+        <span class="k">def</span> <span class="nf">get_kernels</span><span class="p">():</span>
+            <span class="n">kernels</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="k">lambda</span> <span class="nb">input</span><span class="p">:</span> <span class="n">wrapper_list</span><span class="p">(</span>
+                    <span class="n">type_variations</span><span class="o">.</span><span class="n">stachowiak_list</span><span class="o">.</span><span class="n">lemma11</span><span class="p">,</span> <span class="nb">input</span>
+                <span class="p">),</span>
+                <span class="k">lambda</span> <span class="nb">input</span><span class="p">:</span> <span class="n">wrapper_list</span><span class="p">(</span><span class="n">stachowiak</span><span class="o">.</span><span class="n">lemma11</span><span class="p">,</span> <span class="nb">input</span><span class="p">),</span>
+                <span class="k">lambda</span> <span class="nb">input</span><span class="p">:</span> <span class="n">wrapper_list</span><span class="p">(</span>
+                    <span class="n">type_variations</span><span class="o">.</span><span class="n">stachowiak_tuple_verhoeff_list</span><span class="o">.</span><span class="n">lemma11</span><span class="p">,</span> <span class="nb">input</span>
+                <span class="p">),</span>
+                <span class="k">lambda</span> <span class="nb">input</span><span class="p">:</span> <span class="n">wrapper_list</span><span class="p">(</span>
+                    <span class="n">type_variations</span><span class="o">.</span><span class="n">stachowiak_list_verhoeff_tuple</span><span class="o">.</span><span class="n">lemma11</span><span class="p">,</span> <span class="nb">input</span>
+                <span class="p">),</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">numpy</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">kernels</span> <span class="o">+</span> <span class="p">[</span>
+                    <span class="k">lambda</span> <span class="nb">input</span><span class="p">:</span> <span class="n">wrapper_numpy</span><span class="p">(</span>
+                        <span class="n">type_variations</span><span class="o">.</span><span class="n">stachowiak_numpy</span><span class="o">.</span><span class="n">lemma11</span><span class="p">,</span> <span class="nb">input</span>
+                    <span class="p">),</span>
+                <span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">kernels</span>
+
+        <span class="c1"># Save the graph</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="n">perfplot</span><span class="o">.</span><span class="n">bench</span><span class="p">(</span>
+            <span class="n">setup</span><span class="o">=</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">setup</span><span class="p">,</span>
+            <span class="n">n_range</span><span class="o">=</span><span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span><span class="p">))],</span>
+            <span class="n">kernels</span><span class="o">=</span><span class="n">get_kernels</span><span class="p">(),</span>
+            <span class="n">labels</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Stachowiak &amp; Verhoeff lists&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Stachowiak &amp; Verhoeff tuples&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Stachowiak tuples, Verhoeff lists&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Stachowiak lists, Verhoeff tuples&quot;</span><span class="p">,</span>
+                <span class="c1"># &quot;Stachowiak &amp; Verhoeff numpy&quot;,</span>
+            <span class="p">],</span>
+            <span class="n">xlabel</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span>
+                <span class="s2">&quot;(.</span><span class="si">{80}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">&quot;Signatures </span><span class="si">{</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="mi">0</span><span class="p">,</span>
+                <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">equality_check</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">y_coordinates_dict</span> <span class="o">=</span> <span class="n">results</span>
+
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;./out/lemma11_comparison</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.png&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">latex</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;./out/table</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="s2">.tex&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="si">{table}</span><span class="s2">[!htpb]</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">centering</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="si">{tabular}</span><span class="s2">{c|c|c|c|c|c}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">hline</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="s2">&quot;n &amp; Signature &amp; Stachowiak&#39;s theorem with lists &amp; Stachowiak&#39;s theorem with tuples &amp; Stachowiak tuples, Verhoeff lists </span><span class="se">\\\\\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">hline</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                    <span class="n">y_coordinates_dict</span><span class="o">.</span><span class="n">n_range</span><span class="p">,</span> <span class="n">y_coordinates_dict</span><span class="o">.</span><span class="n">timings_s</span><span class="o">.</span><span class="n">T</span>
+                <span class="p">):</span>
+                    <span class="n">lst</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">TimeTests</span><span class="o">.</span><span class="n">signatures</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">textcolor</span><span class="se">{{</span><span class="s2">red</span><span class="se">}}{{</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">tt</span><span class="p">)</span><span class="si">}</span><span class="se">}}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">tt</span> <span class="o">==</span> <span class="nb">min</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">tt</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="n">t</span>
+                    <span class="p">]</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &amp; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lst</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; </span><span class="se">\\\\\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">hline</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">end</span><span class="si">{tabular}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">caption</span><span class="se">{{</span><span class="s2">Time tests results for functions of </span><span class="si">{</span><span class="n">signature_type</span><span class="si">}</span><span class="se">}}\n</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">label</span><span class="se">{{</span><span class="s2">tab: timeTests</span><span class="si">{</span><span class="n">file_name</span><span class="si">}</span><span class="se">}}\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">end</span><span class="si">{table}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Compare the time performance of different implementations of Stachowiak&#39;s theorem.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--latex&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate LaTeX tables for the results&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-g&quot;</span><span class="p">,</span> <span class="s2">&quot;--graph&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate graphs for the results&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-n&quot;</span><span class="p">,</span> <span class="s2">&quot;--numpy&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Incluce numpy in the tests&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">time_tests</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

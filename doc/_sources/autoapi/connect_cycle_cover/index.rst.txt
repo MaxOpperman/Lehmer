@@ -1,0 +1,34 @@
+connect_cycle_cover
+===================
+
+.. py:module:: connect_cycle_cover
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   connect_cycle_cover.parser
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   connect_cycle_cover.connect_cycle_cover
+
+
+Module Contents
+---------------
+
+.. py:function:: connect_cycle_cover(cycle_cover: list[list[tuple[int, Ellipsis]]]) -> list[list[tuple[int, Ellipsis]]]
+
+   Connects the cycle cover to a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
+   @param cycle_cover: The cycle cover to connect
+   @return: The connected cycle cover
+
+
+.. py:data:: parser
+

@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>helper_operations.permutation_graphs &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">helper_operations.permutation_graphs</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for helper_operations.permutation_graphs</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">bisect</span> <span class="kn">import</span> <span class="n">bisect</span><span class="p">,</span> <span class="n">insort</span>
+<span class="kn">from</span> <span class="nn">heapq</span> <span class="kn">import</span> <span class="n">heappop</span><span class="p">,</span> <span class="n">heappush</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">permutations</span> <span class="k">as</span> <span class="n">itertoolspermutations</span>
+
+<span class="kn">from</span> <span class="nn">helper_operations.path_operations</span> <span class="kn">import</span> <span class="n">adjacent</span><span class="p">,</span> <span class="n">cycleQ</span><span class="p">,</span> <span class="n">pathQ</span>
+
+
+<div class="viewcode-block" id="binomial">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.binomial">[docs]</a>
+<span class="k">def</span> <span class="nf">binomial</span><span class="p">(</span><span class="n">k0</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">k1</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns binomial coefficient k0+k1 choose k0, which equals k0+k1 choose k1.</span>
+<span class="sd">    Assumption: 0 &lt;= k0 and 0 &lt;= k1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">k0</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">k1</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">k0</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">elif</span> <span class="n">k1</span> <span class="o">&lt;</span> <span class="n">k0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">binomial</span><span class="p">(</span><span class="n">k1</span><span class="p">,</span> <span class="n">k0</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">k1</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">binomial</span><span class="p">(</span><span class="n">k0</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">//</span> <span class="n">k0</span></div>
+
+
+
+<div class="viewcode-block" id="multinomial">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.multinomial">[docs]</a>
+<span class="k">def</span> <span class="nf">multinomial</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns multinomial coefficient for list s.</span>
+<span class="sd">    Assumption: all(0 &lt;= k for k in s)&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">k0</span><span class="p">,</span> <span class="n">k1</span> <span class="o">=</span> <span class="n">t</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">k0</span> <span class="o">+</span> <span class="n">k1</span>
+    <span class="k">return</span> <span class="n">binomial</span><span class="p">(</span><span class="n">k0</span><span class="p">,</span> <span class="n">k1</span><span class="p">)</span> <span class="o">*</span> <span class="n">multinomial</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
+
+
+
+<div class="viewcode-block" id="perm">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.perm">[docs]</a>
+<span class="k">def</span> <span class="nf">perm</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns all permutations with signature sig</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    @return: list of permutations as lists of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">first_perm</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sig</span><span class="p">):</span>
+        <span class="n">first_perm</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">index</span><span class="p">]</span> <span class="o">*</span> <span class="n">item</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">itertoolspermutations</span><span class="p">(</span><span class="n">first_perm</span><span class="p">))]</span></div>
+
+
+
+<div class="viewcode-block" id="get_num_of_inversions">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.get_num_of_inversions">[docs]</a>
+<span class="k">def</span> <span class="nf">get_num_of_inversions</span><span class="p">(</span><span class="n">permutation</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the number of inversions in a permutation using merge sort</span>
+<span class="sd">    From https://www.geeksforgeeks.org/inversion-count-in-array-using-merge-sort/</span>
+<span class="sd">    @param permutation: list of integers</span>
+<span class="sd">    @return: number of inversions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutation</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">sortList</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="c1"># Heapsort, O(N*log(N))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">permutation</span><span class="p">):</span>
+        <span class="n">heappush</span><span class="p">(</span><span class="n">sortList</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+    <span class="c1"># Create a sorted list of indexes</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="n">sortList</span><span class="p">:</span>
+        <span class="c1"># O(log(N))</span>
+        <span class="n">v</span><span class="p">,</span> <span class="n">i</span> <span class="o">=</span> <span class="n">heappop</span><span class="p">(</span><span class="n">sortList</span><span class="p">)</span>
+        <span class="c1"># Find the current minimum&#39;s index</span>
+        <span class="c1"># the index y can represent how many minimums on the left</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">bisect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+        <span class="c1"># i can represent how many elements on the left</span>
+        <span class="c1"># i - y can find how many bigger nums on the left</span>
+        <span class="n">result</span> <span class="o">+=</span> <span class="n">i</span> <span class="o">-</span> <span class="n">y</span>
+
+        <span class="n">insort</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="count_inversions">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.count_inversions">[docs]</a>
+<span class="k">def</span> <span class="nf">count_inversions</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Count the number of inversions for all permutations of a signature</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    @return: dictionary with permutations as keys and number of inversions as values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nb">tuple</span><span class="p">(</span><span class="n">i</span><span class="p">):</span> <span class="n">get_num_of_inversions</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">(</span><span class="n">sig</span><span class="p">)}</span></div>
+
+
+
+<div class="viewcode-block" id="defect">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.defect">[docs]</a>
+<span class="k">def</span> <span class="nf">defect</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the number of spurs of a given signature according to Lehmer&#39;s definition for the defect:</span>
+<span class="sd">    The number of even permutations - number of odd permutations</span>
+<span class="sd">    @param s: signature as a list of integers</span>
+<span class="sd">    @return: absolute difference between the number of even and odd permutations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">inv_dict</span> <span class="o">=</span> <span class="n">count_inversions</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="n">even_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inv_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">value</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="n">even_count</span> <span class="o">-</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inv_dict</span><span class="p">)</span> <span class="o">-</span> <span class="n">even_count</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="swapPair">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.swapPair">[docs]</a>
+<span class="k">def</span> <span class="nf">swapPair</span><span class="p">(</span><span class="n">perm</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">j</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Swaps elements in perm at positions i and j (or i and i+1 if j is not provided).</span>
+<span class="sd">    @param perm: permutation as a tuple of integers</span>
+<span class="sd">    @param i: first index</span>
+<span class="sd">    @param j: second index (optional, default is i+1)</span>
+<span class="sd">    @return: new permutation as a tuple of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">perm</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">or</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Index </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> out of range for permutation </span><span class="si">{</span><span class="n">perm</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span> <span class="ow">and</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">perm</span><span class="p">):</span>
+        <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">perm</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="n">perm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">perm</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="generate_adj">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.generate_adj">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_adj</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns all adjacent elements of permutation p</span>
+<span class="sd">    @param p: list of integers</span>
+<span class="sd">    @return: list of tuples of integers, the new permutations generated by neighbor-swapping</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">and</span> <span class="n">item</span> <span class="o">!=</span> <span class="n">p</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">swapPair</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">i</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">v</span></div>
+
+
+
+<div class="viewcode-block" id="graph">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.graph">[docs]</a>
+<span class="k">def</span> <span class="nf">graph</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns a graph with signature sig in form of dictionary of strings</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    @return: dictionary with permutations as keys and adjacent permutations as values</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">dict</span><span class="p">()</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">perm</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+
+    <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">p</span><span class="p">:</span>
+        <span class="n">dic</span><span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">i</span><span class="p">))]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">el</span><span class="p">))</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">generate_adj</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">dic</span></div>
+
+
+
+<div class="viewcode-block" id="extend">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.extend">[docs]</a>
+<span class="k">def</span> <span class="nf">extend</span><span class="p">(</span><span class="n">lst</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">e</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extend every item in l with e</span>
+<span class="sd">    :param lst: list of tuples</span>
+<span class="sd">    :param e: tuple to extend every item in l with</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="n">e</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="extend_cycle_cover">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.extend_cycle_cover">[docs]</a>
+<span class="k">def</span> <span class="nf">extend_cycle_cover</span><span class="p">(</span>
+    <span class="n">lis3d</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]],</span> <span class="n">e</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extend every item in a list of unknown depth holding a list of permutations with e</span>
+<span class="sd">    :param lst: list of unknown depth with list of tuples</span>
+<span class="sd">    :param e: tuple to extend every item in l with</span>
+<span class="sd">    :return:</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lis3d</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lis3d</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">extend</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lis3d</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lis3d</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The input is not a list&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">extend_cycle_cover</span><span class="p">(</span><span class="n">l</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">lis3d</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="shorten">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.shorten">[docs]</a>
+<span class="k">def</span> <span class="nf">shorten</span><span class="p">(</span><span class="n">lis</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Shorten every item in l by num elements from the end</span>
+<span class="sd">    @param lis: list of permutations</span>
+<span class="sd">    @param num: number of elements to remove from the back</span>
+<span class="sd">    @return: list of shortened permutations</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lis</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">num</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lis</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">lis</span>
+    <span class="k">if</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="n">num</span><span class="p">:]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lis</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="p">[:</span><span class="o">-</span><span class="n">num</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lis</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="signature">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.signature">[docs]</a>
+<span class="k">def</span> <span class="nf">signature</span><span class="p">(</span><span class="n">permutation</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns signature of a permutation.</span>
+<span class="sd">    @param permutation: permutation as a tuple of integers</span>
+<span class="sd">    @return: signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">permutation</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">permutation</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">permutation</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="rotate">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.rotate">[docs]</a>
+<span class="k">def</span> <span class="nf">rotate</span><span class="p">(</span><span class="n">l</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rotates the list l by n positions to the left</span>
+<span class="sd">    @param l: list to rotate</span>
+<span class="sd">    @param n: number of positions to rotate</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">l</span>
+    <span class="k">return</span> <span class="n">l</span><span class="p">[</span><span class="n">n</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">l</span><span class="p">[:</span> <span class="n">n</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="_halveSignature">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs._halveSignature">[docs]</a>
+<span class="k">def</span> <span class="nf">_halveSignature</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Halves the signature. ([2, 4, 6] --&gt; [1, 2, 3]), rounding down.</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    @return: halved signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Signature must be a list of non-negative integers.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="o">//</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="multiset">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.multiset">[docs]</a>
+<span class="k">def</span> <span class="nf">multiset</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates the lexicographically smallest list with given signature.</span>
+<span class="sd">    @param s: list of integers, each representing the frequency of the corresponding element (signature)</span>
+<span class="sd">    @return: lexicographically smallest permutation with the given signature</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">i</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">s</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Signature must be a list of non-negative integers.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">f</span><span class="p">)])</span></div>
+
+
+
+<div class="viewcode-block" id="_permutations">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs._permutations">[docs]</a>
+<span class="k">def</span> <span class="nf">_permutations</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates all possible permutations of a given list of integers.</span>
+<span class="sd">    @param s: list of integers, the signature</span>
+<span class="sd">    @return: list of permutations as tuples of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="c1"># for itertools permutations:</span>
+    <span class="c1"># Elements are treated as unique based on their position, not on their value.</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">itertoolspermutations</span><span class="p">(</span><span class="n">multiset</span><span class="p">(</span><span class="n">s</span><span class="p">))))</span></div>
+
+
+
+<div class="viewcode-block" id="_selectOdds">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs._selectOdds">[docs]</a>
+<span class="k">def</span> <span class="nf">_selectOdds</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns list of numbers with odd occurrence frequencies in the given signature.</span>
+<span class="sd">    @param sig: signature as a tuple of integers</span>
+<span class="sd">    @return: tuple of integers with odd occurrence frequencies</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="k">if</span> <span class="n">item</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="stutterPermutations">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.stutterPermutations">[docs]</a>
+<span class="k">def</span> <span class="nf">stutterPermutations</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates stutter permutations of a given signature.</span>
+<span class="sd">    @param s: signature of the permutations as a list of integers</span>
+<span class="sd">    @return: stutter permutations as a list of tuples of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">odds</span> <span class="o">=</span> <span class="n">_selectOdds</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">odds</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_stutterize</span><span class="p">(</span><span class="n">_permutations</span><span class="p">(</span><span class="n">_halveSignature</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">odds</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">extend</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">odds</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="nonStutterPermutations">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.nonStutterPermutations">[docs]</a>
+<span class="k">def</span> <span class="nf">nonStutterPermutations</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns all non-stutter permutations of signature sig</span>
+<span class="sd">    @param sig: signature of the permutations as a list of integers</span>
+<span class="sd">    @return: non-stutter permutations as a list of tuples of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">perm</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="n">stutterPermutations</span><span class="p">(</span><span class="n">s</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="_stutterize">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs._stutterize">[docs]</a>
+<span class="k">def</span> <span class="nf">_stutterize</span><span class="p">(</span><span class="n">p_list</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Converts a list of permutations into stutter permutation by repeating every number twice</span>
+<span class="sd">    @param p: a list of permutations as a list of tuples of integers</span>
+<span class="sd">    @return: all stutter permutations as a list of tuples of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="n">el</span> <span class="k">for</span> <span class="n">el</span> <span class="ow">in</span> <span class="n">t</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)])</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">p_list</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="selectByTail">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.selectByTail">[docs]</a>
+<span class="k">def</span> <span class="nf">selectByTail</span><span class="p">(</span>
+    <span class="n">permutations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">tail</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Select permutations with a given tail &#39;tail&#39;</span>
+<span class="sd">    @param s: list of permutations</span>
+<span class="sd">    @param tail: elements of the tail to select</span>
+<span class="sd">    @return: list of permutations with the given tail</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">permutations</span> <span class="k">if</span> <span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span> <span class="p">:]</span> <span class="o">==</span> <span class="n">tail</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="HpathQ">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.HpathQ">[docs]</a>
+<span class="k">def</span> <span class="nf">HpathQ</span><span class="p">(</span><span class="n">per</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature.</span>
+<span class="sd">    @param per: list of permutations ordered in a path</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">pathQ</span><span class="p">(</span><span class="n">per</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">==</span> <span class="nb">set</span><span class="p">(</span><span class="n">nonStutterPermutations</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span>
+    <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="HcycleQ">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.HcycleQ">[docs]</a>
+<span class="k">def</span> <span class="nf">HcycleQ</span><span class="p">(</span><span class="n">per</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines whether the list of permutations is a Hamiltonian cycle on the non-stutter permutations of the given signature.</span>
+<span class="sd">    @param per: list of permutations, ordered in a cycle</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">adjacent</span><span class="p">(</span><span class="n">per</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">per</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="ow">and</span> <span class="n">HpathQ</span><span class="p">(</span><span class="n">per</span><span class="p">,</span> <span class="n">sig</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LargeHpathQ">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.LargeHpathQ">[docs]</a>
+<span class="k">def</span> <span class="nf">LargeHpathQ</span><span class="p">(</span><span class="n">per</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature.</span>
+<span class="sd">    @param per: list of permutations, ordered in a path</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># there are no duplicates, the length is correct, and it is a path</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># there are no duplicates, the length is correct, and it is a cycle</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sig</span> <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">expected_length</span> <span class="o">=</span> <span class="n">multinomial</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonStutterPermutations</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expected_length</span> <span class="o">=</span> <span class="n">multinomial</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">per</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_length</span> <span class="ow">and</span> <span class="n">pathQ</span><span class="p">(</span><span class="n">per</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="LargeHcycleQ">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.LargeHcycleQ">[docs]</a>
+<span class="k">def</span> <span class="nf">LargeHcycleQ</span><span class="p">(</span><span class="n">per</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]],</span> <span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determines whether the path is a Hamiltonian cycle on the non-stutter permutations of the given signature.</span>
+<span class="sd">    @param per: list of permutations, ordered in a cycle</span>
+<span class="sd">    @param sig: signature as a list of integers</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># there are no duplicates, the length is correct, and it is a cycle</span>
+    <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sig</span> <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">expected_length</span> <span class="o">=</span> <span class="n">multinomial</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">nonStutterPermutations</span><span class="p">(</span><span class="n">sig</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">expected_length</span> <span class="o">=</span> <span class="n">multinomial</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">per</span><span class="p">))</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">per</span><span class="p">)</span> <span class="o">==</span> <span class="n">expected_length</span> <span class="ow">and</span> <span class="n">cycleQ</span><span class="p">(</span><span class="n">per</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="total_path_motion">
+<a class="viewcode-back" href="../../autoapi/helper_operations/permutation_graphs/index.html#helper_operations.permutation_graphs.total_path_motion">[docs]</a>
+<span class="k">def</span> <span class="nf">total_path_motion</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Returns the sum of the transposition widths (difference in index between the two transposed elements) for all nodes in the path</span>
+<span class="sd">    @param path: list of permutations</span>
+<span class="sd">    @return: total motion as an integer</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_motion</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">permutation_a</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">node</span><span class="p">]</span>
+        <span class="n">permutation_b</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="n">node</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">permutation_a</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">permutation_a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">permutation_b</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">permutation_a</span><span class="p">)):</span>
+                    <span class="k">if</span> <span class="n">permutation_a</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="n">permutation_b</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+                        <span class="n">width</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="n">j</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">width</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Width of transposition </span><span class="si">{</span><span class="n">node</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">width</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">permutation_a</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">permutation_b</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+                        <span class="n">total_motion</span> <span class="o">+=</span> <span class="n">width</span>
+    <span class="k">return</span> <span class="n">total_motion</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

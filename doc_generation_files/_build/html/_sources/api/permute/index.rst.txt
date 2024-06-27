@@ -1,0 +1,35 @@
+permute
+=======
+
+.. py:module:: permute
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   permute.lehmer_strategy_help
+
+
+Module Contents
+---------------
+
+.. py:data:: lehmer_strategy_help
+   :value: Multiline-String
+
+   .. raw:: html
+
+      <details><summary>Show Value</summary>
+
+   .. code-block:: python
+
+      """Default: random choices
+      """
+
+   .. raw:: html
+
+      </details>
+
+
+

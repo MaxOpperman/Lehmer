@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pathmarker &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pathmarker</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pathmarker</h1><div class="highlight"><pre>
+<div class="viewcode-block" id="PathMarker">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker">[docs]</a>
+<span></span><span class="k">class</span> <span class="nc">PathMarker</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that represents a path marker for a graph.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        graph (object): The graph object.</span>
+<span class="sd">        pos (dict): A dictionary containing the positions of the nodes in the graph.</span>
+<span class="sd">        default_edges (list): A list of default edge colors.</span>
+<span class="sd">        default_nodes (list): A list of default node colors.</span>
+<span class="sd">        marked_nodes (set): A set of marked nodes.</span>
+<span class="sd">        right_marked_nodes (set): A set of right-click marked nodes.</span>
+<span class="sd">        marked_edges (set): A set of marked edges.</span>
+<span class="sd">        edge_colors (list): A list of edge colors.</span>
+<span class="sd">        node_colors (list): A list of node colors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="n">default_edges</span><span class="p">,</span> <span class="n">default_nodes</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="n">pos</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edge_colors</span> <span class="o">=</span> <span class="n">default_edges</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node_colors</span> <span class="o">=</span> <span class="n">default_nodes</span>
+
+<div class="viewcode-block" id="PathMarker.mark_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.mark_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">mark_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Marks a node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be marked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.right_mark_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.right_mark_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">right_mark_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Marks a node with a right-click.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be right-click marked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.un_right_mark_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.un_right_mark_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">un_right_mark_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unmarks a right-click marked node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be unmarked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.unmark_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.unmark_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">unmark_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unmarks a node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be unmarked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.toggle_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.toggle_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">toggle_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggles the marking of a node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be toggled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">un_right_mark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unmark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.toggle_right_mark_node">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.toggle_right_mark_node">[docs]</a>
+    <span class="k">def</span> <span class="nf">toggle_right_mark_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggles the right-click marking of a node.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be toggled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unmark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">un_right_mark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">right_mark_node</span><span class="p">(</span><span class="n">node</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.mark_edge">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.mark_edge">[docs]</a>
+    <span class="k">def</span> <span class="nf">mark_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Marks an edge.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edge: The edge to be marked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.unmark_edge">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.unmark_edge">[docs]</a>
+    <span class="k">def</span> <span class="nf">unmark_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unmarks an edge.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edge: The edge to be unmarked.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.toggle_edge">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.toggle_edge">[docs]</a>
+    <span class="k">def</span> <span class="nf">toggle_edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Toggles the marking of an edge.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edge: The edge to be toggled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">unmark_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mark_edge</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.reset_colors">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.reset_colors">[docs]</a>
+    <span class="k">def</span> <span class="nf">reset_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets the marked nodes and edges to their default colors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.is_node_marked">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.is_node_marked">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_node_marked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if a node is marked.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            node: The node to be checked.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the node is marked, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.is_edge_marked">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.is_edge_marked">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_edge_marked</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if an edge is marked.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            edge: The edge to be checked.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if the edge is marked, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">edge</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span></div>
+
+
+<div class="viewcode-block" id="PathMarker.update_plot">
+<a class="viewcode-back" href="../autoapi/pathmarker/index.html#pathmarker.PathMarker.update_plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nx</span><span class="p">,</span> <span class="n">plt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the plot with the marked nodes and edges.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            nx: The networkx module.</span>
+<span class="sd">            plt: The matplotlib.pyplot module.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">clf</span><span class="p">()</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+            <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">node_color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">node_colors</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+            <span class="n">font_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">font_weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="n">edge_color</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">edge_colors</span><span class="p">,</span>
+            <span class="c1"># width=4,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Draw marked nodes in color</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+            <span class="n">nodelist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">marked_nodes</span><span class="p">,</span>
+            <span class="n">node_color</span><span class="o">=</span><span class="s2">&quot;royalblue&quot;</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Draw right click marked nodes in color</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_nodes</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+            <span class="n">nodelist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">right_marked_nodes</span><span class="p">,</span>
+            <span class="n">node_color</span><span class="o">=</span><span class="s2">&quot;darkturquoise&quot;</span><span class="p">,</span>
+            <span class="n">node_size</span><span class="o">=</span><span class="mi">900</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Draw marked edges in color</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw_networkx_edges</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pos</span><span class="p">,</span>
+            <span class="n">edgelist</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">marked_edges</span><span class="p">,</span>
+            <span class="n">edge_color</span><span class="o">=</span><span class="s2">&quot;royalblue&quot;</span><span class="p">,</span>
+            <span class="n">width</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Permutation Inversions Graph&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

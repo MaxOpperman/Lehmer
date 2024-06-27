@@ -1,0 +1,63 @@
+cycle_cover
+===========
+
+.. py:module:: cycle_cover
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   cycle_cover.parser
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   cycle_cover.Hpath_even_1_1
+   cycle_cover.Hpath_odd_2_1
+   cycle_cover.parallel_sub_cycle_odd_2_1
+   cycle_cover.incorporated_odd_2_1
+   cycle_cover.generate_cycle_cover
+
+
+Module Contents
+---------------
+
+.. py:function:: Hpath_even_1_1(k: int) -> list[tuple[int, Ellipsis]]
+
+   Generates a path based on the number of 0's `k` from 1 2 0^(k) to 0 2 1 0^(k-1)
+   @param k: The input value for k0
+   @return: The generated path
+
+
+.. py:function:: Hpath_odd_2_1(k: int) -> list[tuple[int, Ellipsis]]
+
+   Generates a path based on the number of 0's `k` from 1 2 0^{k0} 1 to 0 2 1 0^{k0-1} 1.
+   @param k: The input value for k0, must be odd
+   @return: The generated path from a to b
+
+
+.. py:function:: parallel_sub_cycle_odd_2_1(k: int) -> list[tuple[int, Ellipsis]]
+
+   Generates the parallel cycle from the 02 and 20 cycles with stutters
+   @param k: The input value for k0 (EVEN!) because we don't count the 0 in 02 or 20
+   @return: The generated path from 0 1 0^{k-1} 1 0 2 to 1 0^(k) 1 0 2
+
+
+.. py:function:: incorporated_odd_2_1(k: int) -> list[tuple[int, Ellipsis]]
+
+   Generates a path based on the number of 0's `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1
+   Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
+
+   @param k: The input value for k0, must be odd
+   @return: The generated path from a to b
+
+
+.. py:function:: generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, Ellipsis]]]
+
+.. py:data:: parser
+

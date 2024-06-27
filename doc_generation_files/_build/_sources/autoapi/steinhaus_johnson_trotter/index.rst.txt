@@ -1,0 +1,50 @@
+steinhaus_johnson_trotter
+=========================
+
+.. py:module:: steinhaus_johnson_trotter
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   steinhaus_johnson_trotter.SteinhausJohnsonTrotter
+
+
+Module Contents
+---------------
+
+.. py:class:: SteinhausJohnsonTrotter
+
+   .. py:attribute:: LEFT_TO_RIGHT
+      :value: True
+
+
+
+   .. py:attribute:: RIGHT_TO_LEFT
+      :value: False
+
+
+
+   .. py:method:: searchArr(a, n, mobile)
+
+
+   .. py:method:: fact(n)
+
+
+   .. py:method:: getMobile(a, dir, n)
+
+
+   .. py:method:: get_sjt_permutations(n)
+
+      Generate permutations using the Steinhaus-Johnson-Trotter algorithm.
+
+      :param n: The number of elements in the permutation.
+      :type n: int
+
+      :returns: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
+      :rtype: list
+
+
+

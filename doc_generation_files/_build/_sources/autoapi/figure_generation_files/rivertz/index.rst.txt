@@ -1,0 +1,57 @@
+figure_generation_files.rivertz
+===============================
+
+.. py:module:: figure_generation_files.rivertz
+
+.. autoapi-nested-parse::
+
+   This file is directly copied from the original source code of the article:
+   "Multiset permutation generation by transpositions" by Rivertz
+   The original source code is available at: https://doi.org/10.48550/arXiv.2309.11781
+
+   Therefore we also did not test this file as it is not part of our codebase.
+
+
+
+Classes
+-------
+
+.. autoapisummary::
+
+   figure_generation_files.rivertz.SetPerm
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   figure_generation_files.rivertz.swap_elements
+
+
+Module Contents
+---------------
+
+.. py:function:: swap_elements(a_list, i, j)
+
+.. py:class:: SetPerm(multiplicity)
+
+   Bases: :py:obj:`collections.abc.Iterator`, :py:obj:`abc.ABC`
+
+
+   Helper class that provides a standard way to create an ABC using
+   inheritance.
+
+
+   .. py:method:: __next__()
+
+      Return the next item from the iterator. When exhausted, raise StopIteration
+
+
+
+   .. py:method:: swap(i, j, df)
+
+
+   .. py:method:: one_step(n)
+
+

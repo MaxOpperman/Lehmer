@@ -1,0 +1,38 @@
+figure_generation_files.verhoeffCycleCoverPaths
+===============================================
+
+.. py:module:: figure_generation_files.verhoeffCycleCoverPaths
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   figure_generation_files.verhoeffCycleCoverPaths.parser
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   figure_generation_files.verhoeffCycleCoverPaths.fig11
+   figure_generation_files.verhoeffCycleCoverPaths.fig12
+   figure_generation_files.verhoeffCycleCoverPaths.combined_figure
+   figure_generation_files.verhoeffCycleCoverPaths.plot_individual_figures
+
+
+Module Contents
+---------------
+
+.. py:function:: fig11(ax, even_int: int)
+
+.. py:function:: fig12(ax, even_int: int)
+
+.. py:function:: combined_figure(even_int: int, save=False)
+
+.. py:function:: plot_individual_figures(even_int: int, save=False)
+
+.. py:data:: parser
+

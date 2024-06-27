@@ -1,0 +1,162 @@
+type_variations.verhoeff_list
+=============================
+
+.. py:module:: type_variations.verhoeff_list
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   type_variations.verhoeff_list.stutterize
+   type_variations.verhoeff_list.selectOdds
+   type_variations.verhoeff_list.stutterPermutations
+   type_variations.verhoeff_list.createZigZagPath
+   type_variations.verhoeff_list.incorporateSpurInZigZag
+   type_variations.verhoeff_list.incorporateSpursInZigZag
+   type_variations.verhoeff_list.createSquareTube
+   type_variations.verhoeff_list.swapPair
+   type_variations.verhoeff_list.extend
+   type_variations.verhoeff_list.HpathNS
+
+
+Module Contents
+---------------
+
+.. py:function:: stutterize(p: list[int]) -> list[list[int]]
+
+   Converts argument into a stutter permutation by repeating every number.
+   :param p: permutation as a list of integers
+   :type p: list[int]
+
+   :returns: every number in p repeated twice and put into a list
+   :rtype: list[list[int]]
+
+
+.. py:function:: selectOdds(sig: list[int]) -> list[int]
+
+   Returns list of numbers with odd occurrence frequencies in the given signature.
+   :param sig: signature as a list of integers
+   :type sig: list[int]
+
+   :returns: list of integers with odd occurrence frequencies in the signature
+   :rtype: list[int]
+
+
+.. py:function:: stutterPermutations(s: list[int]) -> list[list[int]]
+
+   Generates stutter permutations of a given signature.
+   Stutter permutations have the form [a, a, b, b, c, c, ..., z] where a, b, c, ... are the elements of the permutation.
+   So every pair of elements is repeated twice from the left. An stutter can have one element with odd frequency appended at the end.
+   :param s: the signature of the stutter permutations
+   :type s: list[int]
+
+   :returns: list of stutter permutations of signature `s`
+   :rtype: list[list[int]]
+
+
+.. py:function:: createZigZagPath(c: list[list[int]], u: list[int], v: list[int]) -> list[list[int]]
+
+   Creates a zigzag path from a given cycle `c` by appending `u` and `v` and `v` and `u` alternatively.
+   :param c: cycle of even length, list of tuples of integers
+   :type c: list[list[int]]
+   :param u: tuple to append
+   :type u: list[int]
+   :param v: tuple to append, adjacent to `u`
+   :type v: list[int]
+
+   :returns:     cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
+                 running from cycle[[0]]v to cycle[[-1]]v; the two copies are distinguished by appending u and v; also works for a path
+   :rtype: list[list[int]]
+
+   :raises AssertionError: If `u` and `v` are not adjacent
+
+
+.. py:function:: incorporateSpurInZigZag(path: list[list[int]], vertex_pair: list[list[int]]) -> list[list[int]]
+
+   Incorporates a spur path into a zigzag path. The spur has the same last two elements as the zigzag path.
+   The spurs are stutters if the last two elements are disregarded. They have to be incorporated in the zigzag path because those elements are appended.
+   :param path: zigzag path as a list of lists of integers
+   :type path: list[list[int]]
+   :param vertex_pair: spur path as a list of lists of integers
+   :type vertex_pair: list[list[int]]
+
+   :returns: zigzag path with the spur path incorporated
+   :rtype: list[list[int]]
+
+
+.. py:function:: incorporateSpursInZigZag(path: list[list[int]], vertices: list[list[int]], spur_suffixes: list[list[int]]) -> list[list[int]]
+
+   Incorporates multiple spur paths into a zigzag path. Uses the `incorporateSpurInZigZag` function.
+   :param path: zigzag path as a list of lists of integers.
+   :type path: list[list[int]]
+   :param vertices: list of spur paths as a list of lists of integers.
+   :type vertices: list[list[int]]
+   :param spur_suffixes: list of suffixes for the spur paths.
+   :type spur_suffixes: list[list[int]]
+
+   :returns: zigzag path with the spur paths incorporated.
+   :rtype: list[list[int]]
+
+
+.. py:function:: createSquareTube(path: list[list[int]], u: list[int], v: list[int]) -> list[list[int]]
+
+   Creates a square tube from a given path by appending `u` and `v` in the following order:
+   `uu`, `uv`, `vv`, `vu`, -> next node -> `vu`, `vv`, `uv`, `uu`.
+   and for the last two nodes: `uu`, `uv`, `vv`, `vu` -> next node -> `vu`, `uu`, `uv`, `vv`.
+   :param path: path as a list of lists of integers
+   :type path: list[list[int]]
+   :param u: tuple to append
+   :type u: list[int]
+   :param v: tuple to append, adjacent to `u`
+   :type v: list[int]
+
+   :returns:     path obtained by combining four copies of given path, to form a 'square tube',
+                 running from `path[0]uu` to `path[-1]vv`; the four copies are distinguished by appending `u` and `v`
+   :rtype: list[list[int]]
+
+
+.. py:function:: swapPair(perm: list[int], i: int, j=None) -> list[int]
+
+   Swaps elements in perm at positions `i` and `j` (or `i` and `i+1` if `j` is not provided).
+   :param perm: list of integers
+   :type perm: list[int]
+   :param i: index of the first element to swap
+   :type i: int
+   :param j: index of the second element to swap
+   :type j: int
+
+   :returns: list of integers with elements at positions `i` and `j` swapped
+   :rtype: list[int]
+
+
+.. py:function:: extend(lst: list[list[int]], e: list[int]) -> list[list[int]]
+
+   Extend every item in l with e
+   :param lst: list of lists of integers
+   :type lst: list[list[int]]
+   :param e: list to extend every item in `lst` with
+   :type e: list[int]
+
+   :returns: list of lists of integers with every item of `lst` extended by `e`
+   :rtype: list[list[int]]
+
+
+.. py:function:: HpathNS(k0: int, k1: int) -> list[list[int]]
+
+   Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
+   If k0 and k1 are both even, the path is a Hamiltonian cycle.
+   :param k0: Number of 0s in the signature.
+   :type k0: int
+   :param k1: Number of 1s in the signature.
+   :type k1: int
+
+   :returns: A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).
+   :rtype: list[list[int]]
+
+   .. rubric:: References
+
+   - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+
+

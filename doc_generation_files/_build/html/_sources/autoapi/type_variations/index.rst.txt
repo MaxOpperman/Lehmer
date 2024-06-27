@@ -1,0 +1,22 @@
+type_variations
+===============
+
+.. py:module:: type_variations
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/type_variations/stachowiak_list/index
+   /autoapi/type_variations/stachowiak_list_verhoeff_tuple/index
+   /autoapi/type_variations/stachowiak_numpy/index
+   /autoapi/type_variations/stachowiak_tuple_verhoeff_list/index
+   /autoapi/type_variations/steinhaus_johnson_trotter_list/index
+   /autoapi/type_variations/steinhaus_johnson_trotter_numpy/index
+   /autoapi/type_variations/verhoeff_list/index
+   /autoapi/type_variations/verhoeff_numpy/index
+
+

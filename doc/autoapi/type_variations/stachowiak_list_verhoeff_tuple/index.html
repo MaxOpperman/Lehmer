@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>type_variations.stachowiak_list_verhoeff_tuple &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="type_variations.stachowiak_numpy" href="../stachowiak_numpy/index.html" />
+    <link rel="prev" title="type_variations.stachowiak_list" href="../stachowiak_list/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../permute/index.html">permute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../verhoeff/index.html">verhoeff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pathmarker/index.html">pathmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../stachowiak/index.html">stachowiak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cycle_cover/index.html">cycle_cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/index.html">visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">type_variations</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_list/index.html">type_variations.stachowiak_list</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">type_variations.stachowiak_list_verhoeff_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_numpy/index.html">type_variations.stachowiak_numpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_tuple_verhoeff_list/index.html">type_variations.stachowiak_tuple_verhoeff_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../steinhaus_johnson_trotter_list/index.html">type_variations.steinhaus_johnson_trotter_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../steinhaus_johnson_trotter_numpy/index.html">type_variations.steinhaus_johnson_trotter_numpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../verhoeff_list/index.html">type_variations.verhoeff_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../verhoeff_numpy/index.html">type_variations.verhoeff_numpy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../helper_operations/index.html">helper_operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../connect_cycle_cover/index.html">connect_cycle_cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../figure_generation_files/index.html">figure_generation_files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../steinhaus_johnson_trotter/index.html">steinhaus_johnson_trotter</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">type_variations</a></li>
+      <li class="breadcrumb-item active">type_variations.stachowiak_list_verhoeff_tuple</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/type_variations/stachowiak_list_verhoeff_tuple/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-type_variations.stachowiak_list_verhoeff_tuple">
+<span id="type-variations-stachowiak-list-verhoeff-tuple"></span><h1>type_variations.stachowiak_list_verhoeff_tuple<a class="headerlink" href="#module-type_variations.stachowiak_list_verhoeff_tuple" title="Link to this heading"></a></h1>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.stachowiak_list_verhoeff_tuple.lemma10" title="type_variations.stachowiak_list_verhoeff_tuple.lemma10"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma10</span></code></a>(→ list[list[int]])</p></td>
+<td><p>Computes Lemma 10 by Stachowiak:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.stachowiak_list_verhoeff_tuple.lemma11" title="type_variations.stachowiak_list_verhoeff_tuple.lemma11"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lemma11</span></code></a>(→ list[list[int]])</p></td>
+<td><p>Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.stachowiak_list_verhoeff_tuple.lemma10">
+<span class="sig-prename descclassname"><span class="pre">type_variations.stachowiak_list_verhoeff_tuple.</span></span><span class="sig-name descname"><span class="pre">lemma10</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/type_variations/stachowiak_list_verhoeff_tuple.html#lemma10"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.stachowiak_list_verhoeff_tuple.lemma10" title="Link to this definition"></a></dt>
+<dd><p>Computes Lemma 10 by Stachowiak:
+If <cite>q = |Q| &gt; 2</cite>, <cite>Q</cite> is even and <cite>GE(Q)</cite> contains a Hamiltonian path and <cite>p &gt; 0</cite> then <cite>GE(Q|l^p)</cite> has a Hamiltonian cycle.
+Here <cite>Q</cite> is two elements in the signature that form a Hamiltonian path of even length and p is the third element.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sig</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – The signature of the graph; <cite>Q</cite> is the first two elements, <cite>p</cite> is the third.
+<cite>Q</cite> is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
+<cite>p</cite> is the third element of sig and has color 2 and occurs <cite>p</cite> times.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Hamiltonian cycle in the neighbor-swap graph of the form <cite>GE(Q|l^p)</cite></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>AssertionError</strong> – If the signature is not well-formed. The first two elements must be able to form a Hamiltonian path of even length &gt; 2.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.stachowiak_list_verhoeff_tuple.lemma11">
+<span class="sig-prename descclassname"><span class="pre">type_variations.stachowiak_list_verhoeff_tuple.</span></span><span class="sig-name descname"><span class="pre">lemma11</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/type_variations/stachowiak_list_verhoeff_tuple.html#lemma11"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.stachowiak_list_verhoeff_tuple.lemma11" title="Link to this definition"></a></dt>
+<dd><p>Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak’s paper:
+If <cite>q = |Q| &gt; 2</cite>, <cite>p = |P| &gt; 0</cite> and <cite>GE(Q)</cite> has an even number of vertices and contains a Hamiltonian path then <cite>GE(Q|P)</cite> has a Hamiltonian cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>sig</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length &gt; 2.
+These two elements are set to the front of the signature using a recursive call.
+Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).
+The rest of the signature is processed using Stachowiak’s lemmas.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Hamiltonian cycle in the neighbor-swap graph of the form <cite>GE(Q|P)</cite>. <cite>Q</cite> is this Hamiltonian path and <cite>P</cite> is the rest of the signature</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[list[int]]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – If the signature is empty.</p></li>
+<li><p><strong>ValueError</strong> – There are no elements that can form a Hamiltonian path.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If <cite>q = |Q| &gt; 2</cite>, <cite>p = |P| &gt; 0</cite> and <cite>GE(Q)</cite> has an even number of vertices and contains a Hamiltonian path, then <cite>GE(Q|P)</cite> has a Hamiltonian cycle.</p></li>
+<li><p>The function first checks the length of the signature and handles special cases where the signature has only one or two elements.</p></li>
+<li><p>If the signature is not ordered well, it transforms the signature and recursively calls the function with the transformed signature. The order is well when the first two elements are the largest odd numbers.</p></li>
+<li><p>If the first two elements in the signature can form a cycle (more than two permutations), it uses Verhoeff’s Theorem to find the cycle.</p></li>
+<li><p>If the first 3 (or more) elements are 1, it uses the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle.</p></li>
+<li><p>If the third element in the signature is not 0, it uses Stachowiak’s Lemma 2 to find a Hamiltonian path in <cite>GE(Q|l^{sig[2]})</cite>.</p></li>
+<li><p>Finally, it iterates over the remaining elements in the signature and calls the helper function _lemma10_helper to extend the cycle.</p></li>
+</ul>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992</p></li>
+<li><p>Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)</p></li>
+</ul>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../stachowiak_list/index.html" class="btn btn-neutral float-left" title="type_variations.stachowiak_list" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../stachowiak_numpy/index.html" class="btn btn-neutral float-right" title="type_variations.stachowiak_numpy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

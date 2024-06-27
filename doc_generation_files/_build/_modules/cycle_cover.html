@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cycle_cover &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cycle_cover</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cycle_cover</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">argparse</span>
+
+<span class="kn">from</span> <span class="nn">helper_operations.path_operations</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">createZigZagPath</span><span class="p">,</span>
+    <span class="n">cutCycle</span><span class="p">,</span>
+    <span class="n">cycleQ</span><span class="p">,</span>
+    <span class="n">get_transformer</span><span class="p">,</span>
+    <span class="n">incorporateSpursInZigZag</span><span class="p">,</span>
+    <span class="n">pathQ</span><span class="p">,</span>
+    <span class="n">recursive_cycle_check</span><span class="p">,</span>
+    <span class="n">splitPathIn2</span><span class="p">,</span>
+    <span class="n">transform</span><span class="p">,</span>
+    <span class="n">transform_cycle_cover</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">helper_operations.permutation_graphs</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">extend</span><span class="p">,</span>
+    <span class="n">extend_cycle_cover</span><span class="p">,</span>
+    <span class="n">multinomial</span><span class="p">,</span>
+    <span class="n">rotate</span><span class="p">,</span>
+    <span class="n">stutterPermutations</span><span class="p">,</span>
+    <span class="n">swapPair</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">stachowiak</span> <span class="kn">import</span> <span class="n">lemma11</span>
+<span class="kn">from</span> <span class="nn">verhoeff</span> <span class="kn">import</span> <span class="n">HpathNS</span>
+
+
+<div class="viewcode-block" id="Hpath_even_1_1">
+<a class="viewcode-back" href="../autoapi/cycle_cover/index.html#cycle_cover.Hpath_even_1_1">[docs]</a>
+<span class="k">def</span> <span class="nf">Hpath_even_1_1</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a path based on the number of 0&#39;s `k` from 1 2 0^(k) to 0 2 1 0^(k-1)</span>
+<span class="sd">    @param k: The input value for k0</span>
+<span class="sd">    @return: The generated path</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;k must be even&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="n">pathQ</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="n">k_0_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">bottom_path</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="c1"># construct the path on the bottom, incl the bottom-right corner node</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">bottom_path</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+    <span class="n">midpath</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="c1"># construct the path going up</span>
+        <span class="n">up_path</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">up_path</span><span class="p">)</span> <span class="o">-</span> <span class="n">i</span><span class="p">):</span>
+            <span class="n">midpath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">up_path</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">up_path</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+        <span class="c1"># construct the path going left (incl top-right corner node)</span>
+        <span class="n">left_path</span> <span class="o">=</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">left_path</span><span class="p">)</span> <span class="o">-</span> <span class="n">i</span><span class="p">)):</span>
+            <span class="n">midpath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left_path</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">left_path</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+        <span class="n">right_path</span> <span class="o">=</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># construct the path going right (incl top-right corner node)</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">right_path</span><span class="p">)</span> <span class="o">-</span> <span class="n">i</span><span class="p">):</span>
+            <span class="n">midpath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">right_path</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">right_path</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+        <span class="c1"># construct the path going down</span>
+        <span class="n">down_path</span> <span class="o">=</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">down_path</span><span class="p">)</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">-</span> <span class="n">i</span><span class="p">)):</span>
+            <span class="n">midpath</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">down_path</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">down_path</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+    <span class="k">return</span> <span class="n">bottom_path</span> <span class="o">+</span> <span class="n">midpath</span></div>
+
+
+
+<div class="viewcode-block" id="Hpath_odd_2_1">
+<a class="viewcode-back" href="../autoapi/cycle_cover/index.html#cycle_cover.Hpath_odd_2_1">[docs]</a>
+<span class="k">def</span> <span class="nf">Hpath_odd_2_1</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a path based on the number of 0&#39;s `k` from 1 2 0^{k0} 1 to 0 2 1 0^{k0-1} 1.</span>
+<span class="sd">    @param k: The input value for k0, must be odd</span>
+<span class="sd">    @return: The generated path from a to b</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;k must be odd&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># base case</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="n">pathQ</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="n">k_0_tuple</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">start_path</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)]</span>
+    <span class="n">bottom_path</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom_path</span><span class="p">)):</span>
+        <span class="n">start_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bottom_path</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">bottom_path</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">end_path_1</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">]</span>
+        <span class="n">mid_path</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="n">prefix_zeros</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">3</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prefix_zeros</span><span class="p">):</span>
+                <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span>
+                    <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">j</span> <span class="p">:</span> <span class="n">k</span> <span class="o">-</span> <span class="n">prefix_zeros</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                    <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">prefix_zeros</span><span class="p">]</span>
+                    <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                <span class="p">)</span>
+            <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">prefix_zeros</span><span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">prefix_zeros</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">prefix_zeros</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k_0_tuple</span><span class="p">[</span><span class="n">j</span><span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+                    <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">prefix_zeros</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">j</span><span class="p">:]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span> <span class="o">-</span> <span class="n">prefix_zeros</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">prefix_zeros</span> <span class="p">:]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span> <span class="n">prefix_zeros</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                    <span class="p">)</span>
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">k</span> <span class="o">-</span> <span class="n">prefix_zeros</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)):</span>
+                    <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">k_0_tuple</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="n">prefix_zeros</span> <span class="p">:]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span>
+                        <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="n">prefix_zeros</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                    <span class="p">)</span>
+            <span class="n">temp</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">k_0_tuple</span><span class="p">[:</span> <span class="n">k</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prefix_zeros</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+                <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="n">prefix_zeros</span> <span class="p">:]</span>
+                <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">prefix_zeros</span><span class="p">)):</span>
+                <span class="n">mid_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">temp</span><span class="p">[:</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,)</span> <span class="o">+</span> <span class="n">temp</span><span class="p">[</span><span class="n">j</span><span class="p">:])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">end_path_1</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="n">mid_path</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">end_path_2</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">k_0_tuple</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">pathQ</span><span class="p">(</span><span class="n">start_path</span> <span class="o">+</span> <span class="n">mid_path</span> <span class="o">+</span> <span class="n">end_path_1</span> <span class="o">+</span> <span class="n">end_path_2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">start_path</span> <span class="o">+</span> <span class="n">mid_path</span> <span class="o">+</span> <span class="n">end_path_1</span> <span class="o">+</span> <span class="n">end_path_2</span></div>
+
+
+
+<div class="viewcode-block" id="parallel_sub_cycle_odd_2_1">
+<a class="viewcode-back" href="../autoapi/cycle_cover/index.html#cycle_cover.parallel_sub_cycle_odd_2_1">[docs]</a>
+<span class="k">def</span> <span class="nf">parallel_sub_cycle_odd_2_1</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates the parallel cycle from the 02 and 20 cycles with stutters</span>
+<span class="sd">    @param k: The input value for k0 (EVEN!) because we don&#39;t count the 0 in 02 or 20</span>
+<span class="sd">    @return: The generated path from 0 1 0^{k-1} 1 0 2 to 1 0^(k) 1 0 2</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;k must be even, you probably mean </span><span class="si">{</span><span class="n">k</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2"> and not </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">cycle_without_stutters</span> <span class="o">=</span> <span class="n">HpathNS</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">rotation</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">cycle_20_02</span> <span class="o">=</span> <span class="n">rotate</span><span class="p">(</span>
+        <span class="n">createZigZagPath</span><span class="p">(</span><span class="n">cycle_without_stutters</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">)),</span> <span class="n">rotation</span>
+    <span class="p">)</span>
+    <span class="n">sp02</span> <span class="o">=</span> <span class="n">stutterPermutations</span><span class="p">([</span><span class="n">k</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+    <span class="n">cycle_with_stutters</span> <span class="o">=</span> <span class="n">incorporateSpursInZigZag</span><span class="p">(</span><span class="n">cycle_20_02</span><span class="p">,</span> <span class="n">sp02</span><span class="p">,</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="n">cycle_with_stutters</span></div>
+
+
+
+<div class="viewcode-block" id="incorporated_odd_2_1">
+<a class="viewcode-back" href="../autoapi/cycle_cover/index.html#cycle_cover.incorporated_odd_2_1">[docs]</a>
+<span class="k">def</span> <span class="nf">incorporated_odd_2_1</span><span class="p">(</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a path based on the number of 0&#39;s `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1</span>
+<span class="sd">    Including the _02 and _20 cycles (with stutters), and the _1 &amp; _12 path.</span>
+
+<span class="sd">    @param k: The input value for k0, must be odd</span>
+<span class="sd">    @return: The generated path from a to b</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;k must be odd&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Hpath_odd_2_1</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">parallelCycles</span> <span class="o">=</span> <span class="n">parallel_sub_cycle_odd_2_1</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">a_b_path</span> <span class="o">=</span> <span class="n">Hpath_odd_2_1</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="c1"># split the a_b_path in 2 at the parallel edge with parallelCycles</span>
+    <span class="n">cut_node</span> <span class="o">=</span> <span class="n">swapPair</span><span class="p">(</span><span class="n">parallelCycles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">-</span><span class="mi">3</span><span class="p">)</span>
+    <span class="n">split1</span><span class="p">,</span> <span class="n">split2</span> <span class="o">=</span> <span class="n">splitPathIn2</span><span class="p">(</span><span class="n">a_b_path</span><span class="p">,</span> <span class="n">cut_node</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">split1</span> <span class="o">+</span> <span class="n">parallelCycles</span> <span class="o">+</span> <span class="n">split2</span></div>
+
+
+
+<div class="viewcode-block" id="generate_cycle_cover">
+<a class="viewcode-back" href="../autoapi/cycle_cover/index.html#cycle_cover.generate_cycle_cover">[docs]</a>
+<span class="k">def</span> <span class="nf">generate_cycle_cover</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]]:</span>
+    <span class="c1"># sort list in descending order</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Signature must have at least one element&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[[(</span><span class="mi">0</span><span class="p">,)</span> <span class="o">*</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]]]</span>
+    <span class="n">sorted_sig</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">sorted_sig</span> <span class="o">!=</span> <span class="n">sig</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sig</span> <span class="o">==</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">Hpath_odd_2_1</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span>
+        <span class="n">new_sig</span><span class="p">,</span> <span class="n">transformer</span> <span class="o">=</span> <span class="n">get_transformer</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">transform_cycle_cover</span><span class="p">(</span><span class="n">generate_cycle_cover</span><span class="p">(</span><span class="n">new_sig</span><span class="p">),</span> <span class="n">transformer</span><span class="p">)</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">HpathNS</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="k">elif</span> <span class="mi">0</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">generate_cycle_cover</span><span class="p">(</span><span class="n">sig</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="c1"># Odd-1-1 AND Even-1-1 case</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># Split off the trailing number x</span>
+        <span class="c1"># p_path is k|1 and (after transformation) also k|2</span>
+        <span class="n">linear_path</span> <span class="o">=</span> <span class="n">HpathNS</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># a path from 0^k 1 2 to 1 0^k 2</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span><span class="n">linear_path</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>
+        <span class="c1"># a path from 0^k 2 1 to 2 0^k 1</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span>
+            <span class="p">[</span><span class="nb">tuple</span><span class="p">(</span><span class="mi">2</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">tup</span><span class="p">)</span> <span class="k">for</span> <span class="n">tup</span> <span class="ow">in</span> <span class="n">linear_path</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span>
+        <span class="p">)</span>
+        <span class="c1"># by IH, a path/cycle from 1 0^k 2 (path to 2 0^k 1)</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span><span class="n">generate_cycle_cover</span><span class="p">([</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,))</span>
+
+        <span class="c1"># HpathNS is missing a node when k_0 is even, we add this back</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span> <span class="o">+</span> <span class="n">p2</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="p">[</span><span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">+</span> <span class="n">p1</span>
+        <span class="k">if</span> <span class="n">k</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># reverse these, because sorting of signature reversed up the order</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">p1</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">p0</span> <span class="o">=</span> <span class="n">p0</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">p2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">p1</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">p2</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Even k, also need to add 0^k0 1 2 and 0^k0 2 1</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">p2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">p2</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">p1</span><span class="p">]</span>
+    <span class="c1"># even-2-1 case</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span><span class="n">HpathNS</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,))</span>  <span class="c1"># a cycle from 1 0^k 1 2 to 1 0 1 0^(k-1) 2</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span>
+            <span class="n">Hpath_even_1_1</span><span class="p">(</span><span class="n">k</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span><span class="p">,),</span>
+        <span class="p">)</span>  <span class="c1"># a path from c = 1 2 0^k 1 to d = 0 2 1 0^(k-1) 1</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span>
+            <span class="n">generate_cycle_cover</span><span class="p">([</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
+        <span class="p">)</span>  <span class="c1"># a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0</span>
+        <span class="c1"># 1 2 0^{k2} to 0 2 1 0^{k2-1}.</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">k</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">p0</span> <span class="o">+</span> <span class="n">p1</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cutCycle</span><span class="p">(</span><span class="n">p2</span><span class="p">,</span> <span class="n">swapPair</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="mi">1</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">cutCycle</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">swapPair</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">))]</span>
+    <span class="c1"># odd-2-1 case</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">k</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># the path from a to b (_1 | _12) with parallel 02-20 cycles incorporated</span>
+        <span class="n">p1_p12_p02_p20</span> <span class="o">=</span> <span class="n">incorporated_odd_2_1</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="c1"># path from c&#39;10=120^{k_0-1}10 to d&#39;10=0210^{k_0-1}10 (_10)</span>
+        <span class="n">p10</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span><span class="n">Hpath_even_1_1</span><span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="c1"># path from a&#39;00=120^{k_0-2}100 to b&#39;00=0210^{k_0-3}100 (_00)</span>
+        <span class="n">p00</span> <span class="o">=</span> <span class="n">extend</span><span class="p">(</span><span class="n">generate_cycle_cover</span><span class="p">([</span><span class="n">k</span> <span class="o">-</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">cycle</span> <span class="o">=</span> <span class="n">rotate</span><span class="p">(</span><span class="n">p10</span> <span class="o">+</span> <span class="n">p00</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># b = 0 2 1 0^(k-2) 1 to a = 1 2 0^(k-1) 1</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">p1_p12_p02_p20</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">cycle</span> <span class="o">+</span> <span class="n">p1_p12_p02_p20</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
+    <span class="c1"># stachowiak&#39;s odd case</span>
+    <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sig</span> <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">new_sig</span><span class="p">,</span> <span class="n">transformer</span> <span class="o">=</span> <span class="n">get_transformer</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">transform</span><span class="p">(</span><span class="n">lemma11</span><span class="p">(</span><span class="n">new_sig</span><span class="p">),</span> <span class="n">transformer</span><span class="p">)]</span>
+    <span class="c1"># all-but-one even case</span>
+    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sig</span><span class="p">):</span>
+        <span class="n">all_sub_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sig</span><span class="p">):</span>
+            <span class="n">sub_sig</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">color</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sig</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="c1"># check if this results an odd-2-1 case, then we need a cycle and not a path</span>
+            <span class="n">sorted_sub_sig</span><span class="p">,</span> <span class="n">transformer</span> <span class="o">=</span> <span class="n">get_transformer</span><span class="p">(</span>
+                <span class="n">sub_sig</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+            <span class="p">):</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="p">[</span><span class="n">transform</span><span class="p">(</span><span class="n">lemma11</span><span class="p">(</span><span class="n">sorted_sub_sig</span><span class="p">),</span> <span class="n">transformer</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">generate_cycle_cover</span><span class="p">(</span><span class="n">sub_sig</span><span class="p">)</span>
+            <span class="n">all_sub_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">extend_cycle_cover</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="p">,)))</span>
+        <span class="k">return</span> <span class="n">all_sub_cycles</span>
+    <span class="c1"># all-even case</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">all_sub_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sig</span><span class="p">):</span>
+            <span class="n">temp_sig</span> <span class="o">=</span> <span class="n">sig</span><span class="p">[:</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">color</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">sig</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+            <span class="k">for</span> <span class="n">idx2</span><span class="p">,</span> <span class="n">second_color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">temp_sig</span><span class="p">[</span><span class="n">idx</span><span class="p">:],</span> <span class="n">start</span><span class="o">=</span><span class="n">idx</span><span class="p">):</span>
+                <span class="n">sub_sig</span> <span class="o">=</span> <span class="n">temp_sig</span><span class="p">[:</span><span class="n">idx2</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">second_color</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">temp_sig</span><span class="p">[</span><span class="n">idx2</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span>
+                <span class="c1"># check if this results an even-1-1 case</span>
+                <span class="n">sorted_sub_sig</span><span class="p">,</span> <span class="n">transformer</span> <span class="o">=</span> <span class="n">get_transformer</span><span class="p">(</span>
+                    <span class="n">sub_sig</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># for the even-1-1 case we need a specific path that has parallel edges</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+                    <span class="ow">and</span> <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="p">):</span>
+                    <span class="n">cycle_cover</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">transform</span><span class="p">(</span>
+                            <span class="n">Hpath_even_1_1</span><span class="p">(</span><span class="n">sorted_sub_sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                            <span class="n">transformer</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">cycle_cover</span> <span class="o">=</span> <span class="n">generate_cycle_cover</span><span class="p">(</span><span class="n">sub_sig</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">idx</span> <span class="o">!=</span> <span class="n">idx2</span><span class="p">:</span>
+                    <span class="c1"># this gives two parallel paths which we need to combine into a cycle</span>
+                    <span class="n">sub_cycles</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">cyc</span> <span class="ow">in</span> <span class="n">cycle_cover</span><span class="p">:</span>
+                        <span class="n">sub_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="n">extend</span><span class="p">(</span><span class="n">cyc</span><span class="p">,</span> <span class="p">(</span><span class="n">idx2</span><span class="p">,</span> <span class="n">idx</span><span class="p">))[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">extend</span><span class="p">(</span><span class="n">cyc</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx2</span><span class="p">))</span>
+                        <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># this gives all the non-stutter permutations</span>
+                    <span class="n">sub_cycles</span> <span class="o">=</span> <span class="n">extend_cycle_cover</span><span class="p">(</span><span class="n">cycle_cover</span><span class="p">,</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">idx2</span><span class="p">))</span>
+                <span class="n">all_sub_cycles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub_cycles</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">all_sub_cycles</span></div>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Create a cycle cover from a given permutation signature.&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--signature&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input permutation signature (comma separated)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose mode&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">signature</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">perms</span> <span class="o">=</span> <span class="n">generate_cycle_cover</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Resulting path </span><span class="si">{</span><span class="n">perms</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">stut_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stutterPermutations</span><span class="p">(</span><span class="n">s</span><span class="p">))</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">total_perms</span> <span class="o">=</span> <span class="n">recursive_cycle_check</span><span class="p">(</span><span class="n">perms</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Verhoeff&#39;s result for signature </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">total_perms</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">multinomial</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(incl </span><span class="si">{</span><span class="n">stut_count</span><span class="si">}</span><span class="s2"> stutters </span><span class="si">{</span><span class="n">stut_count</span><span class="o">+</span><span class="n">total_perms</span><span class="si">}</span><span class="s2">) is a list of cycles.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AssertionError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;List of cycles is not a valid cycle cover: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Path: </span><span class="si">{</span><span class="n">pathQ</span><span class="p">(</span><span class="n">perms</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">, Cycle: </span><span class="si">{</span><span class="n">cycleQ</span><span class="p">(</span><span class="n">perms</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -11,7 +11,7 @@ def stutterize(p: list[int]) -> list[list[int]]:
     Args:
         p (list[int]): permutation as a list of integers
     Returns:
-        every number in p repeated twice and put into a list
+        list[list[int]]: every number in p repeated twice and put into a list
     """
     return [[el for el in t for _ in range(2)] for t in p]
 
@@ -22,7 +22,7 @@ def selectOdds(sig: list[int]) -> list[int]:
     Args:
         sig (list[int]): signature as a list of integers
     Returns:
-        list of integers with odd occurrence frequencies in the signature
+        list[int]: list of integers with odd occurrence frequencies in the signature
     """
     return [i for i, item in enumerate(sig) if item % 2 == 1]
 
@@ -35,7 +35,7 @@ def stutterPermutations(s: list[int]) -> list[list[int]]:
     Args:
         s (list[int]): the signature of the stutter permutations
     Returns:
-        list of stutter permutations of signature `s`
+        list[list[int]]: list of stutter permutations of signature `s`
     """
     odds = selectOdds(s)
     if len(odds) >= 2:
@@ -50,12 +50,17 @@ def stutterPermutations(s: list[int]) -> list[list[int]]:
 
 def createZigZagPath(c: list[list[int]], u: list[int], v: list[int]) -> list[list[int]]:
     """
-    :param c: cycle of even length, list of tuples
-    :param u: tuple to append
-    :param v: tuple to append
-    :return: cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
-            running from cycle[[1]]v to cycle[[-1]]v; the two copies are distinguished by
-            appending u and v; also works for a path
+    Creates a zigzag path from a given cycle `c` by appending `u` and `v` and `v` and `u` alternatively.
+    Args:
+        c (list[list[int]]): cycle of even length, list of tuples of integers
+        u (list[int]): tuple to append
+        v (list[int]): tuple to append, adjacent to `u`
+    Returns:
+        list[list[int]]:
+            cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
+            running from cycle[[0]]v to cycle[[-1]]v; the two copies are distinguished by appending u and v; also works for a path
+    Raises:
+        AssertionError: If `u` and `v` are not adjacent
     """
     assert adjacent(u, v)
     temp = [item for sublist in zip(c, c) for item in sublist]
@@ -66,7 +71,15 @@ def createZigZagPath(c: list[list[int]], u: list[int], v: list[int]) -> list[lis
 def incorporateSpurInZigZag(
     path: list[list[int]], vertex_pair: list[list[int]]
 ) -> list[list[int]]:
-    # Modify path to remove last e elements except for the first one
+    """
+    Incorporates a spur path into a zigzag path. The spur has the same last two elements as the zigzag path.
+    The spurs are stutters if the last two elements are disregarded. They have to be incorporated in the zigzag path because those elements are appended.
+    Args:
+        path (list[list[int]]): zigzag path as a list of lists of integers
+        vertex_pair (list[list[int]]): spur path as a list of lists of integers
+    Returns:
+        list[list[int]]: zigzag path with the spur path incorporated
+    """
     i = spurBaseIndex(path, vertex_pair[0])
     return path[: i + 1] + vertex_pair + path[i + 1 :]
 
@@ -74,6 +87,15 @@ def incorporateSpurInZigZag(
 def incorporateSpursInZigZag(
     path: list[list[int]], vertices: list[list[int]], spur_suffixes: list[list[int]]
 ) -> list[list[int]]:
+    """
+    Incorporates multiple spur paths into a zigzag path. Uses the `incorporateSpurInZigZag` function.
+    Args:
+        path (list[list[int]]): zigzag path as a list of lists of integers.
+        vertices (list[list[int]]): list of spur paths as a list of lists of integers.
+        spur_suffixes (list[list[int]]): list of suffixes for the spur paths.
+    Returns:
+        list[list[int]]: zigzag path with the spur paths incorporated.
+    """
     C = [stut + suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
         path = incorporateSpurInZigZag(path, [C[vertex_index], C[vertex_index + 1]])
@@ -83,6 +105,19 @@ def incorporateSpursInZigZag(
 def createSquareTube(
     path: list[list[int]], u: list[int], v: list[int]
 ) -> list[list[int]]:
+    """
+    Creates a square tube from a given path by appending `u` and `v` in the following order:
+    `uu`, `uv`, `vv`, `vu`, -> next node -> `vu`, `vv`, `uv`, `uu`.
+    and for the last two nodes: `uu`, `uv`, `vv`, `vu` -> next node -> `vu`, `uu`, `uv`, `vv`.
+    Args:
+        path (list[list[int]]): path as a list of lists of integers
+        u (list[int]): tuple to append
+        v (list[int]): tuple to append, adjacent to `u`
+    Returns:
+        list[list[int]]:
+            path obtained by combining four copies of given path, to form a 'square tube',
+            running from `path[0]uu` to `path[-1]vv`; the four copies are distinguished by appending `u` and `v`
+    """
     # interleave the elements of the four copies of the path list
     temp = [item for sublist in zip(*([path] * 4)) for item in sublist]
     uu = u + u
@@ -100,7 +135,15 @@ def createSquareTube(
 
 
 def swapPair(perm: list[int], i: int, j=None) -> list[int]:
-    """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
+    """
+    Swaps elements in perm at positions `i` and `j` (or `i` and `i+1` if `j` is not provided).
+    Args:
+        perm (list[int]): list of integers
+        i (int): index of the first element to swap
+        j (int): index of the second element to swap
+    Returns:
+        list[int]: list of integers with elements at positions `i` and `j` swapped
+    """
     if j is None:
         j = i + 1
     if i < len(perm) and j < len(perm):
@@ -111,9 +154,11 @@ def swapPair(perm: list[int], i: int, j=None) -> list[int]:
 def extend(lst: list[list[int]], e: list[int]) -> list[list[int]]:
     """
     Extend every item in l with e
-    :param lst: list of lists of integers
-    :param e: list to extend every item in l with
-    :return:
+    Args:
+        lst (list[list[int]]): list of lists of integers
+        e (list[int]): list to extend every item in `lst` with
+    Returns:
+        list[list[int]]: list of lists of integers with every item of `lst` extended by `e`
     """
     try:
         return [i + e for i in lst]

@@ -1,0 +1,17 @@
+figure_generation_files
+=======================
+
+.. py:module:: figure_generation_files
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /api/figure_generation_files/rivertz/index
+   /api/figure_generation_files/timetests/index
+   /api/figure_generation_files/verhoeffCycleCoverPaths/index
+
+

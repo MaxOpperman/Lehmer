@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>type_variations.stachowiak_list_verhoeff_tuple &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">type_variations.stachowiak_list_verhoeff_tuple</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for type_variations.stachowiak_list_verhoeff_tuple</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">helper_operations.path_operations</span> <span class="kn">import</span> <span class="n">get_transformer</span>
+<span class="kn">from</span> <span class="nn">type_variations.stachowiak_list</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_lemma10_helper</span><span class="p">,</span>
+    <span class="n">lemma2_extended_path</span><span class="p">,</span>
+    <span class="n">transform_list</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">type_variations.steinhaus_johnson_trotter_list</span> <span class="kn">import</span> <span class="n">SteinhausJohnsonTrotterList</span>
+<span class="kn">from</span> <span class="nn">verhoeff</span> <span class="kn">import</span> <span class="n">HpathNS</span>
+
+
+<div class="viewcode-block" id="lemma10">
+<a class="viewcode-back" href="../../autoapi/type_variations/stachowiak_list_verhoeff_tuple/index.html#type_variations.stachowiak_list_verhoeff_tuple.lemma10">[docs]</a>
+<span class="k">def</span> <span class="nf">lemma10</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Computes Lemma 10 by Stachowiak:</span>
+<span class="sd">    If `q = |Q| &gt; 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p &gt; 0` then `GE(Q|l^p)` has a Hamiltonian cycle.</span>
+<span class="sd">    Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sig (list[int]):</span>
+<span class="sd">            The signature of the graph; `Q` is the first two elements, `p` is the third.</span>
+<span class="sd">            `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.</span>
+<span class="sd">            `p` is the third element of sig and has color 2 and occurs `p` times.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[list[int]]:</span>
+<span class="sd">            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|l^p)`</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        AssertionError:</span>
+<span class="sd">            If the signature is not well-formed. The first two elements must be able to form a Hamiltonian path of even length &gt; 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">tuple_perm</span><span class="p">)</span> <span class="k">for</span> <span class="n">tuple_perm</span> <span class="ow">in</span> <span class="n">HpathNS</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">cycle</span> <span class="o">=</span> <span class="n">_lemma10_helper</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cycle</span></div>
+
+
+
+<div class="viewcode-block" id="lemma11">
+<a class="viewcode-back" href="../../autoapi/type_variations/stachowiak_list_verhoeff_tuple/index.html#type_variations.stachowiak_list_verhoeff_tuple.lemma11">[docs]</a>
+<span class="k">def</span> <span class="nf">lemma11</span><span class="p">(</span><span class="n">sig</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak&#39;s paper:</span>
+<span class="sd">    If `q = |Q| &gt; 2`, `p = |P| &gt; 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sig (list[int]):</span>
+<span class="sd">            A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length &gt; 2.</span>
+<span class="sd">            These two elements are set to the front of the signature using a recursive call.</span>
+<span class="sd">            Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).</span>
+<span class="sd">            The rest of the signature is processed using Stachowiak&#39;s lemmas.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[list[int]]:</span>
+<span class="sd">            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|P)`. `Q` is this Hamiltonian path and `P` is the rest of the signature</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If the signature is empty.</span>
+<span class="sd">        ValueError: There are no elements that can form a Hamiltonian path.</span>
+
+<span class="sd">    Notes:</span>
+<span class="sd">        - If `q = |Q| &gt; 2`, `p = |P| &gt; 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path, then `GE(Q|P)` has a Hamiltonian cycle.</span>
+<span class="sd">        - The function first checks the length of the signature and handles special cases where the signature has only one or two elements.</span>
+<span class="sd">        - If the signature is not ordered well, it transforms the signature and recursively calls the function with the transformed signature. The order is well when the first two elements are the largest odd numbers.</span>
+<span class="sd">        - If the first two elements in the signature can form a cycle (more than two permutations), it uses Verhoeff&#39;s Theorem to find the cycle.</span>
+<span class="sd">        - If the first 3 (or more) elements are 1, it uses the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle.</span>
+<span class="sd">        - If the third element in the signature is not 0, it uses Stachowiak&#39;s Lemma 2 to find a Hamiltonian path in `GE(Q|l^{sig[2]})`.</span>
+<span class="sd">        - Finally, it iterates over the remaining elements in the signature and calls the helper function _lemma10_helper to extend the cycle.</span>
+
+<span class="sd">    References:</span>
+<span class="sd">        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992</span>
+<span class="sd">        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Signature must have at least one element&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]]</span>
+    <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">sig</span> <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least two odd numbers are required for Lemma 11&quot;</span><span class="p">)</span>
+    <span class="n">sorted_sig</span><span class="p">,</span> <span class="n">transformer</span> <span class="o">=</span> <span class="n">get_transformer</span><span class="p">(</span><span class="n">sig</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">%</span> <span class="mi">2</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span>
+
+    <span class="c1"># if the order is optimal (i.e. the first two elements are the largest odd numbers)</span>
+    <span class="c1"># and the number of odd numbers is at least 2</span>
+
+    <span class="k">if</span> <span class="n">sig</span> <span class="o">!=</span> <span class="n">sorted_sig</span><span class="p">:</span>
+        <span class="c1"># return that solution given by this lemma (transformed, if needed)</span>
+        <span class="k">return</span> <span class="n">transform_list</span><span class="p">(</span><span class="n">lemma11</span><span class="p">(</span><span class="n">sorted_sig</span><span class="p">),</span> <span class="n">transformer</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">sig</span><span class="p">[:</span><span class="mi">2</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">tuple_perm</span><span class="p">)</span> <span class="k">for</span> <span class="n">tuple_perm</span> <span class="ow">in</span> <span class="n">HpathNS</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sig</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="p">]</span>  <span class="c1"># K in the paper</span>
+        <span class="n">next_color</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="c1"># use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">next_color</span> <span class="o">=</span> <span class="n">sig</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">sig</span> <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+            <span class="n">next_color</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig</span><span class="p">)</span>  <span class="c1"># all elements are 1</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">SteinhausJohnsonTrotterList</span><span class="o">.</span><span class="n">get_sjt_permutations</span><span class="p">(</span>
+            <span class="n">SteinhausJohnsonTrotterList</span><span class="p">(),</span> <span class="n">next_color</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># use Stachowiak&#39;s lemma 2 to find a Hamiltonian path in GE(Q|P[1])</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">lemma2_extended_path</span><span class="p">([</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">sig</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+        <span class="n">next_color</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;q = |Q| &gt; 2 and GE(Q) has an even number of vertices is required for Lemma 11&quot;</span>
+        <span class="p">)</span>
+    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">new_color</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="n">next_color</span><span class="p">:],</span> <span class="n">start</span><span class="o">=</span><span class="n">next_color</span><span class="p">):</span>
+        <span class="n">cycle</span> <span class="o">=</span> <span class="n">_lemma10_helper</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">new_color</span><span class="p">,</span> <span class="n">ind</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">cycle</span>
+    <span class="k">return</span> <span class="n">path</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

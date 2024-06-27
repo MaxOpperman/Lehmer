@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>type_variations.verhoeff_numpy &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">type_variations.verhoeff_numpy</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.stutterize"><code class="docutils literal notranslate"><span class="pre">stutterize()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.selectOdds"><code class="docutils literal notranslate"><span class="pre">selectOdds()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.multiset"><code class="docutils literal notranslate"><span class="pre">multiset()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.permutations"><code class="docutils literal notranslate"><span class="pre">permutations()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.stutterPermutations"><code class="docutils literal notranslate"><span class="pre">stutterPermutations()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.createZigZagPath"><code class="docutils literal notranslate"><span class="pre">createZigZagPath()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.cutCycle"><code class="docutils literal notranslate"><span class="pre">cutCycle()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.incorporateSpurInZigZag"><code class="docutils literal notranslate"><span class="pre">incorporateSpurInZigZag()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.incorporateSpursInZigZag"><code class="docutils literal notranslate"><span class="pre">incorporateSpursInZigZag()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.createSquareTube"><code class="docutils literal notranslate"><span class="pre">createSquareTube()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.swapPair"><code class="docutils literal notranslate"><span class="pre">swapPair()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.extend"><code class="docutils literal notranslate"><span class="pre">extend()</span></code></a></li>
+<li><a class="reference internal" href="#type_variations.verhoeff_numpy.HpathNS"><code class="docutils literal notranslate"><span class="pre">HpathNS()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">type_variations.verhoeff_numpy</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/api/type_variations/verhoeff_numpy/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-type_variations.verhoeff_numpy">
+<span id="type-variations-verhoeff-numpy"></span><h1>type_variations.verhoeff_numpy<a class="headerlink" href="#module-type_variations.verhoeff_numpy" title="Link to this heading"></a></h1>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.stutterize" title="type_variations.verhoeff_numpy.stutterize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stutterize</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Converts argument into stutter permutation by repeating every number.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.selectOdds" title="type_variations.verhoeff_numpy.selectOdds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">selectOdds</span></code></a>(→ numpy.array)</p></td>
+<td><p>Returns list of numbers with odd occurrence frequencies in the given signature.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.multiset" title="type_variations.verhoeff_numpy.multiset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">multiset</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Generates the lexicographically smallest list with given occurrence frequencies.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.permutations" title="type_variations.verhoeff_numpy.permutations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">permutations</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Generates all possible permutations of a given list of integers.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.stutterPermutations" title="type_variations.verhoeff_numpy.stutterPermutations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stutterPermutations</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Generates stutter permutations of a given list of integers.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.createZigZagPath" title="type_variations.verhoeff_numpy.createZigZagPath"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createZigZagPath</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p><dl class="field-list simple">
+<dt class="field-odd">param c<span class="colon">:</span></dt>
+<dd class="field-odd"><p>cycle of even length, numpy array</p>
+</dd>
+</dl>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.cutCycle" title="type_variations.verhoeff_numpy.cutCycle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cutCycle</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Splits a cycle at vertex a. Vertex a appears on first place</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.incorporateSpurInZigZag" title="type_variations.verhoeff_numpy.incorporateSpurInZigZag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">incorporateSpurInZigZag</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.incorporateSpursInZigZag" title="type_variations.verhoeff_numpy.incorporateSpursInZigZag"><code class="xref py py-obj docutils literal notranslate"><span class="pre">incorporateSpursInZigZag</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.createSquareTube" title="type_variations.verhoeff_numpy.createSquareTube"><code class="xref py py-obj docutils literal notranslate"><span class="pre">createSquareTube</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.swapPair" title="type_variations.verhoeff_numpy.swapPair"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapPair</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Swaps elements in perm at positions i and j (or i and i+1 if j is not provided).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.extend" title="type_variations.verhoeff_numpy.extend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extend</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Extend every item in l with e</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.verhoeff_numpy.HpathNS" title="type_variations.verhoeff_numpy.HpathNS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HpathNS</span></code></a>(→ numpy.ndarray)</p></td>
+<td><p>Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.stutterize">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">stutterize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#stutterize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.stutterize" title="Link to this definition"></a></dt>
+<dd><p>Converts argument into stutter permutation by repeating every number.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.selectOdds">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">selectOdds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.array</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#selectOdds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.selectOdds" title="Link to this definition"></a></dt>
+<dd><p>Returns list of numbers with odd occurrence frequencies in the given signature.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.multiset">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">multiset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#multiset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.multiset" title="Link to this definition"></a></dt>
+<dd><p>Generates the lexicographically smallest list with given occurrence frequencies.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.permutations">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">permutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#permutations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.permutations" title="Link to this definition"></a></dt>
+<dd><p>Generates all possible permutations of a given list of integers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.stutterPermutations">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">stutterPermutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#stutterPermutations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.stutterPermutations" title="Link to this definition"></a></dt>
+<dd><p>Generates stutter permutations of a given list of integers.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.createZigZagPath">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">createZigZagPath</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#createZigZagPath"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.createZigZagPath" title="Link to this definition"></a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c</strong> – cycle of even length, numpy array</p></li>
+<li><p><strong>uv</strong> – arrays to append [u, v]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>cycle obtained by combining two “parallel” copies of given cycle, to form a ‘square wave’,
+running from cycle[[1]]v to cycle[[-1]]v; the two copies are distinguished by
+appending u and v; also works for a path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.cutCycle">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">cutCycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#cutCycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.cutCycle" title="Link to this definition"></a></dt>
+<dd><p>Splits a cycle at vertex a. Vertex a appears on first place</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.incorporateSpurInZigZag">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">incorporateSpurInZigZag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertex_pair</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#incorporateSpurInZigZag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.incorporateSpurInZigZag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.incorporateSpursInZigZag">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">incorporateSpursInZigZag</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vertices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spur_suffixes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#incorporateSpursInZigZag"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.incorporateSpursInZigZag" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.createSquareTube">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">createSquareTube</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">v</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.array</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#createSquareTube"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.createSquareTube" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.swapPair">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">swapPair</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">perm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#swapPair"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.swapPair" title="Link to this definition"></a></dt>
+<dd><p>Swaps elements in perm at positions i and j (or i and i+1 if j is not provided).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.extend">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">extend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#extend"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.extend" title="Link to this definition"></a></dt>
+<dd><p>Extend every item in l with e
+:param lst: numpy array of arrays of integers
+:param e: array to extend every item in l with
+:return:</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="type_variations.verhoeff_numpy.HpathNS">
+<span class="sig-prename descclassname"><span class="pre">type_variations.verhoeff_numpy.</span></span><span class="sig-name descname"><span class="pre">HpathNS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">k0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="reference internal" href="../../../_modules/type_variations/verhoeff_numpy.html#HpathNS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.verhoeff_numpy.HpathNS" title="Link to this definition"></a></dt>
+<dd><p>Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
+If k0 and k1 are both even, the path is a Hamiltonian cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>k0</strong> (<em>int</em>) – Number of 0s in the signature.</p></li>
+<li><p><strong>k1</strong> (<em>int</em>) – Number of 1s in the signature.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ul class="simple">
+<li><p>Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.</p></li>
+</ul>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

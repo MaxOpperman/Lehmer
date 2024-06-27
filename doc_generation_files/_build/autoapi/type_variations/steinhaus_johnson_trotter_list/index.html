@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>type_variations.steinhaus_johnson_trotter_list &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="type_variations.steinhaus_johnson_trotter_numpy" href="../steinhaus_johnson_trotter_numpy/index.html" />
+    <link rel="prev" title="type_variations.stachowiak_tuple_verhoeff_list" href="../stachowiak_tuple_verhoeff_list/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../permute/index.html">permute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../verhoeff/index.html">verhoeff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pathmarker/index.html">pathmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../stachowiak/index.html">stachowiak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cycle_cover/index.html">cycle_cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/index.html">visualization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">type_variations</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_list/index.html">type_variations.stachowiak_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_list_verhoeff_tuple/index.html">type_variations.stachowiak_list_verhoeff_tuple</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_numpy/index.html">type_variations.stachowiak_numpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../stachowiak_tuple_verhoeff_list/index.html">type_variations.stachowiak_tuple_verhoeff_list</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">type_variations.steinhaus_johnson_trotter_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../steinhaus_johnson_trotter_numpy/index.html">type_variations.steinhaus_johnson_trotter_numpy</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../verhoeff_list/index.html">type_variations.verhoeff_list</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../verhoeff_numpy/index.html">type_variations.verhoeff_numpy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../helper_operations/index.html">helper_operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../connect_cycle_cover/index.html">connect_cycle_cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../figure_generation_files/index.html">figure_generation_files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../steinhaus_johnson_trotter/index.html">steinhaus_johnson_trotter</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">type_variations</a></li>
+      <li class="breadcrumb-item active">type_variations.steinhaus_johnson_trotter_list</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/type_variations/steinhaus_johnson_trotter_list/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-type_variations.steinhaus_johnson_trotter_list">
+<span id="type-variations-steinhaus-johnson-trotter-list"></span><h1>type_variations.steinhaus_johnson_trotter_list<a class="headerlink" href="#module-type_variations.steinhaus_johnson_trotter_list" title="Link to this heading"></a></h1>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList" title="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SteinhausJohnsonTrotterList</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">type_variations.steinhaus_johnson_trotter_list.</span></span><span class="sig-name descname"><span class="pre">SteinhausJohnsonTrotterList</span></span><a class="reference internal" href="../../../_modules/type_variations/steinhaus_johnson_trotter_list.html#SteinhausJohnsonTrotterList"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList" title="Link to this definition"></a></dt>
+<dd><dl class="py attribute">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.LEFT_TO_RIGHT">
+<span class="sig-name descname"><span class="pre">LEFT_TO_RIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.LEFT_TO_RIGHT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.RIGHT_TO_LEFT">
+<span class="sig-name descname"><span class="pre">RIGHT_TO_LEFT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.RIGHT_TO_LEFT" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.searchArr">
+<span class="sig-name descname"><span class="pre">searchArr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mobile</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/type_variations/steinhaus_johnson_trotter_list.html#SteinhausJohnsonTrotterList.searchArr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.searchArr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.getMobile">
+<span class="sig-name descname"><span class="pre">getMobile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/type_variations/steinhaus_johnson_trotter_list.html#SteinhausJohnsonTrotterList.getMobile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.getMobile" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.get_sjt_permutations">
+<span class="sig-name descname"><span class="pre">get_sjt_permutations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../../_modules/type_variations/steinhaus_johnson_trotter_list.html#SteinhausJohnsonTrotterList.get_sjt_permutations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#type_variations.steinhaus_johnson_trotter_list.SteinhausJohnsonTrotterList.get_sjt_permutations" title="Link to this definition"></a></dt>
+<dd><p>Generate permutations using the Steinhaus-Johnson-Trotter algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>n</strong> (<em>int</em>) – The number of elements in the permutation.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../stachowiak_tuple_verhoeff_list/index.html" class="btn btn-neutral float-left" title="type_variations.stachowiak_tuple_verhoeff_list" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../steinhaus_johnson_trotter_numpy/index.html" class="btn btn-neutral float-right" title="type_variations.steinhaus_johnson_trotter_numpy" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

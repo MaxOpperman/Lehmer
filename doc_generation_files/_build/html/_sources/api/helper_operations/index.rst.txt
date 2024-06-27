@@ -1,0 +1,16 @@
+helper_operations
+=================
+
+.. py:module:: helper_operations
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /api/helper_operations/path_operations/index
+   /api/helper_operations/permutation_graphs/index
+
+

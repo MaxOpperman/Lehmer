@@ -1,0 +1,21 @@
+API Reference
+=============
+
+This page contains auto-generated API reference documentation [#f1]_.
+
+.. toctree::
+   :titlesonly:
+
+   /autoapi/permute/index
+   /autoapi/verhoeff/index
+   /autoapi/pathmarker/index
+   /autoapi/stachowiak/index
+   /autoapi/cycle_cover/index
+   /autoapi/visualization/index
+   /autoapi/type_variations/index
+   /autoapi/helper_operations/index
+   /autoapi/connect_cycle_cover/index
+   /autoapi/figure_generation_files/index
+   /autoapi/steinhaus_johnson_trotter/index
+
+.. [#f1] Created with `sphinx-autoapi <https://github.com/readthedocs/sphinx-autoapi>`_

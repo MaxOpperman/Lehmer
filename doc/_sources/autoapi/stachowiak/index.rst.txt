@@ -1,0 +1,361 @@
+stachowiak
+==========
+
+.. py:module:: stachowiak
+
+
+Attributes
+----------
+
+.. autoapisummary::
+
+   stachowiak.parser
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   stachowiak._generate_all_di
+   stachowiak._generate_all_di_prime
+   stachowiak.lemma2_cycle
+   stachowiak.lemma2_extended_path
+   stachowiak._lemma8_helper
+   stachowiak._lemma7_constructor
+   stachowiak.lemma7
+   stachowiak._cut_cycle_start_end
+   stachowiak._lemma8_g_i_sub_graphs
+   stachowiak._lemma9_glue_a_edges
+   stachowiak.lemma8
+   stachowiak.lemma9
+   stachowiak._lemma10_subcycle_cutter
+   stachowiak._lemma10_helper
+   stachowiak.lemma10
+   stachowiak.lemma11
+
+
+Module Contents
+---------------
+
+.. py:function:: _generate_all_di(chain_p: tuple[int, Ellipsis]) -> list[tuple[int, Ellipsis]]
+
+   Generate all possible `d_i` chains based on the given `chain_p`.
+   This function corresponds to the start of the proof of Lemma 2 (case 2.1 if the length of `chain_p` even).
+
+   :param chain_p: The chain of `p` elements in the lemma.
+   :type chain_p: tuple[int, ...]
+
+   :returns:     All possible `d_i` chains. Each `d_i` chain is represented as a list of tuples of integers:
+                 `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`.
+                 This is for every `0 <= i <= p`.
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: _generate_all_di_prime(chain_p: tuple[int, Ellipsis]) -> list[tuple[int, Ellipsis]]
+
+   Generate all possible `d_i` chains based on the given `chain_p`.
+   This function corresponds to the start of the proof of Lemma 2 (case 2.2 if the length of `chain_p` even).
+
+   :param chain_p: The chain of p elements in Lemma 2.
+   :type chain_p: tuple[int, ...]
+
+   :returns:     All possible `d_i'` chains. Each `d_i'` chain is represented as a list of tuples of integers:
+                 `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`.
+                 This is for every `0 <= i <= p`.
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: lemma2_cycle(chain_p: tuple[int, Ellipsis], case_2_1=True) -> list[tuple[int, Ellipsis]]
+
+   This function generates the cycles of Lemma 2.
+   If the length of the `chain_p` is even the last two nodes are discarded as in the lemma.
+   Defaults to case 2.1 of Lemma 2. If the `case_2_1` variable is set to `False`, the cycle will be as in case 2.2. The discarded nodes are:
+
+   - `d_p = (01 l^p, 10 l^p)` for case 2.1
+   - `d_p' = (l^p 01, l^p 10)` for case 2.2
+
+   :param chain_p: The chain of p elements in the lemma
+   :type chain_p: tuple[int, ...]
+   :param case_2_1: Whether the case is 2.1 or 2.2. Defaults to `True`.
+
+                    - `True` ==> Case 2.1 with all `d_i` paths.
+                    - `False` ==> Case 2.2 with all `d_i'` paths.
+   :type case_2_1: bool, optional
+
+   :returns:     The cycle of all `d_i` or `d_i'` paths.
+                 If the length of `chain_p` is even, `d_p` or `d_p'` is discarded respectively to the input for `case_2_1`.
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: lemma2_extended_path(chain_p: tuple[int, Ellipsis], case_2_1=True) -> list[tuple[int, Ellipsis]]
+
+   Extends the cycle of Lemma 2 with the last two elements in case `chain_p` is even.
+   If the length of `chain_p` is odd, then the cycle is returned.
+   Defaults to case 2.1 of Lemma 2. If the `case_2_1` variable is set to `False`, the path will be as in case 2.2.
+
+   If `chain_p` is even, the two nodes which are appended to the path are;
+
+   - `d_p = (01 l^p, 10 l^p)` for case 2.1
+   - `d_p' = (l^p 01, l^p 10)` for case 2.2
+
+   :param chain_p: The chain of p elements in the lemma.
+   :type chain_p: tuple[int, ...]
+   :param case_2_1: Whether the case is 2.1 or 2.2. Defaults to `True`.
+
+                    - `True` ==> Case 2.1 with all `d_i` paths.
+                    - `False` ==> Case 2.2 with all `d_i'` paths.
+   :type case_2_1: bool, optional
+
+   :returns:     The cycle of all `d_i` or `d_i'` paths extended with the two nodes that are left out if the length of `chain_p` is even.
+
+                 - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`
+                 - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: _lemma8_helper(sig_occ: list[tuple[int, int]]) -> tuple[list[tuple[int, Ellipsis]], list[tuple[int, Ellipsis]]]
+
+   Helper function for Lemma 8 of Stachowiak:
+   The graph `G=GE( (char_0|char_1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
+   `k^q` is a chain of q elements "k", `l^p` is a chain of p elements "l".
+   We say the first element is `char_0` and the second element is `char_1`.
+
+   :param sig_occ: The signature of the neighbor-swap graph; `[1, 1, q, p]`.
+                   It has the form `[(int, 1), (int, 1), (int, q), (int, p)]`.
+                   The first two integers are of different colors and occur once.
+                   The last two integers are of different colors and can occur any number of times >= 0.
+   :type sig_occ: list[tuple[int, int]]
+
+   :returns:     A Hamiltonian cycle of the form `(char_0|char_1) (k^q|l^p)`.
+                 So the first two elements are always before the last two elements but their internal order can differ.
+   :rtype: tuple[list[tuple[int, ...]], list[tuple[int, ...]]]
+
+   :raises AssertionError: If the first two elements do not occur once.
+   :raises AssertionError: If the first two elements are not of different colors.
+   :raises AssertionError: If the last two elements are not of different colors.
+   :raises AssertionError: If the last two elements occur less than 0 times.
+
+
+.. py:function:: _lemma7_constructor(sig: list[int]) -> tuple[list[tuple[int, Ellipsis]], list[tuple[int, Ellipsis]]]
+
+   Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
+   Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
+
+   :param sig: The signature of the graph in the form `[1, 1, q, p]`.
+               The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
+               Colors 0 and 1 occur once, colors 2 and 3 occur q and p times respectively.
+               The first two elements are of different colors and the last two elements are of different colors than each other.
+   :type sig: list[int]
+
+   :returns:     A tuple of the q set and the suffix.
+
+                 - The q set is the 01 or 10 part, i.e. the first two nodes of the permutations.
+                 - The suffix set is the k^q and the l^p part permuted, i.e. the rest of the permutation
+   :rtype: tuple[list[tuple[int, ...]], list[tuple[int, ...]]]
+
+
+.. py:function:: lemma7(sig: list[int]) -> list[tuple[int, Ellipsis]]
+
+   Computes Lemma 7 by Stachowiak: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
+
+   :param sig: The signature of the graph in the form `[1, 1, q, p]`.
+               The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
+   :type sig: list[int]
+
+   :returns: A Hamiltonian cycle of the form `(0|1) (k^q|l^p)`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: _cut_cycle_start_end(cyc: list[tuple[int, Ellipsis]], x: tuple[int, Ellipsis], y: tuple[int, Ellipsis]) -> list[tuple[int, Ellipsis]]
+
+   Makes sure `x` is the start node of a given cycle `cyc` and `y` is the end node.
+
+   :param cyc: Cycle in a subgraph.
+   :type cyc: list[tuple[int, ...]]
+   :param x: Node that should be at the start of the path.
+   :type x: tuple[int, ...]
+   :param y: Node that should be at the end of the path.
+   :type y: tuple[int, ...]
+
+   :returns: Subgraph with `x` as start and `y` as end.
+   :rtype: list[tuple[int, ...]]
+
+   :raises AssertionError: If `x` and `y` are not adjacent.
+   :raises AssertionError: If `cyc` is not a cycle.
+   :raises AssertionError: If `x` or `y` is not in the cycle.
+
+
+.. py:function:: _lemma8_g_i_sub_graphs(k_q: tuple[int, Ellipsis], l_p: tuple[int, Ellipsis]) -> list[list[tuple[int, Ellipsis]]]
+
+   Creates the G_i sub graphs of Lemma 8 by making the G_ij sub graphs and connecting them as in the lemma.
+   G_{ij} is one of three cases:
+
+   - G_{ij} = GE( l^(2j) (0 | l) l^(p-i-2j-1) 1(l^i | k^q) )           for 0 <= j < (p-i)/2
+
+   - G_{ij} = GE( l^(p-i) (0 | 1) (l^i | k^q) )                        for j = (p-i)/2
+
+   - G_{ij} = GE( l^(2(p-i-j)) (l | 1) l^(i+2j-p-1) 0(l^i | k^q) )     for (p-i)/2 < j <= p-i
+
+   These subgraphs are connected by nodes y_{ij}, x_{i(j+1)} for different x_ij:
+
+   - x_{ij} = l^(2j) 0 l^(p-i-2j) 1 l^i k^q for 0 <= j < (p-i)/2
+
+   - x_{ij} = l^(p-i) 0 1 l^i k^q for j = (p-i)/2
+
+   - x_{ij} = l^(2(p-i-j)+1) 1 l^(i+2j-p-1) l^i k^q for (p-i)/2 < j <= p-i
+
+   And y_{ij}:
+
+   - y_{ij} = l^(2j+1) 0 l^(p-i-2j-1) 1 l^i k^q for 0 <= j < (p-i)/2
+
+   - y_{ij} = l^(p-i) 1 0 l^i k^q for j = (p-i)/2
+
+   - y_{ij} = l^(2(p-i-j)) 1 l^(i+2j-p) l^i k^q for (p-i)/2 < j <= p-i
+
+
+   :param k_q: Chain of q elements "k"
+   :type k_q: tuple[int, ...]
+   :param l_p: Chain of p element "l"
+   :type l_p: tuple[int, ...]
+
+   :returns:     List of `G_i` sub graphs: `G_i = G( (0 | l^(p-i) 1(k^q | l^i)), (1 | l^(p-i) 0(k^q | l^i)) )`
+   :rtype: list[list[tuple[int, ...]]]
+
+
+.. py:function:: _lemma9_glue_a_edges(k_r: tuple[int, Ellipsis], k_s: tuple[int, Ellipsis], l_p: tuple[int, Ellipsis], sub_cycles: list[tuple[int, Ellipsis]]) -> list[tuple[int, Ellipsis]]
+
+   Glues the a_i edges from Lemma 8 by Stachowiak together to create the final cycle.
+   `a_i = ( 0 l^(p-i) 1 l^i k^q, 0 l^(p-i) 1 l^(i-1) k l k^q )`
+
+   :param k_r: Chain of r elements "k"
+   :type k_r: tuple[int, ...]
+   :param k_s: Chain of s elements "k" (so  the same element as k_r but maybe a different length)
+   :type k_s: tuple[int, ...]
+   :param l_p: Chain of p elements "l" (different from k_r and k_s)
+   :type l_p: tuple[int, ...]
+   :param sub_cycles: Sub cycles created by gluing y_{ij}, x_{i(j+1)} from Lemma 8
+   :type sub_cycles: list[tuple[int, ...]]
+
+   :returns:     Cycle of all sub cycles glued together. Has the form `GE( (k^r (0|1) k^s) | l^p) )`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: lemma8(sig: list[int]) -> list[tuple[int, Ellipsis]]
+
+   The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
+
+   :param sig: The signature of the neighbor-swap graph; 1, 1, q, p.
+               We assume the first two elements are of colors 0 and 1 and occur once.
+               The second two elements are of colors 2 and 3 and occur q and p times respectively.
+   :type sig: list[int]
+
+   :returns: A Hamiltonian cycle of the form `GE((0|1) k^q) | l^p)`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: lemma9(sig: list[int]) -> list[tuple[int, Ellipsis]]
+
+   The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
+
+   :param sig: The signature of the neighbor-swap graph; [1, 1, r, s, p]. We assume:
+
+               - The first two elements are of colors 0 and 1 respectively and occur once.
+               - The second two elements are of color 2 and occur r and s times respectively.
+               - The fourth element is of color 3 and occurs p times.
+   :type sig: list[int]
+
+   :returns:     A Hamiltonian cycle of the form `GE( (k^r (0|1) k^s) | l^p) )`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: _lemma10_subcycle_cutter(cycle: list[tuple[int, Ellipsis]], gi: list[tuple[int, Ellipsis]], edge_i: tuple[tuple[int, Ellipsis], tuple[int, Ellipsis]], edge_j: tuple[tuple[int, Ellipsis], tuple[int, Ellipsis]]) -> tuple[list[tuple[int, Ellipsis]], list[tuple[int, Ellipsis]]]
+
+   Cuts the old cycle and gi (to add) to change them for Lemma 10 by Stachowiak.
+   We want to glue the `cycle` and `gi` together at the `edge_i` and `edge_j` nodes.
+
+   :param cycle: The old cycle to cut for lemma 10.
+   :type cycle: list[tuple[int, ...]]
+   :param gi: The subgraph to cut for lemma 10, will be added later.
+   :type gi: list[tuple[int, ...]]
+   :param edge_i: The edge that should be at the start of gi, i.e. position 0 and 1 in `gi`.
+   :type edge_i: tuple[tuple[int, ...], tuple[int, ...]]
+   :param edge_j: The edge that should be the point at which the cycle is cut, i.e. position 0 and -1 in `cycle`.
+   :type edge_j: tuple[tuple[int, ...], tuple[int, ...]]
+
+   :returns:    The modified cycle and gi.
+
+                - The gi starts with `edge_i[0]` and `edge_i[1]` is the second node.
+                - The cycle starts with `edge_j[0]` and `edge_j[1]` is the last node.
+   :rtype: tuple[list[tuple[int, ...]], list[tuple[int, ...]]]
+
+
+.. py:function:: _lemma10_helper(K: list[tuple[int, Ellipsis]], p: int, new_color: int) -> list[tuple[int, Ellipsis]]
+
+   Helper function for lemma 10, constructs a cycle by adding color `new_color`, which occurs `p` times, to the graph
+
+   :param K: A Hamiltonian path in `Q` being `[K_1, K_2, ..., K_2n]`.
+             Every K_i is isomorphic to some `G_i = G(K_{2i-1} | l^p, K_{2i} | l^p)` for `1 <= i <= n`.
+             And every `G_i` is isomorphic to `G_i = G((k^r (0 | 1) k^s) | l^p)`, i.e. the graph from lemma 9.
+   :type K: list[tuple[int, ...]]
+   :param p: The length of the last part of the signature (`l^p`)
+   :type p: int
+   :param new_color: The new color to add to the graph (to transform `l^p`)
+   :type new_color: int
+
+   :returns: Hamiltonian cycle over `GE(Q | l^p)`
+   :rtype: list[tuple[int, ...]]
+
+
+.. py:function:: lemma10(sig: list[int]) -> list[tuple[int, Ellipsis]]
+
+   Computes Lemma 10 by Stachowiak:
+   If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
+   Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
+
+   :param sig: The signature of the graph; `Q` is the first two elements, `p` is the third.
+               `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
+               `p` is the third element of sig and has color 2 and occurs `p` times.
+   :type sig: list[int]
+
+   :returns:     A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|l^p)`
+   :rtype: list[tuple[int, ...]]
+
+   :raises AssertionError: If the signature is not well-formed. The first two elements must be able to form a Hamiltonian path of even length > 2.
+
+
+.. py:function:: lemma11(sig: list[int]) -> list[tuple[int, Ellipsis]]
+
+   Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
+   If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
+
+   :param sig: A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
+               These two elements are set to the front of the signature using a recursive call.
+               Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).
+               The rest of the signature is processed using Stachowiak's lemmas.
+   :type sig: list[int]
+
+   :returns:     A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|P)`. `Q` is this Hamiltonian path and `P` is the rest of the signature
+   :rtype: list[tuple[int, ...]]
+
+   :raises ValueError: If the signature is empty.
+   :raises ValueError: There are no elements that can form a Hamiltonian path.
+
+   .. rubric:: Notes
+
+   - If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path, then `GE(Q|P)` has a Hamiltonian cycle.
+   - The function first checks the length of the signature and handles special cases where the signature has only one or two elements.
+   - If the signature is not ordered well, it transforms the signature and recursively calls the function with the transformed signature. The order is well when the first two elements are the largest odd numbers.
+   - If the first two elements in the signature can form a cycle (more than two permutations), it uses Verhoeff's Theorem to find the cycle.
+   - If the first 3 (or more) elements are 1, it uses the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle.
+   - If the third element in the signature is not 0, it uses Stachowiak's Lemma 2 to find a Hamiltonian path in `GE(Q|l^{sig[2]})`.
+   - Finally, it iterates over the remaining elements in the signature and calls the helper function _lemma10_helper to extend the cycle.
+
+   .. rubric:: References
+
+   - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+   - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)
+
+
+.. py:data:: parser
+

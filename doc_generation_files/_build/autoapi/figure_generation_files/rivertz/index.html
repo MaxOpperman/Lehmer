@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>figure_generation_files.rivertz &mdash; Lehmer Paths in Neighbor-Swap Graphs  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=19f00094" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="figure_generation_files.timetests" href="../timetests/index.html" />
+    <link rel="prev" title="figure_generation_files" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            Lehmer Paths in Neighbor-Swap Graphs
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../permute/index.html">permute</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../verhoeff/index.html">verhoeff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pathmarker/index.html">pathmarker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../stachowiak/index.html">stachowiak</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../cycle_cover/index.html">cycle_cover</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../visualization/index.html">visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../type_variations/index.html">type_variations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../helper_operations/index.html">helper_operations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../connect_cycle_cover/index.html">connect_cycle_cover</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">figure_generation_files</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">figure_generation_files.rivertz</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../timetests/index.html">figure_generation_files.timetests</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../verhoeffCycleCoverPaths/index.html">figure_generation_files.verhoeffCycleCoverPaths</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../steinhaus_johnson_trotter/index.html">steinhaus_johnson_trotter</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">Lehmer Paths in Neighbor-Swap Graphs</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">figure_generation_files</a></li>
+      <li class="breadcrumb-item active">figure_generation_files.rivertz</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/figure_generation_files/rivertz/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-figure_generation_files.rivertz">
+<span id="figure-generation-files-rivertz"></span><h1>figure_generation_files.rivertz<a class="headerlink" href="#module-figure_generation_files.rivertz" title="Link to this heading"></a></h1>
+<p>This file is directly copied from the original source code of the article:
+“Multiset permutation generation by transpositions” by Rivertz
+The original source code is available at: <a class="reference external" href="https://doi.org/10.48550/arXiv.2309.11781">https://doi.org/10.48550/arXiv.2309.11781</a></p>
+<p>Therefore we also did not test this file as it is not part of our codebase.</p>
+<section id="classes">
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#figure_generation_files.rivertz.SetPerm" title="figure_generation_files.rivertz.SetPerm"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SetPerm</span></code></a></p></td>
+<td><p>Helper class that provides a standard way to create an ABC using</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#figure_generation_files.rivertz.swap_elements" title="figure_generation_files.rivertz.swap_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swap_elements</span></code></a>(a_list, i, j)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="figure_generation_files.rivertz.swap_elements">
+<span class="sig-prename descclassname"><span class="pre">figure_generation_files.rivertz.</span></span><span class="sig-name descname"><span class="pre">swap_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/figure_generation_files/rivertz.html#swap_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#figure_generation_files.rivertz.swap_elements" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="figure_generation_files.rivertz.SetPerm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">figure_generation_files.rivertz.</span></span><span class="sig-name descname"><span class="pre">SetPerm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">multiplicity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/figure_generation_files/rivertz.html#SetPerm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#figure_generation_files.rivertz.SetPerm" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">collections.abc.Iterator</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Helper class that provides a standard way to create an ABC using
+inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="figure_generation_files.rivertz.SetPerm.__next__">
+<span class="sig-name descname"><span class="pre">__next__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/figure_generation_files/rivertz.html#SetPerm.__next__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#figure_generation_files.rivertz.SetPerm.__next__" title="Link to this definition"></a></dt>
+<dd><p>Return the next item from the iterator. When exhausted, raise StopIteration</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="figure_generation_files.rivertz.SetPerm.swap">
+<span class="sig-name descname"><span class="pre">swap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">j</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/figure_generation_files/rivertz.html#SetPerm.swap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#figure_generation_files.rivertz.SetPerm.swap" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="figure_generation_files.rivertz.SetPerm.one_step">
+<span class="sig-name descname"><span class="pre">one_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/figure_generation_files/rivertz.html#SetPerm.one_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#figure_generation_files.rivertz.SetPerm.one_step" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="figure_generation_files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../timetests/index.html" class="btn btn-neutral float-right" title="figure_generation_files.timetests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Max Opperman.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

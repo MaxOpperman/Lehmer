@@ -1,0 +1,48 @@
+visualization
+=============
+
+.. py:module:: visualization
+
+
+Functions
+---------
+
+.. autoapisummary::
+
+   visualization.visualize
+   visualization.find_path_colors
+   visualization.plot_graph
+   visualization.point_to_line_distance
+   visualization.is_stutter_permutation
+   visualization.lehmer_path
+
+
+Module Contents
+---------------
+
+.. py:function:: visualize(dict_graph: dict[str, set[str]], dict_inv: dict[tuple, int]) -> tuple[networkx.Graph, dict]
+
+.. py:function:: find_path_colors(edge_colors: dict, graph: networkx.Graph, cli_args: argparse.Namespace, signature: list[int]) -> tuple[list, list]
+
+   Finds the coloring if a possibly imperfect Hamiltonian path exits
+
+
+.. py:function:: plot_graph(graph: networkx.Graph, n_color: list, e_color: list)
+
+.. py:function:: point_to_line_distance(x, y, x1, y1, x2, y2)
+
+.. py:function:: is_stutter_permutation(perm, max_arity)
+
+   Returns whether the permutation is a stutter permutation
+   Always returns False when the permutation has the maximum arity in the graph
+
+
+.. py:function:: lehmer_path(graph: networkx.Graph, cli_args: argparse.Namespace, signature: list[int]) -> tuple[list, list, list]
+
+   Implementation Lehmer's permutations by adjacent interchanges algorithm
+   @param graph: The neighbor-swap graph
+   @param cli_args: Command line arguments
+   @param signature: The permutation signature
+   @return: Lehmer path, spur count, node count
+
+
