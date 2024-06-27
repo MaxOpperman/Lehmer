@@ -1,5 +1,7 @@
 # From https://www.geeksforgeeks.org/johnson-trotter-algorithm/
 # This Code is Contributed by Prasad Kandekar(prasad264)
+import math
+
 import numpy as np
 
 
@@ -36,7 +38,7 @@ class SteinhausJohnsonTrotterNumpy:
         perms = np.vstack((perms, a.copy()))
         dir = np.full(n, self.RIGHT_TO_LEFT)
 
-        for i in range(1, np.math.factorial(n)):
+        for i in range(1, math.factorial(n)):
             mobile = self.getMobile(a, dir, n)
             pos = self.searchArr(a, n, mobile)
 

@@ -12,7 +12,7 @@ import math
 import numpy as np
 import pytest
 
-from helper_operations.path_operations import cycleQ
+from helper_operations.path_operations import cycleQ, pathQ
 from helper_operations.permutation_graphs import multinomial
 from type_variations.stachowiak_numpy import (
     _lemma10_helper,
@@ -21,7 +21,45 @@ from type_variations.stachowiak_numpy import (
     lemma8,
     lemma9,
     lemma11,
+    split_path_in_2,
 )
+
+
+class Test_SpitPathIn2_numpy:
+    # Test the helper function split_path_in_2
+    def test_split_path_in_2_empty(self):
+        with pytest.raises(AssertionError):
+            split_path_in_2(np.array([]), np.array([0, 0]))
+
+    def test_split_path_in_2_single(self):
+        with pytest.raises(AssertionError):
+            split_path_in_2(np.array([[0, 0]]), np.array([0, 0]))
+
+    def test_split_path_in_2_double(self):
+        result = split_path_in_2(np.array([[0, 1], [1, 0]]), np.array([0, 1]))
+        expected_result = (np.array([[0, 1]]), np.array([[1, 0]]))
+        assert np.array_equal(result[0], expected_result[0])
+        assert np.array_equal(result[1], expected_result[1])
+
+    def test_split_path_in_2_triple(self):
+        result = split_path_in_2(np.array([[0, 1], [2, 3], [5, 4]]), np.array([2, 3]))
+        expected_result = (np.array([[0, 1], [2, 3]]), np.array([[5, 4]]))
+        assert np.array_equal(result[0], expected_result[0])
+        assert np.array_equal(result[1], expected_result[1])
+
+    def test_split_path_in_2_four_elements_first_occurence(self):
+        result = split_path_in_2(
+            np.array([[0, 1], [2, 3], [0, 1], [6, 7]]), np.array([0, 1])
+        )
+        expected_result = (np.array([[0, 1]]), np.array([[2, 3], [0, 1], [6, 7]]))
+        assert np.array_equal(result[0], expected_result[0])
+        assert np.array_equal(result[1], expected_result[1])
+
+    def test_split_path_in_2_a_not_in_p(self):
+        with pytest.raises(AssertionError):
+            split_path_in_2(
+                np.array([[0, 1], [2, 3], [0, 1], [6, 7]]), np.array([1, 0])
+            )
 
 
 class Test_Lemma2_numpy:
@@ -768,7 +806,14 @@ class Test_Lemma10_and_11_numpy:
     """
 
     def test_lemma11_1_1_1_1(self):
-        sig = [1, 1, 1, 1]
+        sig = np.array([1, 1, 1, 1])
+        result = lemma11(sig)
+        assert len(result) == len(set(tuple(row) for row in result))
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+    def test_lemma11_1_1_1_1_4(self):
+        sig = np.array([1, 1, 1, 1, 4])
         result = lemma11(sig)
         assert len(result) == len(set(tuple(row) for row in result))
         assert len(result) == multinomial(sig)
@@ -779,7 +824,7 @@ class Test_Lemma10_and_11_numpy:
         result = lemma11(sig)
         assert len(result) == len(set(tuple(row) for row in result))
         assert len(result) == multinomial(sig)
-        assert cycleQ(result)
+        assert pathQ(result)
 
     def test_lemma11_1_1_4_2(self):
         sig = [1, 1, 4, 2]

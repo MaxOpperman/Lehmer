@@ -236,7 +236,7 @@ def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]
     indexed_sig = [(value, idx) for idx, value in enumerate(s)]
     # put the odd numbers first in the signature
     indexed_sig.sort(reverse=True, key=func)
-    return [x[0] for x in indexed_sig], [x[1] for x in indexed_sig]
+    return [x[0] for x in indexed_sig if x[0] != 0], [x[1] for x in indexed_sig]
 
 
 def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
