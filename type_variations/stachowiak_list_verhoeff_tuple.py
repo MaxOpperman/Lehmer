@@ -8,15 +8,64 @@ from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrott
 from verhoeff import HpathNS
 
 
-def lemma10(sig: list[int]):
-    """If q = |Q| > 2, Q is even and GE(Q) contains a Hamiltonian path and p > 0 then GE(Q|l^p) has a Hamiltonian cycle."""
+def lemma10(sig: list[int]) -> list[list[int]]:
+    """
+    Computes Lemma 10 by Stachowiak:
+    If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
+    Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
+
+    Args:
+        sig (list[int]):
+            The signature of the graph; `Q` is the first two elements, `p` is the third.
+            `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
+            `p` is the third element of sig and has color 2 and occurs `p` times.
+
+    Returns:
+        list[list[int]]:
+            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|l^p)`
+
+    Raises:
+        AssertionError:
+            If the signature is not well-formed. The first two elements must be able to form a Hamiltonian path of even length > 2.
+    """
     K = [list(tuple_perm) for tuple_perm in HpathNS(sig[0], sig[1])]
     cycle = _lemma10_helper(K, sig[2], 2)
     return cycle
 
 
 def lemma11(sig: list[int]) -> list[list[int]]:
-    """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
+    """
+    Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
+    If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
+
+    Args:
+        sig (list[int]):
+            A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
+            These two elements are set to the front of the signature using a recursive call.
+            Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).
+            The rest of the signature is processed using Stachowiak's lemmas.
+
+    Returns:
+        list[list[int]]:
+            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|P)`. `Q` is this Hamiltonian path and `P` is the rest of the signature
+
+    Raises:
+        ValueError: If the signature is empty.
+        ValueError: There are no elements that can form a Hamiltonian path.
+
+    Notes:
+        - If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path, then `GE(Q|P)` has a Hamiltonian cycle.
+        - The function first checks the length of the signature and handles special cases where the signature has only one or two elements.
+        - If the signature is not ordered well, it transforms the signature and recursively calls the function with the transformed signature. The order is well when the first two elements are the largest odd numbers.
+        - If the first two elements in the signature can form a cycle (more than two permutations), it uses Verhoeff's Theorem to find the cycle.
+        - If the first 3 (or more) elements are 1, it uses the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle.
+        - If the third element in the signature is not 0, it uses Stachowiak's Lemma 2 to find a Hamiltonian path in `GE(Q|l^{sig[2]})`.
+        - Finally, it iterates over the remaining elements in the signature and calls the helper function _lemma10_helper to extend the cycle.
+
+    References:
+        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)
+    """
     if len(sig) == 0:
         raise ValueError("Signature must have at least one element")
     elif len(sig) == 1:

@@ -18,9 +18,17 @@ from helper_operations.permutation_graphs import (
 def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
     """
     Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
-    @param k0: number of 0s in the signature
-    @param k1: number of 1s in the signature
-    @return: a Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1))
+    If k0 and k1 are both even, the path is a Hamiltonian cycle.
+
+    Args:
+        k0 (int): Number of 0s in the signature.
+        k1 (int): Number of 1s in the signature.
+
+    Returns:
+        list[tuple[int, ...]]: A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
     """
     odd_perms = []
     tuple_0 = tuple(k0 * [0])

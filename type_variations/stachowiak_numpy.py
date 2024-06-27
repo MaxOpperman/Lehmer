@@ -2,20 +2,57 @@ import copy
 
 import numpy as np
 
-from helper_operations.path_operations import adjacent, cutCycle, cycleQ, pathQ
-from helper_operations.permutation_graphs import multinomial
+from helper_operations.path_operations import (
+    adjacent,
+    cutCycle,
+    cycleQ,
+    pathQ,
+    transform,
+)
 from type_variations.steinhaus_johnson_trotter_numpy import SteinhausJohnsonTrotterNumpy
 from type_variations.verhoeff_numpy import HpathNS
 
 
 def split_path_in_2(p: np.ndarray, a: np.array) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Split a path array into two parts based on a given value.
+
+    Args:
+        p (np.ndarray): The path array to be split.
+        a (np.array): The value used to split the path array.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+            A tuple containing two arrays:\n
+            - The first array contains the elements of the path array up to and including the first occurrence of the given value.
+            - The second array contains the elements of the path array after the first occurrence of the given value.
+
+    Raises:
+        AssertionError: If the length of the path array is less than or equal to 1.
+        AssertionError: If `a` is not in `p`.
+    """
     assert len(p) > 1
-    A = np.where((p == a).all(axis=1))[0][0]
+    # find the index of the first occurrence of the given value
+    matches = np.where((p == a).all(axis=1))[0]
+    assert len(matches) > 0
+    A = matches[0]
     return p[: A + 1], p[A + 1 :]
 
 
-def generate_all_di(chain_p: np.ndarray[int]) -> np.ndarray:
-    """This function corresponds to the start of the proof of Lemma 2 (case 2.1 if |P| even)"""
+def _generate_all_di(chain_p: np.ndarray[int]) -> np.ndarray:
+    """
+    Generate all possible `d_i` chains based on the given `chain_p`.
+    This function corresponds to the start of the proof of Lemma 2 (case 2.1 if the length of `chain_p` even).
+
+    Args:
+        chain_p (tuple[int, ...]): The chain of `p` elements in the lemma.
+
+    Returns:
+        list[tuple[int, ...]]:
+            All possible `d_i` chains. Each `d_i` chain is represented as a numpy array of numpy arrays with integers:
+            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`.
+            This is for every `0 <= i <= p`.
+    """
     q = np.array([0, 1], dtype=int)
     d_all = []
 
@@ -51,8 +88,20 @@ def generate_all_di(chain_p: np.ndarray[int]) -> np.ndarray:
     )
 
 
-def generate_all_di_prime(chain_p: np.array) -> np.ndarray:
-    """This function corresponds to the start of the proof of Lemma 2 (case 2.2 if |P| even)"""
+def _generate_all_di_prime(chain_p: np.array) -> np.ndarray:
+    """
+    Generate all possible `d_i` chains based on the given `chain_p`.
+    This function corresponds to the start of the proof of Lemma 2 (case 2.2 if the length of `chain_p` even).
+
+    Args:
+        chain_p (tuple[int, ...]): The chain of p elements in Lemma 2.
+
+    Returns:
+        np.ndarray:
+            All possible `d_i'` chains. Each `d_i'` chain is represented as a numpy array of numpy arrays with integers:
+            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`.
+            This is for every `0 <= i <= p`.
+    """
     q = np.array([0, 1])
     d_all = []
 
@@ -91,18 +140,32 @@ def generate_all_di_prime(chain_p: np.array) -> np.ndarray:
 def lemma2_cycle(chain_p: np.array, case_2_1=True) -> np.ndarray:
     """
     This function generates the cycles of Lemma 2.
-    If |P| is even the last two nodes are discarded as in the Lemma.
-    Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the cycle will be as in case 2.2
+    If the length of the `chain_p` is even the last two nodes are discarded as in the lemma.
+    Defaults to case 2.1 of Lemma 2. If the `case_2_1` variable is set to `False`, the cycle will be as in case 2.2. The discarded nodes are:\n
+    - `d_p = (01 l^p, 10 l^p)` for case 2.1
+    - `d_p' = (l^p 01, l^p 10)` for case 2.2
+
+    Args:
+        chain_p (np.array): The chain of p elements in the lemma
+        case_2_1 (bool, optional):
+            Whether the case is 2.1 or 2.2. Defaults to `True`.\n
+            - `True` ==> Case 2.1 with all `d_i` paths.
+            - `False` ==> Case 2.2 with all `d_i'` paths.
+
+    Returns:
+        np.ndarray:
+            The cycle of all `d_i` or `d_i'` paths.
+            If the length of `chain_p` is even, `d_p` or `d_p'` is discarded respectively to the input for `case_2_1`.
     """
     if case_2_1:
-        d_all = generate_all_di(chain_p)
+        d_all = _generate_all_di(chain_p)
     else:
-        d_all = generate_all_di_prime(chain_p)
+        d_all = _generate_all_di_prime(chain_p)
     # chain_1_1_path, last_elements = [], []
     chain_1_1_path = np.empty((0, len(chain_p) + 2), dtype=int)
     last_elements = np.empty((0, len(chain_p) + 2), dtype=int)
     for index, d_i in enumerate(d_all):
-        # in case the |P| is even, don't add the elements 01l^p and 10l^p
+        # in case the |P| is even, don't add the elements 01l^p and 10l^p or l^p01 and l^p10 respectively to case 2.1 or 2.2
         if index == len(d_all) - 1 and len(d_all) % 2 == 1:
             continue
         # never add the last elements, those will be added at the end to create a cycle
@@ -115,15 +178,30 @@ def lemma2_cycle(chain_p: np.array, case_2_1=True) -> np.ndarray:
         last_elements = np.vstack((last_elements, [d_i[-1]]))
     # add the last elements of every d_i to complete the cycle
     cycle = np.concatenate((np.flip(last_elements, axis=0), chain_1_1_path), axis=0)
-    assert cycleQ(cycle)
     return cycle
 
 
 def lemma2_extended_path(chain_p: np.array, case_2_1=True) -> np.ndarray:
     """
-    Extends the cycle of Lemma 2 with the last two elements in case |P| is even
-    if |P| odd the cycle is returned
-    Defaults to case 2.1 of Lemma 2. If the case_2_1 variable is set to false, the path will be as in case 2.2
+    Extends the cycle of Lemma 2 with the last two elements in case `chain_p` is even.
+    If the length of `chain_p` is odd, then the cycle is returned.
+    Defaults to case 2.1 of Lemma 2. If the `case_2_1` variable is set to `False`, the path will be as in case 2.2.\r\n
+    If `chain_p` is even, the two nodes which are appended to the path are;\n
+    - `d_p = (01 l^p, 10 l^p)` for case 2.1
+    - `d_p' = (l^p 01, l^p 10)` for case 2.2
+
+    Args:
+        chain_p (np.array): The chain of p elements in the lemma.
+        case_2_1 (bool, optional):
+            Whether the case is 2.1 or 2.2. Defaults to `True`.\n
+            - `True` ==> Case 2.1 with all `d_i` chains.
+            - `False` ==> Case 2.2 with all `d_i'` chains.
+
+    Returns:
+        np.ndarray:
+            The cycle of all `d_i` or `d_i'` chains extended with the two nodes that are left out if the length of `chain_p` is even.\n
+            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`
+            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`
     """
     cycle = lemma2_cycle(chain_p, case_2_1)
     if len(chain_p) % 2 == 0:
@@ -145,8 +223,28 @@ def lemma2_extended_path(chain_p: np.array, case_2_1=True) -> np.ndarray:
 
 def _lemma8_helper(sig_occ: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """
-    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-    We assume sig_occ has the form [(char, 1), (char, 1), (char, q), (char, p)]
+    Helper function for Lemma 8 of Stachowiak:
+    The graph `G=GE( (char_0|char_1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
+    `k^q` is a chain of q elements "k", `l^p` is a chain of p elements "l".
+    We say the first element is `char_0` and the second element is `char_1`.
+
+    Args:
+        sig_occ (np.ndarray):
+            The signature of the neighbor-swap graph; `[1, 1, q, p]`.
+            It has the form `[(int, 1), (int, 1), (int, q), (int, p)]`.
+            The first two integers are of different colors and occur once.
+            The last two integers are of different colors and can occur any number of times >= 0.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+            A Hamiltonian cycle of the form `(char_0|char_1) (k^q|l^p)`.
+            So the first two elements are always before the last two elements but their internal order can differ.
+
+    Raises:
+        AssertionError: If the first two elements do not occur once.
+        AssertionError: If the first two elements are not of different colors.
+        AssertionError: If the last two elements are not of different colors.
+        AssertionError: If the last two elements occur less than 0 times.
     """
     first_char = sig_occ[0][0]
     second_char = sig_occ[1][0]
@@ -197,38 +295,62 @@ def _lemma8_helper(sig_occ: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         return all_q, result
 
 
-def _lemma7_constructor(sig: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+def _lemma7_constructor(sig: np.array) -> tuple[np.ndarray, np.ndarray]:
     """
-    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-    We assume sig has the form [1, 1, q, p]
+    Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
+    Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
+
+    Parameters:
+        sig (np.array):
+            The signature of the graph in the form `[1, 1, q, p]`.
+            The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
+            Colors 0 and 1 occur once, colors 2 and 3 occur q and p times respectively.
+            The first two elements are of different colors and the last two elements are of different colors than each other.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+            A tuple of the q set and the suffix.\n
+            - The q set is the 01 or 10 part, i.e. the first two nodes of the permutations.
+            - The suffix set is the k^q and the l^p part permuted, i.e. the rest of the permutation
     """
     return _lemma8_helper(
         np.array([[0, 1], [1, 1], [2, sig[2]], [3, sig[3]]], dtype=np.int32)
     )
 
 
-def lemma7(sig: np.ndarray) -> np.ndarray:
+def lemma7(sig: np.array) -> np.ndarray:
     """
-    The graph G=GE( (0|1) (k^q|l^p) ) contains a Hamilton cycle for every p, q > 0
-    We assume sig has the form [1, 1, q, p]
+    Computes Lemma 7 by Stachowiak: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
+
+    Args:
+        sig (np.array):
+            The signature of the graph in the form `[1, 1, q, p]`.
+            The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
+
+    Returns:
+        np.ndarray: A Hamiltonian cycle of the form `(0|1) (k^q|l^p)`
     """
     q, suffix = _lemma7_constructor(sig)
     cycle = np.array([np.concatenate((q[i], suffix[i])) for i in range(len(q))])
-    try:
-        assert cycleQ(cycle)
-    except AssertionError as e:
-        print(f"{repr(e)} in Lemma 7 for cycle: {cycle}")
-        raise e
     return cycle
 
 
-def _cycle_cut_start_end(cyc: np.ndarray, x: np.array, y: np.array) -> np.ndarray:
+def _cut_cycle_start_end(cyc: np.ndarray, x: np.array, y: np.array) -> np.ndarray:
     """
-     Makes sure x is the start node of the subgraph and y is the end node
-    :param cyc: cycle in a subgraph
-    :param x: node that should be at the start of the path
-    :param y: node that should be at the end of the path
-    :return: subgraph with x as start and y as end
+    Makes sure `x` is the start node of a given cycle `cyc` and `y` is the end node.
+
+    Args:
+        cyc (np.ndarray): Cycle in a subgraph.
+        x (np.array): Node that should be at the start of the path.
+        y (np.array): Node that should be at the end of the path.
+
+    Returns:
+        np.ndarray: Subgraph with `x` as start and `y` as end.
+
+    Raises:
+        AssertionError: If `x` and `y` are not adjacent.
+        AssertionError: If `cyc` is not a cycle.
+        AssertionError: If `x` or `y` is not in the cycle.
     """
     try:
         assert adjacent(x, y)
@@ -250,17 +372,32 @@ def _cycle_cut_start_end(cyc: np.ndarray, x: np.array, y: np.array) -> np.ndarra
         res = np.flip(np.vstack((cyc_cut[1:], cyc_cut[:1])), axis=0)
         assert cycleQ(res)
         return res
-    assert cycleQ(cyc_cut)
     return cyc_cut
 
 
-def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.ndarray) -> np.ndarray:
+def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.array) -> np.ndarray:
     """
-    Creates the G_i sub graphs of Lemma 8 (by making the G_ij sub graphs and connecting them)
-    :param k_q: chain of q elements "k"
-    :param l_p: chain of p element "l"
-    :param sig: signature of the sequence; form 1,1,q,p
-    :return: [ G_1, G_2, ... ]
+    Creates the G_i sub graphs of Lemma 8 by making the G_ij sub graphs and connecting them as in the lemma.
+    G_{ij} is one of three cases:\n
+    - G_{ij} = GE( l^(2j) (0 | l) l^(p-i-2j-1) 1(l^i | k^q) )           for 0 <= j < (p-i)/2\n
+    - G_{ij} = GE( l^(p-i) (0 | 1) (l^i | k^q) )                        for j = (p-i)/2\n
+    - G_{ij} = GE( l^(2(p-i-j)) (l | 1) l^(i+2j-p-1) 0(l^i | k^q) )     for (p-i)/2 < j <= p-i\r\n
+    These subgraphs are connected by nodes y_{ij}, x_{i(j+1)} for different x_ij:\n
+    - x_{ij} = l^(2j) 0 l^(p-i-2j) 1 l^i k^q for 0 <= j < (p-i)/2\n
+    - x_{ij} = l^(p-i) 0 1 l^i k^q for j = (p-i)/2\n
+    - x_{ij} = l^(2(p-i-j)+1) 1 l^(i+2j-p-1) l^i k^q for (p-i)/2 < j <= p-i\r\n
+    And y_{ij}:\n
+    - y_{ij} = l^(2j+1) 0 l^(p-i-2j-1) 1 l^i k^q for 0 <= j < (p-i)/2\n
+    - y_{ij} = l^(p-i) 1 0 l^i k^q for j = (p-i)/2\n
+    - y_{ij} = l^(2(p-i-j)) 1 l^(i+2j-p) l^i k^q for (p-i)/2 < j <= p-i\n
+
+    Args:
+        k_q (np.array): Chain of q elements "k"
+        l_p (np.array): Chain of p element "l"
+
+    Returns:
+        np.ndarray:
+            List of `G_i` sub graphs: `G_i = G( (0 | l^(p-i) 1(k^q | l^i)), (1 | l^(p-i) 0(k^q | l^i)) )`
     """
     g_all = []
     for i in range(1, len(l_p) + 1):
@@ -302,7 +439,7 @@ def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.ndarray) -> np.
                 )
             # j == (p-i)/2
             elif j == (len(l_p) - i) / 2:
-                l7_subgraph = lemma7(np.concatenate((sig[:3], [i])))
+                l7_subgraph = lemma7(np.array([1, 1, len(k_q), i]))
                 for item in l7_subgraph:
                     g_ij = np.vstack((g_ij, np.array([*l_p[: len(l_p) - i], *item])))
                 x_ij = np.array([*l_p[: len(l_p) - i], 0, 1, *l_p[:i], *k_q])
@@ -347,7 +484,7 @@ def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.ndarray) -> np.
                         *k_q,
                     ]
                 )
-            g_ij = _cycle_cut_start_end(g_ij, x_ij, y_ij)
+            g_ij = _cut_cycle_start_end(g_ij, x_ij, y_ij)
             g_i = np.vstack((g_i, g_ij))
 
         if np.array_equal(
@@ -360,22 +497,31 @@ def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.ndarray) -> np.
 
 
 def _lemma9_glue_a_edges(
-    k_r: np.array, k_s: np.array, l_p: np.array, p: int, sub_cycles: np.ndarray
+    k_r: np.array,
+    k_s: np.array,
+    l_p: np.array,
+    sub_cycles: np.ndarray,
 ) -> np.ndarray:
     """
-    Glues the a_i edges from Lemma8 together to create the final cycle
-    :param k_r: chain of r elements "k"
-    :param k_s: chain of s elements "k"
-    :param l_p: chain of p element "l"
-    :param p: number of l elements (sig[3])
-    :param sub_cycles: sub cycles created by gluing y_ij, y_ij+1
-    :return: Cycle of all sub cycles glued together
+    Glues the a_i edges from Lemma 8 by Stachowiak together to create the final cycle.
+    `a_i = ( 0 l^(p-i) 1 l^i k^q, 0 l^(p-i) 1 l^(i-1) k l k^q )`
+
+    Args:
+        k_r (np.array): Chain of r elements "k"
+        k_s (np.array): Chain of s elements "k" (so  the same element as k_r but maybe a different length)
+        l_p (np.array): Chain of p elements "l" (different from k_r and k_s)
+        sub_cycles (np.ndarray): Sub cycles created by gluing y_{ij}, x_{i(j+1)} from Lemma 8
+
+    Returns:
+        np.ndarray:
+            Cycle of all sub cycles glued together. Has the form `GE( (k^r (0|1) k^s) | l^p) )`
     """
     # make the a1 path, we have as first part of the cycle a11~path~a12
     if len(l_p) == 0:
         return sub_cycles
+    p = len(l_p)
     if len(k_s) > 0:
-        g_result_start = _cycle_cut_start_end(
+        g_result_start = _cut_cycle_start_end(
             np.asarray(sub_cycles[0], dtype=int),
             np.concatenate(
                 (
@@ -392,7 +538,7 @@ def _lemma9_glue_a_edges(
             ),
         )
     else:
-        g_result_start = _cycle_cut_start_end(
+        g_result_start = _cut_cycle_start_end(
             np.asarray(sub_cycles[0], dtype=int),
             np.concatenate(
                 (
@@ -425,7 +571,7 @@ def _lemma9_glue_a_edges(
             ),
             dtype=int,
         )
-        cyc = _cycle_cut_start_end(np.asarray(sub_cycles[i], dtype=int), a_2i_1, a_2i_2)
+        cyc = _cut_cycle_start_end(np.asarray(sub_cycles[i], dtype=int), a_2i_1, a_2i_2)
         # then cut that cycle in 2 by splitting after the next a1 (and thus before the next a2)
         next_a_2 = np.concatenate(
             (
@@ -448,7 +594,7 @@ def _lemma9_glue_a_edges(
             (k_r, np.array([0, 1]), l_p[:-1], np.array([k_s[0], l_p[-1]]), k_s[1:])
         )
         g_result_start = np.concatenate(
-            (g_result_start, _cycle_cut_start_end(sub_cycles[-1], a_last_1, a_last_2))
+            (g_result_start, _cut_cycle_start_end(sub_cycles[-1], a_last_1, a_last_2))
         )
     g_result_start = np.concatenate((g_result_start, np.flip(g_result_end, axis=0)))
     return g_result_start
@@ -456,8 +602,16 @@ def _lemma9_glue_a_edges(
 
 def lemma8(sig: np.array) -> np.ndarray:
     """
-    The graph G=GE( ((0|1) k^q) | l^p) ) contains a Hamilton cycle for every p, q > O.
-    We assume sig has the form [1, 1, q, p]
+    The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
+
+    Args:
+        sig (np.array):
+            The signature of the neighbor-swap graph; 1, 1, q, p.
+            We assume the first two elements are of colors 0 and 1 and occur once.
+            The second two elements are of colors 2 and 3 and occur q and p times respectively.
+
+    Returns:
+        np.ndarray: A Hamiltonian cycle of the form `GE((0|1) k^q) | l^p)`
     """
     k_q = np.full(sig[2], 2, dtype=int)
     l_p = np.full(sig[3], 3, dtype=int)
@@ -514,16 +668,24 @@ def lemma8(sig: np.array) -> np.ndarray:
         [np.array(list(map(np.array, sublist)), dtype=int) for sublist in sub_cycles],
         dtype=object,
     )
-    g_result_start = _lemma9_glue_a_edges(
-        np.array([], dtype=int), k_q, l_p, sig[3], sub_cycles
-    )
+    g_result_start = _lemma9_glue_a_edges(np.array([], dtype=int), k_q, l_p, sub_cycles)
     return g_result_start
 
 
 def lemma9(sig: np.array) -> np.ndarray:
     """
-    The graph G=GE( (k^r (0|1) k^s) | l^p) ) contains a Hamilton cycle for every p, r+s > O.
-    We assume sig has the form [1, 1, r, s, p]
+    The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
+
+    Args:
+        sig (np.array):
+            The signature of the neighbor-swap graph; [1, 1, r, s, p]. We assume:\n
+            - The first two elements are of colors 0 and 1 respectively and occur once.
+            - The second two elements are of color 2 and occur r and s times respectively.
+            - The fourth element is of color 3 and occurs p times.
+
+    Returns:
+        np.ndarray:
+            A Hamiltonian cycle of the form `GE( (k^r (0|1) k^s) | l^p) )`
     """
     k_r = np.full(sig[2], 2)
     k_s = np.full(sig[3], 2)
@@ -610,16 +772,25 @@ def lemma9(sig: np.array) -> np.ndarray:
 
 
 def _lemma10_subcycle_cutter(
-    cycle: np.ndarray, gi: np.ndarray, edge_i: np.array, edge_j: np.array
+    cycle: np.ndarray, gi: np.ndarray, edge_i: np.ndarray, edge_j: np.ndarray
 ) -> tuple[np.ndarray, np.ndarray]:
     """
-    Cuts the cycle and gi to change them for lemma 10
-    :param cycle: cycle to cut for lemma 10
-    :param gi: subgraph to cut for lemma 10
-    :param edge_i: edge that should be at the start of gi
-    :param edge_j: edge that should be the point at which the cycle is cut (see return)
-    :return: cycle starts with edge_i[0] and edge_i[1] is the second node
-             gi starts with edge_j[0] and edge_j[1] is the last node
+    Cuts the old cycle and gi (to add) to change them for Lemma 10 by Stachowiak.
+    We want to glue the cycle and gi together at the edge_i and edge_j nodes.
+
+    Args:
+        cycle (np.ndarray): The old cycle to cut for lemma 10.
+        gi (np.ndarray): The subgraph to cut for lemma 10, will be added later.
+        edge_i (np.ndarray):
+            The edge that should be at the start of gi, i.e. position 0 and 1 in `gi`.
+        edge_j (np.ndarray):
+            The edge that should be the point at which the cycle is cut, i.e. position 0 and -1 in `cycle`.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]:
+            The modified cycle and gi.
+            - The gi starts with edge_i[0] and edge_i[1] is the second node.
+            - The cycle starts with edge_j[0] and edge_j[1] is the last node.
     """
     ind_node_i = np.where((gi == edge_i[0]).all(axis=1))[0][0]
     # preparing gi so that node_i[0] the first and node_i[1] second in list
@@ -653,10 +824,18 @@ def _lemma10_subcycle_cutter(
 
 def _lemma10_helper(K: np.ndarray, p: int, new_color: int) -> np.ndarray:
     """
-    :param K: Hamiltonian path in Q ([K_1, K_2, ..., K_2n])
-    :param p: is the length of the last part of the signature (l^p)
-    :param new_color: is the new color to add to the graph
-    :return Hamiltonian path over Q | l^p
+    Helper function for lemma 10, constructs a cycle by adding color `new_color`, which occurs `p` times, to the graph.
+
+    Args:
+        K (np.ndarray):
+            A Hamiltonian path in `Q` being `[K_1, K_2, ..., K_2n]`.
+            Every K_i is isomorphic to some `G_i = G(K_{2i-1} | l^p, K_{2i} | l^p)` for `1 <= i <= n`.
+            And every `G_i` is isomorphic to `G_i = G((k^r (0 | 1) k^s) | l^p)`, i.e. the graph from lemma 9.
+        p (int): The length of the last part of the signature (`l^p`)
+        new_color (int): The new color to add to the graph (to transform `l^p`)
+
+    Returns:
+        np.ndarray: Hamiltonian cycle over `GE(Q | l^p)`
     """
     # G_i = GE(K_{2i-1} | l^p, K_{2i} | l^p) for 0 <= i <= n
     G = []
@@ -750,24 +929,99 @@ def _lemma10_helper(K: np.ndarray, p: int, new_color: int) -> np.ndarray:
     return cycle
 
 
-def lemma10(sig: np.ndarray) -> np.ndarray:
-    """If q = |Q| > 2, Q is even and GE(Q) contains a Hamiltonian path and p > 0 then GE(Q|l^p) has a Hamiltonian cycle."""
+def lemma10(sig: np.array) -> np.ndarray:
+    """
+    Computes Lemma 10 by Stachowiak:
+    If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
+    Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
+
+    Args:
+        sig (np.array):
+            The signature of the graph; `Q` is the first two elements, `p` is the third.
+            `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
+            `p` is the third element of sig and has color 2 and occurs `p` times.
+
+    Returns:
+        np.ndarray:
+            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|l^p)`
+
+    Raises:
+        AssertionError:
+            If the signature is not well-formed. The first two elements must be able to form a Hamiltonian path of even length > 2.
+    """
     K = HpathNS(sig[0], sig[1])
     cycle = _lemma10_helper(K, sig[2], 2)
     return cycle
 
 
-def lemma11(sig: np.ndarray) -> np.ndarray:
-    """If q = |Q| > 2, p = |P| > 0 and GE(Q) has an even number of vertices and contains a Hamiltonian path then GE(Q|P) has a Hamiltonian cycle."""
+def lemma11(sig: np.array) -> np.ndarray:
+    """
+    Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
+    If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
+
+    Args:
+        sig (np.array):
+            A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
+            These two elements are set to the front of the signature using a recursive call.
+            Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).
+            The rest of the signature is processed using Stachowiak's lemmas.
+
+    Returns:
+        np.ndarray:
+            A Hamiltonian cycle in the neighbor-swap graph of the form `GE(Q|P)`. `Q` is this Hamiltonian path and `P` is the rest of the signature
+
+    Raises:
+        ValueError: If the signature is empty.
+        ValueError: There are no elements that can form a Hamiltonian path.
+
+    Notes:
+        - If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path, then `GE(Q|P)` has a Hamiltonian cycle.
+        - The function first checks the length of the signature and handles special cases where the signature has only one or two elements.
+        - If the signature is not ordered well, it transforms the signature and recursively calls the function with the transformed signature. The order is well when the first two elements are the largest odd numbers.
+        - If the first two elements in the signature can form a cycle (more than two permutations), it uses Verhoeff's Theorem to find the cycle.
+        - If the first 3 (or more) elements are 1, it uses the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle.
+        - If the third element in the signature is not 0, it uses Stachowiak's Lemma 2 to find a Hamiltonian path in `GE(Q|l^{sig[2]})`.
+        - Finally, it iterates over the remaining elements in the signature and calls the helper function _lemma10_helper to extend the cycle.
+
+    References:
+        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)
+    """
+    if len(sig) == 0:
+        raise ValueError("Signature must have at least one element")
+    elif len(sig) == 1:
+        return [(0,) * sig[0]]
+    elif len(sig) == 2 and sig[0] == sig[1] == 1:
+        return [(0, 1), (1, 0)]
+    elif sum(1 for n in sig if n % 2 == 1) < 2:
+        raise ValueError("At least two odd numbers are required for Lemma 11")
+    # Index the numbers in the array such that we can transform them back later
+    indexed_sig = [(value, idx) for idx, value in enumerate(sig)]
+
+    # Sort the array based on the function, putting the odd numbers first
+    indexed_sig.sort(reverse=True, key=lambda x: [x[0] % 2, x[0]])
+
+    # Return the transformed array and the indices
+    sorted_sig = np.array([x[0] for x in indexed_sig if x[0] != 0])
+    indices = np.array([x[1] for x in indexed_sig])
+
+    # if the order is well (i.e. the first two elements are the largest odd numbers)
+    # and the number of odd numbers is at least 2
+    if not np.array_equal(sig, sorted_sig):
+        # return that solution given by this lemma (transformed, if needed)
+        return transform(lemma11(sorted_sig), indices)
+    # if the first two elements in the signature can form a cycle (so more than two permutations)
     if np.sum(sig[:2]) > 2:
         path = HpathNS(sig[0], sig[1])  # K in the paper
         next_color = 2
-    elif sig[2] == 1:
+    elif sum(1 for n in sig if n % 2 == 1) > 2:
         # use the Steinhaus-Johnson-Trotter algorithm to get the Hamiltonian cycle if the first 3 (or more) elements are 1
-        try:
-            next_color = np.where(sig != 1)[0][0]
-        except IndexError:
-            next_color = len(sig)  # all elements are 1
+        # Check if there are any elements that are not equal to 1
+        if (sig == 1).all():
+            next_color = len(sig)
+        else:
+            # Return the first index that is not 1
+            next_color = np.argmax(sig > 1)
         path = SteinhausJohnsonTrotterNumpy.get_sjt_permutations(
             SteinhausJohnsonTrotterNumpy(), next_color
         )

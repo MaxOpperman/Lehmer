@@ -1,29 +1,42 @@
-import collections
 import copy
 import sys
 
-from figure_generation_files.rivertz import SetPerm
 from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
-from helper_operations.permutation_graphs import (
-    _halveSignature,
-    _permutations,
-    binomial,
-    rotate,
-)
+from helper_operations.permutation_graphs import _halveSignature, _permutations, rotate
 
 
-def stutterize(s: list[int]):
-    """Converts argument into stutter permutation by repeating every number."""
-    return [[el for el in t for _ in range(2)] for t in s]
+def stutterize(p: list[int]) -> list[list[int]]:
+    """
+    Converts argument into a stutter permutation by repeating every number.
+    Args:
+        p (list[int]): permutation as a list of integers
+    Returns:
+        every number in p repeated twice and put into a list
+    """
+    return [[el for el in t for _ in range(2)] for t in p]
 
 
-def selectOdds(sig: tuple):
-    """Returns list of numbers with odd occurrence frequencies in the given signature."""
+def selectOdds(sig: list[int]) -> list[int]:
+    """
+    Returns list of numbers with odd occurrence frequencies in the given signature.
+    Args:
+        sig (list[int]): signature as a list of integers
+    Returns:
+        list of integers with odd occurrence frequencies in the signature
+    """
     return [i for i, item in enumerate(sig) if item % 2 == 1]
 
 
-def stutterPermutations(s):
-    """Generates stutter permutations of a given list of integers."""
+def stutterPermutations(s: list[int]) -> list[list[int]]:
+    """
+    Generates stutter permutations of a given signature.
+    Stutter permutations have the form [a, a, b, b, c, c, ..., z] where a, b, c, ... are the elements of the permutation.
+    So every pair of elements is repeated twice from the left. An stutter can have one element with odd frequency appended at the end.
+    Args:
+        s (list[int]): the signature of the stutter permutations
+    Returns:
+        list of stutter permutations of signature `s`
+    """
     odds = selectOdds(s)
     if len(odds) >= 2:
         return []
@@ -97,7 +110,7 @@ def swapPair(perm: list[int], i: int, j=None) -> list[int]:
 
 def extend(lst: list[list[int]], e: list[int]) -> list[list[int]]:
     """
-     Extend every item in l with e
+    Extend every item in l with e
     :param lst: list of lists of integers
     :param e: list to extend every item in l with
     :return:
@@ -109,6 +122,17 @@ def extend(lst: list[list[int]], e: list[int]) -> list[list[int]]:
 
 
 def HpathNS(k0: int, k1: int) -> list[list[int]]:
+    """
+    Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
+    If k0 and k1 are both even, the path is a Hamiltonian cycle.
+    Args:
+        k0 (int): Number of 0s in the signature.
+        k1 (int): Number of 1s in the signature.
+    Returns:
+        list[list[int]]: A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     odd_perms = []
     tuple_0 = k0 * [0]
     tuple_1 = k1 * [1]
@@ -203,24 +227,4 @@ def HpathNS(k0: int, k1: int) -> list[list[int]]:
             + tube3
             + extend(p00, [0, 0])
         )
-        if len(path_ham) != len(set(tuple(row) for row in path_ham)):
-            print(
-                "Path contains duplicates:",
-                [
-                    item
-                    for item, count in collections.Counter(
-                        [tuple(node) for node in path_ham]
-                    ).items()
-                    if count > 1
-                ],
-            )
-        if len(path_ham) < binomial(k0, k1):
-            rivertz_perms = []
-            for p in SetPerm([k0, k1]):
-                rivertz_perms.append(p)
-            corrected_tuples = [[x - 1 for x in item] for item in rivertz_perms]
-            print(
-                "Path is missing elements:",
-                [item for item in corrected_tuples if item not in path_ham],
-            )
         return path_ham

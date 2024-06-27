@@ -241,7 +241,7 @@ def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]
 
 def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
     """
-    Transforms the permutation(s) according to the given renaming.
+    Transforms a list of permutations as tuples according to the given renaming.
     @param lis: list of permutations
     @param tr: transformation list, int at index i is the new name for i
     @return: list of lists of transformed permutations

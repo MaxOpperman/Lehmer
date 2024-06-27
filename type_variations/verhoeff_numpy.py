@@ -1,11 +1,9 @@
-import collections
 import copy
 import sys
 from itertools import permutations as itertoolspermutations
 
 import numpy as np
 
-from figure_generation_files.rivertz import SetPerm
 from helper_operations.path_operations import adjacent, spurBaseIndex
 from helper_operations.permutation_graphs import binomial
 
@@ -123,7 +121,7 @@ def swapPair(perm: np.ndarray, i: int, j=None) -> np.ndarray:
 
 def extend(lst: np.ndarray, e: np.ndarray) -> np.ndarray:
     """
-     Extend every item in l with e
+    Extend every item in l with e
     :param lst: numpy array of arrays of integers
     :param e: array to extend every item in l with
     :return:
@@ -138,6 +136,18 @@ def extend(lst: np.ndarray, e: np.ndarray) -> np.ndarray:
 
 
 def HpathNS(k0: int, k1: int) -> np.ndarray:
+    """
+    Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
+    If k0 and k1 are both even, the path is a Hamiltonian cycle.
+
+    Args:
+        k0 (int): Number of 0s in the signature.
+        k1 (int): Number of 1s in the signature.
+    Returns:
+        np.ndarray: A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     odd_perms = np.ndarray(shape=(0, k0 + k1), dtype=int)
     tuple_0 = np.full(k0, 0)
     tuple_1 = np.full(k1, 1)
@@ -266,31 +276,4 @@ def HpathNS(k0: int, k1: int) -> np.ndarray:
             ),
             axis=0,
         )
-
-        if len(path_ham) != len(np.unique(path_ham, axis=1)):
-            print(
-                "Path contains duplicates:",
-                [
-                    item
-                    for item, count in collections.Counter(
-                        [tuple(node) for node in path_ham]
-                    ).items()
-                    if count > 1
-                ],
-            )
-        if len(path_ham) < binomial(k0, k1):
-            rivertz_perms = np.array([])
-            for p in SetPerm([k0, k1]):
-                rivertz_perms = np.append(rivertz_perms, p)
-            corrected_tuples = np.array(
-                [[x - 1 for x in item] for item in rivertz_perms]
-            )
-            print(
-                "Path is missing elements:",
-                [
-                    item
-                    for item in corrected_tuples
-                    if not np.any(np.all(item == path_ham, axis=1))
-                ],
-            )
         return path_ham
