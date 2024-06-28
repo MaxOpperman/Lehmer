@@ -508,7 +508,7 @@ def lemma8(sig: list[int]) -> list[list[int]]:
         g_0.append(l_p[:i] + [0] + l_p[i:] + [1] + k_q)
         g_0_end.append(l_p[i:] + [1] + l_p[:i] + [0] + k_q)
     g_0.extend(g_0_end)
-    g_all = [g_0] + _lemma8_g_i_sub_graphs(k_q, l_p, sig)
+    g_all = [g_0] + _lemma8_g_i_sub_graphs(k_q, l_p)
     sub_cycles = []
     for i in range(0, len(g_all) - (len(g_all) % 2), 2):
         sub_cycles.append(g_all[i] + g_all[i + 1][::-1])

@@ -494,8 +494,13 @@ class TestPathOperations:
             get_transformer([3, -1, 5, 4], lambda x: [x[0] % 2, x[0]])
 
     def test_get_transformer_one_element(self):
-        assert get_transformer([0], lambda x: x[0]) == ([0], [0])
-        assert get_transformer([0], lambda x: [x[0] % 2, x[0]]) == ([0], [0])
+        assert get_transformer([1], lambda x: x[0]) == ([1], [0])
+        assert get_transformer([2], lambda x: [x[0] % 2, x[0]]) == ([2], [0])
+
+    def test_get_transformer_with_zero(self):
+        assert get_transformer([0], lambda x: [x[0] % 2, x[0]]) == ([], [])
+        assert get_transformer([0, 3, 2], lambda x: x[0]) == ([3, 2], [1, 2])
+        assert get_transformer([0, 3, 2], lambda x: -x[0]) == ([2, 3], [2, 1])
 
     def test_get_transformer_function_not_callable(self):
         assert get_transformer([], 0) == ([], [])
@@ -520,8 +525,8 @@ class TestPathOperations:
             [1, 2, 0, 3],
         )
         assert get_transformer([5, 0, 3, 4, 7, 6], lambda x: [x[0] % 2, x[0]]) == (
-            [7, 5, 3, 6, 4, 0],
-            [4, 0, 2, 5, 3, 1],
+            [7, 5, 3, 6, 4],
+            [4, 0, 2, 5, 3],
         )
 
     def test_get_transformer_multiple_elements_even_first(self):
@@ -538,8 +543,8 @@ class TestPathOperations:
             [1, 2, 0, 3],
         )
         assert get_transformer([0, 5, 6, 7, 4, 3], lambda x: [x[0] % 2 == 0, x[0]]) == (
-            [6, 4, 0, 7, 5, 3],
-            [2, 4, 0, 3, 1, 5],
+            [6, 4, 7, 5, 3],
+            [2, 4, 3, 1, 5],
         )
 
     def test_get_transformer_multiple_elements_descending(self):

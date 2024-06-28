@@ -340,9 +340,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
             for idx2, second_color in enumerate(temp_sig[idx:], start=idx):
                 sub_sig = temp_sig[:idx2] + [second_color - 1] + temp_sig[idx2 + 1 :]
                 # check if this results an even-1-1 case
-                sorted_sub_sig, transformer = get_transformer(
-                    sub_sig, key=lambda x: x[0]
-                )
+                sorted_sub_sig, transformer = get_transformer(sub_sig, lambda x: x[0])
                 # for the even-1-1 case we need a specific path that has parallel edges
                 if (
                     sorted_sub_sig[0] % 2 == 0
