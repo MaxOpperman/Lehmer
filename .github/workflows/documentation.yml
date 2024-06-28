@@ -33,7 +33,7 @@ jobs:
 
     - uses: actions/upload-pages-artifact@v3
       with:
-        path: _docs
+        path: public
 
   # Deploy job
   deploy:
