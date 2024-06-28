@@ -1,37 +1,44 @@
-name: documentation
+name: github pages
 
-on: [push, pull_request, workflow_dispatch]
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-env:
-  FORCE_COLOR: "1"
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  publish:
-    name: Publish Sphinx Pages
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set up Python 3.12
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
         uses: actions/setup-python@v3
         with:
           python-version: "3.12"
-      - name: Install dependencies
+
+      - name: Upgrade pip
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-      - name: Publish Pages
-        id: deployment
-        uses: Kjuly/sphinx-publisher@main
+          python3 -m pip install --upgrade pip
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v2
         with:
-          source_root: docs
-          build_root: docs/_build
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: python3 -m pip install -r ./requirements.txt
+
+      - run: mkdocs build
+
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
