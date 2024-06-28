@@ -5,6 +5,16 @@
 Gruaduation project about finding Lehmer's paths on neighbor-swap graphs of permutation generation.
 Primarily based on articles by T. Verhoeff: [The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations](https://doi.org/10.1007/s10623-016-0301-9) and by G. Stachowiak [Hamilton Paths in Graphs of Linear Extensions for Unions of Posets](https://doi.org/10.1137/0405016).
 
+## Generate the Documentation
+Run `pip install -r requirements.txt && cd docs && sphinx-apidoc -o . .. ../*tests* && ./make.bat html`. Or consecutively:
+```
+pip install -r requirements.txt
+cd docs
+sphinx-apidoc -o . .. ../*tests*
+./make.bat html
+```
+For Linux use the `Makefile` instead.
+
 ## Permute.py
 The `permute.py` script mainly functions as a visualization tool for neighbor-swap graphs of permutations.
 Graphs can be visualized and paths constructed by Lehmer's algorithm (which unfortunately doesn't work for cases with more than 7 elements) can be shown.
