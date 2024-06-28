@@ -33,5 +33,5 @@ jobs:
         id: deployment
         uses: Kjuly/sphinx-publisher@main
         with:
-          source_root: ../
+          source_root: docs
           build_root: docs/_build
