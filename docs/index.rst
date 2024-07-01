@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Lehmer Paths in Neighbor-Swap Graphs's documentation!
+Lehmer Paths in Neighbor-Swap Graphs's documentation!
 ================================================================
 
 .. toctree::

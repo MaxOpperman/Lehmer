@@ -275,3 +275,7 @@ class TestPermutationChanges:
         assert selectByTail(p, (3, 3, 0, 0)) == [(3, 3, 0, 0)]
         assert selectByTail(p, (1,)) == []
         assert selectByTail(p, (0, 3, 3, 0, 0)) == []
+    
+    def test_select_by_tail_too_large(self):
+        with pytest.raises(ValueError):
+            selectByTail([(0, 1)], (1, 2, 3))

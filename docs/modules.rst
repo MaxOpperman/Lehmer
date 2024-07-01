@@ -1,4 +1,4 @@
-Lehmer
+Lehmer Paths in Neighbor-Swap Graphs
 ======
 
 .. toctree::

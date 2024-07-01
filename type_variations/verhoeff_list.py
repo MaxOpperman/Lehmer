@@ -2,7 +2,7 @@ import copy
 import sys
 
 from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
-from helper_operations.permutation_graphs import _halveSignature, _permutations, rotate
+from helper_operations.permutation_graphs import halve_signature, permutations_from_sig, rotate
 
 
 def stutterize(p: list[int]) -> list[list[int]]:
@@ -41,7 +41,7 @@ def stutterPermutations(s: list[int]) -> list[list[int]]:
     if len(odds) >= 2:
         return []
     else:
-        result = stutterize(_permutations(_halveSignature(s)))
+        result = stutterize(permutations_from_sig(halve_signature(s)))
         if len(odds) == 1:
             return extend(result, odds)
         else:

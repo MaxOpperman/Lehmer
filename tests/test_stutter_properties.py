@@ -3,8 +3,8 @@ import pytest
 from helper_operations.permutation_graphs import (
     HcycleQ,
     HpathQ,
-    _halveSignature,
-    _permutations,
+    halve_signature,
+    permutations_from_sig,
     _stutterize,
     extend_cycle_cover,
     multinomial,
@@ -19,33 +19,33 @@ class TestStutterProperties:
     # In specific, the functions that are related to stutter permutations and their properties
     def test_halve_signature_empty(self):
         s = []
-        result = _halveSignature(s)
+        result = halve_signature(s)
         assert result == []
 
     def test_halve_signature_0(self):
         s = [0]
-        result = _halveSignature(s)
+        result = halve_signature(s)
         assert result == [0]
 
     def test_halve_signature_1(self):
         s = [1]
-        result = _halveSignature(s)
+        result = halve_signature(s)
         assert result == [0]
 
     def test_halve_signature_2(self):
         s = [2]
-        result = _halveSignature(s)
+        result = halve_signature(s)
         assert result == [1]
 
     def test_halve_signature_2_2_4_100_46_13(self):
         s = [2, 99, 4, 100, 46, 13]
-        result = _halveSignature(s)
+        result = halve_signature(s)
         assert result == [1, 49, 2, 50, 23, 6]
 
     def test_halve_signature_negative(self):
         s = [2, -1]
         with pytest.raises(ValueError):
-            _halveSignature(s)
+            halve_signature(s)
 
     def test_multiset_empty(self):
         s = []
@@ -89,22 +89,22 @@ class TestStutterProperties:
 
     def test_permutations_empty(self):
         s = []
-        result = _permutations(s)
+        result = permutations_from_sig(s)
         assert result == []
 
     def test_permutations_0(self):
         s = [0]
-        result = _permutations(s)
+        result = permutations_from_sig(s)
         assert result == [tuple()]
 
     def test_permutations_2(self):
         s = [2]
-        result = _permutations(s)
+        result = permutations_from_sig(s)
         assert result == [(0, 0)]
 
     def test_permutations_2_0_1(self):
         s = [2, 0, 1]
-        result = _permutations(s)
+        result = permutations_from_sig(s)
         assert len(result) == 3 and len(set(result)) == 3
         for p in result:
             assert p in [(0, 0, 2), (0, 2, 0), (2, 0, 0)]
@@ -112,17 +112,17 @@ class TestStutterProperties:
     def test_permutations_negative(self):
         s = [2, -1]
         with pytest.raises(ValueError):
-            _permutations(s)
+            permutations_from_sig(s)
 
     def test_permutations_int(self):
         s = 3
-        result = _permutations(s)
+        result = permutations_from_sig(s)
         assert result == [(0, 0, 0)]
 
     def test_permutations_int_negative(self):
         s = -2
         with pytest.raises(ValueError):
-            _permutations(s)
+            permutations_from_sig(s)
 
     def test_stutterPermutations_empty(self):
         s = []

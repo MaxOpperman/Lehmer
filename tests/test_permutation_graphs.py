@@ -281,6 +281,11 @@ class TestPermutationGraphs:
         result = generate_adj(p)
         assert result == [(1, 2)]
 
+    def test_generate_adj_multiple_0s1(self):
+        p = (0, 0, 0, 0, 0, 0, 1)
+        result = generate_adj(p)
+        assert result == [(0, 0, 0, 0, 0, 1, 0)]
+
     def test_generate_adj_10012(self):
         p = (1, 0, 0, 1, 2)
         result = generate_adj(p)

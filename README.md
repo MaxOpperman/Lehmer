@@ -14,6 +14,7 @@ sphinx-apidoc -o . .. ../*tests*
 ./make.bat html
 ```
 For Linux use the `Makefile` instead.
+To actually build the documentation use: `sphinx-apidoc -o . .. ../*tests* && sphinx-build -b html docs/ docs/_build` instead of either running the makefile.
 
 ## Permute.py
 The `permute.py` script mainly functions as a visualization tool for neighbor-swap graphs of permutations.
