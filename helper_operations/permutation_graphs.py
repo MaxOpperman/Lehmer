@@ -8,14 +8,14 @@ from helper_operations.path_operations import adjacent, cycleQ, pathQ
 def binomial(k0: int, k1: int) -> int:
     """
     Returns binomial coefficient: `k0+k1 choose k0`.
-    
+
     Args:
         k0 (int): The first parameter of the binomial coefficient.
         k1 (int): The second parameter of the binomial coefficient.
-        
+
     Returns:
         int: The calculated binomial coefficient.
-        
+
     Raises:
         AssertionError: If `k0` or `k1` is negative.
     """
@@ -76,13 +76,13 @@ def get_num_of_inversions(permutation: tuple[int, ...]) -> int:
     """
     Count the number of inversions in a permutation using merge sort.
     See references for more information.
-    
+
     Args:
         permutation (tuple[int, ...]): Permutation as a tuple of integers
-    
+
     Returns:
         int: Number of inversions in the permutation
-    
+
     References:
         - From https://www.geeksforgeeks.org/inversion-count-in-array-using-merge-sort/
     """
@@ -116,7 +116,7 @@ def count_inversions(sig: list[int]) -> dict[tuple, int]:
 
     Args:
         sig (list[int]): Signature as a list of integers
-    
+
     Returns:
         dict[tuple, int]: Dictionary with permutations as keys and number of inversions as values
     """
@@ -134,7 +134,7 @@ def defect(s: list[int]) -> int:
 
     Args:
         s (list[int]): Signature as a list of integers
-    
+
     Returns:
         int: The absolute difference between the number of even and odd permutations.
     """
@@ -157,7 +157,7 @@ def swapPair(perm: tuple[int, ...], i: int, j: int = None) -> tuple[int, ...]:
 
     Returns:
         tuple[int, ...]: `perm` with elements at positions `i` and `j` swapped.
-        
+
     Raises:
         ValueError: If the index `i` or `j` is out of range for the given permutation.
     """
@@ -304,13 +304,13 @@ def halve_signature(sig: list[int]) -> list[int]:
 
     Args:
         sig (list[int]): Signature as a list of integers.
-    
+
     Returns:
         list[int]: Halved signature as a list of integers.
-    
+
     Raises:
         ValueError: If the signature contains negative integers.
-    
+
     Examples:
         >>> _halveSignature([2, 4, 6])
         [1, 2, 3]
@@ -380,7 +380,7 @@ def stutterPermutations(s: list[int]) -> list[tuple[int, ...]]:
 
     Args:
         s (list[int]): Signature of the permutations as a list of integers.
-    
+
     Returns:
         list[tuple[int, ...]]: Stutter permutations as a list of tuples of integers.
     """
@@ -399,10 +399,10 @@ def nonStutterPermutations(s: list[int]) -> list[tuple[int, ...]]:
     """
     Returns all non-stutter permutations of signature `sig`.
     See `stutterPermutations` for the definition of stutter permutations.
-    
+
     Args:
         s (list[int]): signature of the permutations as a list of integers
-    
+
     Returns:
         list[tuple[int, ...]]: non-stutter permutations as a list of tuples of integers
     """
@@ -414,10 +414,10 @@ def nonStutterPermutations(s: list[int]) -> list[tuple[int, ...]]:
 def _stutterize(p_list: list[tuple[int, ...]]) -> list[tuple[int, ...]]:
     """
     Converts a list of permutations into stutter permutation by repeating every number twice
-    
+
     Args:
         p_list (list[tuple[int, ...]]): A list of permutations as a list of tuples of integers
-    
+
     Returns:
         list[tuple[int, ...]]: All stutter permutations as a list of tuples of integers
     """
@@ -429,14 +429,14 @@ def selectByTail(
 ) -> list[tuple[int, ...]]:
     """
     Select permutations with a given tail 'tail'
-    
+
     Args:
         permutations (list[tuple[int, ...]]): List of permutations
         tail (tuple[int, ...]): Elements of the tail to select
-    
+
     Returns:
         list[tuple[int, ...]]: List of permutations with the given tail
-    
+
     Raises:
         AssertionError: If the length of the permutations differs between the permutations.
         AssertionError: If the length of the tail is greater than the permutations
@@ -539,10 +539,10 @@ def total_path_motion(permutation_list: list[tuple[int, ...]]) -> int:
     The difference in index between the two transposed elements is the width of the transposition.
     The total motion is the sum of all transposition widths in the permutation_list.
     Note that the list is not required to be a path because the function takes into account the transpositions widths.
-    
+
     Args:
         permutation_list (list[tuple[int, ...]]): List of permutations to calculate the total motion for
-    
+
     Returns:
         int: Total motion as an integer
     """
