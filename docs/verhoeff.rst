@@ -1,6 +1,3 @@
-Verhoeff
-===============
-
 .. automodule:: verhoeff
    :members:
    :undoc-members:

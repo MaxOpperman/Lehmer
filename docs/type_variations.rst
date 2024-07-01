@@ -1,8 +1,8 @@
-Type Variations
+Type Variation Modules
 ========================
 
 
-type\_variations.stachowiak\_list module
+Stachowiak Lists with Verhoeff Lists
 ----------------------------------------
 
 .. automodule:: type_variations.stachowiak_list
@@ -10,7 +10,7 @@ type\_variations.stachowiak\_list module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.stachowiak\_list\_verhoeff\_tuple module
+Stachowiak Lists with Verhoeff Tuples
 ---------------------------------------------------------
 
 .. automodule:: type_variations.stachowiak_list_verhoeff_tuple
@@ -18,7 +18,7 @@ type\_variations.stachowiak\_list\_verhoeff\_tuple module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.stachowiak\_numpy module
+Stachowiak Numpy with Verhoeff Numpy
 -----------------------------------------
 
 .. automodule:: type_variations.stachowiak_numpy
@@ -26,7 +26,7 @@ type\_variations.stachowiak\_numpy module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.stachowiak\_tuple\_verhoeff\_list module
+Stachowiak Tuples with Verhoeff Lists
 ---------------------------------------------------------
 
 .. automodule:: type_variations.stachowiak_tuple_verhoeff_list
@@ -34,7 +34,7 @@ type\_variations.stachowiak\_tuple\_verhoeff\_list module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.steinhaus\_johnson\_trotter\_list module
+Steinhaus Johnson Trotter Lists
 ---------------------------------------------------------
 
 .. automodule:: type_variations.steinhaus_johnson_trotter_list
@@ -42,7 +42,7 @@ type\_variations.steinhaus\_johnson\_trotter\_list module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.steinhaus\_johnson\_trotter\_numpy module
+Steinhaus Johnson Trotter Numpy
 ----------------------------------------------------------
 
 .. automodule:: type_variations.steinhaus_johnson_trotter_numpy
@@ -50,7 +50,7 @@ type\_variations.steinhaus\_johnson\_trotter\_numpy module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.verhoeff\_list module
+Verhoeff Lists
 --------------------------------------
 
 .. automodule:: type_variations.verhoeff_list
@@ -58,7 +58,7 @@ type\_variations.verhoeff\_list module
    :undoc-members:
    :show-inheritance:
 
-type\_variations.verhoeff\_numpy module
+Verhoeff Numpy
 ---------------------------------------
 
 .. automodule:: type_variations.verhoeff_numpy
