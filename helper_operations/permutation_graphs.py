@@ -439,10 +439,8 @@ def selectByTail(
 
     Raises:
         AssertionError: If the length of the permutations differs between the permutations.
-        AssertionError: If the length of the tail is greater than the permutations
     """
     assert all(len(i) == len(permutations[0]) for i in permutations)
-    assert len(tail) < len(permutations[0])
     return [i for i in permutations if i[-len(tail) :] == tail]
 
 
