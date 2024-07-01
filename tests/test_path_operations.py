@@ -10,7 +10,6 @@ from helper_operations.path_operations import (
     incorporateSpurInZigZag,
     incorporateSpursInZigZag,
     mul,
-    neighbor,
     pathEdges,
     pathQ,
     recursive_cycle_check,
@@ -70,22 +69,36 @@ class TestPathOperations:
         cycle = [(0, 1, 2), (0, 2, 1), (2, 0, 1), (2, 1, 0), (1, 0, 2), (1, 2, 0)]
         assert cycleQ(cycle) == False
 
+    def test_pathEdges_empty(self):
+        with pytest.raises(ValueError):
+            pathEdges([])
+
+    def test_pathEdges_one_element(self):
+        with pytest.raises(ValueError):
+            pathEdges([(0, 0, 0)])
+
+    def test_pathEdges_two_elements(self):
+        path = [(0, 1), (1, 0)]
+        result = pathEdges(path)
+        expected_result = [
+            ((0, 1), (1, 0)),
+        ]
+        assert result == expected_result
+
+    def test_pathEdges_no_path(self):
+        path = [(0, 0, 0, 1), (0, 0, 1, 0), (1, 0, 0, 0), (0, 1, 0, 0)]
+        with pytest.raises(ValueError):
+            pathEdges(path)
+
     def test_pathEdges_path(self):
         path = [(0, 0, 0, 1), (0, 0, 1, 0), (0, 1, 0, 0), (1, 0, 0, 0)]
         result = pathEdges(path)
         expected_result = [
-            [(0, 0, 0, 1), (0, 0, 1, 0)],
-            [(0, 0, 1, 0), (0, 1, 0, 0)],
-            [(0, 1, 0, 0), (1, 0, 0, 0)],
+            ((0, 0, 0, 1), (0, 0, 1, 0)),
+            ((0, 0, 1, 0), (0, 1, 0, 0)),
+            ((0, 1, 0, 0), (1, 0, 0, 0)),
         ]
         assert result == expected_result
-
-    def test_pathEdges_empty(self):
-        assert pathEdges([]) == []
-
-    def test_pathEdges_no_path(self):
-        path = [(0, 0, 0, 1), (0, 0, 1, 0), (1, 0, 0, 0), (0, 1, 0, 0)]
-        assert pathEdges(path) == []
 
     def test_splitPathIn2_path(self):
         path = [(0, 0, 0, 1), (0, 0, 1, 0), (0, 1, 0, 0), (1, 0, 0, 0)]
@@ -192,35 +205,6 @@ class TestPathOperations:
         path = [(0, 1, 0, 1), (0, 1, 1, 0), (1, 0, 1, 0), (1, 0, 0, 1)]
         with pytest.raises(ValueError):
             spurBaseIndex(path, (0, 0, 0, 0))
-
-    def test_neighbor_different_length(self):
-        s = (0, 1, 0, 1)
-        t = (0, 1, 1, 0, 1)
-        assert neighbor(s, t) == False
-
-    def test_neighbor_different_signatures(self):
-        s = (0, 1, 0, 1, 0)
-        t = (0, 1, 1, 0, 1)
-        assert neighbor(s, t) == False
-
-    def test_neighbor_same(self):
-        s = (0, 1, 0, 1)
-        assert neighbor(s, s) == False
-
-    def test_neighbor_true(self):
-        s = (0, 1, 0, 1)
-        t = (0, 1, 1, 0)
-        assert neighbor(s, t)
-
-    def test_neighbor_false(self):
-        s = (0, 1, 0, 1)
-        t = (1, 1, 0, 0)
-        assert neighbor(s, t) == False
-
-    def test_neighbor_empty(self):
-        s = tuple()
-        t = tuple()
-        assert neighbor(s, t) == False
 
     def test_mul_empty(self):
         assert mul([], 1) == [(1,)]

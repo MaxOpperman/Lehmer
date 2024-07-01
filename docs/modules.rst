@@ -11,7 +11,6 @@ Lehmer
    permute
    stachowiak
    steinhaus_johnson_trotter
-   tests
    type_variations
    verhoeff
    visualization

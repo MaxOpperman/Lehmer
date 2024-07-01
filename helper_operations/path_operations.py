@@ -2,7 +2,16 @@ import numpy as np
 
 
 def adjacent(s: tuple[int, ...], t: tuple[int, ...]) -> bool:
-    """returns true if s and t adjacent, false otherwise"""
+    """
+    Check if two tuples are adjacent. They are adjacent if they differ by a swap of two adjacent elements.
+
+    Args:
+        s (tuple[int, ...]): The first tuple.
+        t (tuple[int, ...]): The second tuple.
+
+    Returns:
+        bool: True if the tuples are adjacent, False otherwise.
+    """
     if len(s) != len(t):
         return False
     if isinstance(s, np.ndarray):
@@ -23,10 +32,15 @@ def adjacent(s: tuple[int, ...], t: tuple[int, ...]) -> bool:
 
 
 def pathQ(p: list[tuple[int, ...]], verbose=True) -> bool:
-    """Returns True if p a path.
-    :param verbose: whether the error in the path should be printed in console
-    :param p, list of vertices
-    :return: true if p is a path
+    """
+    Checks if the given list of vertices represents a path. So True if all vertices are adjacent, False otherwise.
+
+    Args:
+        p (list[tuple[int, ...]]): List of permutations (vertices). The order of the vertices is checked.
+        verbose (bool, optional): Whether the error in the path should be printed in console. Defaults to True.
+
+    Returns:
+        bool: True if p is a path, False otherwise.
     """
     if len(p) == 0:
         return False
@@ -43,7 +57,15 @@ def pathQ(p: list[tuple[int, ...]], verbose=True) -> bool:
 
 
 def cycleQ(c: list[tuple[int, ...]]) -> bool:
-    """Returns True if c a cycle."""
+    """
+    Checks if a list of tuples represents a cycle. The list represents a cycle if all vertices are adjacent and the first and last vertices are adjacent.
+
+    Args:
+        c (list[tuple[int, ...]]): A list of tuples representing a cycle.
+
+    Returns:
+        bool: True if the list represents a cycle, False otherwise.
+    """
     if len(c) <= 2:
         return False
     for i, item in enumerate(c):
@@ -52,32 +74,45 @@ def cycleQ(c: list[tuple[int, ...]]) -> bool:
     return True
 
 
-def pathEdges(p: list[tuple[int, ...]]) -> list[list[tuple[int, ...]]]:
-    """Returns a list of edges of a path. (Path is given as a list of adjacent vertices)"""
-    if not pathQ(p):
-        return []
-    return [[item, p[i + 1]] for i, item in enumerate(p) if i < len(p) - 1]
+def pathEdges(p: list[tuple[int, ...]]) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+    """
+    Returns a list of edges of a path. T
 
+    Args:
+        p (list[tuple[int, ...]]): The path represented as a list of adjacent vertices.
 
-def stichPaths(
-    p1: list[tuple[int, ...]], p2: list[tuple[int, ...]]
-) -> list[tuple[int, ...]]:
-    """Stitches two parallel paths by gluing the end vertices."""
-    if adjacent(p1[-1], p2[0]):
-        return p1 + p2
-    elif adjacent(p1[0], p2[-1]):
-        return p2 + p1
-    elif adjacent(p1[-1], p2[-1]):
-        return p1 + p2[::-1]
-    elif adjacent(p1[0], p2[0]):
-        return p1[::-1] + p2
-    return False
+    Returns:
+        list[list[tuple[int, ...]]]: A list of edges, where each edge is represented as a tuple of two adjacent vertices.
+    
+    Raises:
+        ValueError: If the given list of vertices does not represent a path.
+    """
+    if not pathQ(p) or len(p) < 2:
+        raise ValueError(f"Path {p} is not a path.")
+    return [(item, p[i + 1]) for i, item in enumerate(p) if i < len(p) - 1]
 
 
 def splitPathIn2(
     p: list[tuple[int, ...]], a: tuple[int, ...]
 ) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
-    """Splits a path at vertex a. Element a appears in only the first path."""
+    """
+    Splits a path in two parts at vertex `a`. Element `a` appears in only the first path.
+
+    Args:
+        p (list[tuple[int, ...]]): The path to be split.
+        a (tuple[int, ...]): The vertex at which to split the path.
+
+    Returns:
+        tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
+            A tuple containing two lists representing the split paths.\n
+            - The first list contains the vertices from the start of the original path up to and including vertex `a`.
+            - The second list contains the vertices from vertex `a+1` to the end of the original path.
+
+    Raises:
+        AssertionError: If the length of the path is less than or equal to 1.
+        AssertionError: If the vertex `a` is not present in the path.
+        AssertionError: If the list `p` does not represent a path.
+    """
     assert len(p) > 1
     assert a in p
     assert pathQ(p)
@@ -86,7 +121,21 @@ def splitPathIn2(
 
 
 def cutCycle(c: list[tuple[int, ...]], a: tuple[int, ...]) -> list[tuple[int, ...]]:
-    """Splits a cycle at vertex a. Vertex a appears on first place"""
+    """
+    Splits a cycle at vertex `a` and rotates it such that vertex `a` apprears first in the returned path.
+
+    Args:
+        c (list[tuple[int, ...]]): The cycle to be split. Can also be a numpy array.
+        a (tuple[int, ...]): The vertex at which to split the cycle. Must be present in the cycle.
+
+    Returns:
+        list[tuple[int, ...]]: The cycle `c` but rotated such that vertex `a` appears first.
+
+    Raises:
+        AssertionError: If the vertex a is not present in the cycle c.
+        ValueError: If the vertex a is not present in the numpy cycle c (if c is a numpy array).
+
+    """
     if len(c) == 1 and a in c:
         return c
     try:
@@ -108,28 +157,36 @@ def cutCycle(c: list[tuple[int, ...]], a: tuple[int, ...]) -> list[tuple[int, ..
 
 
 def spurBaseIndex(path: list[tuple[int, ...]], vertex: tuple[int, ...]) -> int:
-    """Determines index of base of spur for given path and spur tip. Returns the index of the base of the spur or raises an error."""
+    """
+    Determines the index of the base of the spur for a given path and spur tip.
+
+    Args:
+        path (list[tuple[int, ...]]): The path to search for the base of the spur.
+        vertex (tuple[int, ...]): The spur tip vertex.
+
+    Returns:
+        int: The index of the base of the spur.
+
+    Raises:
+        ValueError: If no vertex adjacent to `vertex` is found in the `path`.
+    """
     for i, item in enumerate(path):
-        if neighbor(item, vertex):
+        if adjacent(item, vertex):
             return i
     raise ValueError(f"No vertex adjacent to {vertex} in the path: {path}")
 
 
-def neighbor(p: tuple[int, ...], q: tuple[int, ...]) -> bool:
-    """Returns True if p and q differ by a swap of two adjacent elements, False otherwise."""
-    if len(p) != len(q):
-        return False
-    diff = [i for i, (a, b) in enumerate(zip(p, q)) if a != b]
-    return (
-        len(diff) == 2
-        and diff[0] + 1 == diff[1]
-        and p[diff[0]] == q[diff[1]]
-        and p[diff[1]] == q[diff[0]]
-    )
-
-
 def mul(sez: list[tuple[int, ...]], e: int) -> list[tuple[int, ...]]:
-    """Adds 'e' to all elements(lists) in list sez"""
+    """
+    Adds 'e' to all elements (tuples) in the list `sez`.
+
+    Args:
+        sez (list[tuple[int, ...]]): The list of tuples to be modified.
+        e (int): The value to be appended to each element in sez.
+
+    Returns:
+        list[tuple[int, ...]]: The modified list with 'e' added to each element.
+    """
     if not sez:
         return [(e,)]
     for i, el in enumerate(sez):
@@ -138,20 +195,31 @@ def mul(sez: list[tuple[int, ...]], e: int) -> list[tuple[int, ...]]:
 
 
 def createZigZagPath(
-    c: list[tuple[int, ...]], u: tuple[int, ...], v: tuple[int, ...]
+    p: list[tuple[int, ...]], u: tuple[int, ...], v: tuple[int, ...]
 ) -> list[tuple[int, ...]]:
     """
-    :param c: cycle as a list of tuples
-    :param u: tuple to append
-    :param v: tuple to append
-    :return: cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
-            running from cycle[[1]]v to cycle[[-1]]v; the two copies are distinguished by
-            appending u and v; also works for a path
+    Create a zigzag path by combining two "parallel" copies of a given path.
+    The zig zag path runs from `p[0]u` to `p[-1]u`. Obtained by appending `u` and `v` to each vertex in the path.
+    Then for the following vertex in the path, append `v` and `u` to it. Then `u` and `v`, again `v` and `u` and so on.
+
+    Args:
+        p (list[tuple[int, ...]]): Path as a list of tuples.
+        u (tuple[int, ...]): Tuple to append.
+        v (tuple[int, ...]): Tuple to append.
+
+    Returns:
+        list[tuple[int, ...]]:
+            Path obtained by combining two "parallel" copies of the given path `p`.
+    
+    Raises:
+        AssertionError: If the path `p` is not a path.
+        AssertionError: If the length of the path is less than 1.
+        AssertionError: If the vertices `u` and `v` are not adjacent.
     """
     assert adjacent(u, v)
-    assert pathQ(c)
-    assert len(c) > 0
-    temp = [item for sublist in zip(c, c) for item in sublist]
+    assert pathQ(p)
+    assert len(p) > 0
+    temp = [item for sublist in zip(p, p) for item in sublist]
     module = [u, v, v, u]
     return [item + module[i % 4] for i, item in enumerate(temp)]
 
@@ -160,10 +228,22 @@ def incorporateSpurInZigZag(
     path: list[tuple[int, ...]], vertex_pair: tuple[tuple[int, ...], tuple[int, ...]]
 ) -> list[tuple[int, ...]]:
     """
-    Incorporates a spur in a zigzag path.
-    @param path: list of vertices, a zigzag path
-    @param vertex_pair: a pair of vertices to incorporate
-    @return: list of vertices, the zigzag path with the spur incorporated
+    Incorporates a spur in a zigzag path. A spur consists of two vertices,
+    both ending with two trailing elements that are the same as in the zigzag path.
+    The spur is incorporated by finding the base of the spur in the zigzag path,
+    i.e. the vertex adjacent to the spur tip which is in the "zig" part. 
+    Then the spur is inserted in the path at that index. Then the path continues with the "zag" part.
+
+    Args:
+        path (list[tuple[int, ...]]): List of vertices, a zigzag path.
+        vertex_pair (tuple[tuple[int, ...], tuple[int, ...]]):
+            A pair of vertices to incorporate. The pair consists of two vertices,
+            both ending with two trailing elements that are the same as in the zigzag path.
+            The parts prior to the trailing elements are stutters.
+
+
+    Returns:
+        list[tuple[int, ...]]: List of vertices, the zigzag path with the spur incorporated.
     """
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
@@ -176,11 +256,15 @@ def incorporateSpursInZigZag(
     spur_suffixes: list[tuple[int, ...]],
 ) -> list[tuple[int, ...]]:
     """
-    Incorporates a list of spurs in a zigzag path.
-    @param path: list of vertices, a zigzag path
-    @param vertices: list of vertices to incorporate
-    @param spur_suffixes: list of spur suffixes (suffixes for the vertices variable)
-    @return: list of vertices, the zigzag path with the spurs incorporated
+    Incorporates a list of spurs in a zigzag path. See ``incorporateSpurInZigZag`` for more details.
+
+    Args:
+        path (list[tuple[int, ...]]): List of vertices, a zigzag path.
+        vertices (list[tuple[int, ...]]): List of vertices to incorporate. These should be stutters.
+        spur_suffixes (list[tuple[int, ...]]): List of spur suffixes (suffixes for the vertices variable).
+
+    Returns:
+        list[tuple[int, ...]]: List of vertices, the zigzag path with the spurs incorporated.
     """
     C = [stut + suff for stut in vertices for suff in spur_suffixes]
     for vertex_index in range(0, len(C), 2):
@@ -190,12 +274,18 @@ def incorporateSpursInZigZag(
 
 def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, ...]]:
     """
-    Creates a square tube from a path by appending combinations of `u` and `v` like so:
-    `uu, uv, vv, vu, vu, vv, uv, uu` and ending with `uu, uv, vv, vu, vu, uu, uv, vv`
-    @param path: list of vertices, a path
-    @param u: tuple to append
-    @param v: tuple adjacent to u to append
-    @return: list of vertices, the square tube. Every vertex in the original path is repeated 4 times.
+    Creates a square tube from a path by appending combinations of `u` and `v` like so:\n
+    - The first vertices with `uu, uv, vv, vu, vu, vv, uv, uu`
+    - Only the last one with `uu, uv, vv, vu, vu, uu, uv, vv`\n
+    Every vertex in the original path is repeated 4 times. Once for each combination of `u` and `v` above.
+    
+    Args:
+        path (list[tuple]): List of vertices, a path.
+        u (tuple): Tuple to append.
+        v (tuple): Tuple adjacent to `u` to append.
+        
+    Returns:
+        list[tuple[int, ...]]: List of vertices, the square tube. Every vertex in the original path is repeated 4 times.
     """
     assert adjacent(u, v)
     assert pathQ(path)
@@ -218,12 +308,18 @@ def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, .
 
 def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]:
     """
-    Sorts the signature using a given function and provides array to transform it back
-    @param s: signature as a list of integers
-    @param func: lambda function of tuples of form (value, index) to sort the signature
-    @return: tuple of two lists of integers;
-        the first list is the sorted signature,
-        the second list is the transformation array (used in `tranform`)
+    Sorts the signature using a given function and provides array to transform it back.
+    The transformer array is built by indexing the numbers. See ``transform`` for more details on the format.
+
+    Args:
+        s (list[int]): The signature as a list of integers.
+        func (callable): The lambda function of tuples of form (value, index) to sort the signature.
+
+    Returns:
+        tuple[list[int], list[int]]:
+            A tuple of two lists of integers:
+            - the first list is the sorted signature.
+            - the second list is the transformation array (used in the ``tranform`` function).
     """
     if len(s) == 0:
         return [], []
@@ -243,9 +339,24 @@ def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]
 def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
     """
     Transforms a list of permutations as tuples according to the given renaming.
-    @param lis: list of permutations
-    @param tr: transformation list, int at index i is the new name for i
-    @return: list of lists of transformed permutations
+    The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
+    See the example below.\n
+    The function raises a ValueError if `lis` contains an element whose index is larger than the length `tr`.
+    So the transformation list should be at least as long as the largest index in the permutations.
+
+    Args:
+        lis (list[tuple[int, ...]]): List of permutations.
+        tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
+
+    Returns:
+        list[tuple[int, ...]]: List of tuples of integers. The transformed permutations.
+        
+    Raises:
+        ValueError: If the index of an element in the permutation is larger than the length of the transformation list.
+    
+    Example:
+        >>> transform([(0, 1, 2), (1, 0, 2)], [4, 5, 6])
+        [(4, 5, 6), (4, 4, 6)]
     """
     l = []
     for i in lis:
@@ -262,13 +373,24 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
 
 
 def transform_cycle_cover(
-    lis3d: list[list[tuple[int, ...]]], tr: list[int]
-) -> list[list[tuple[int, ...]]]:
+    lis3d: list[list], tr: list[int]
+) -> list[list]:
     """
     Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
-    @param lis: list of lists of permutations
-    @param tr: transformation list, int at index i is the new name for i
-    @return: list of lists of transformed permutations
+    The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
+    The depth is at least 2 and determined by the cycle cover function.
+
+    Args:
+        lis3d (list[list[tuple[int, ...]]]):
+            List of lists of permutations. Does not have a fixed depth. The depth is determined by the cycle cover function.
+            If the depth is 2 (list of lists of permutations, where permutations are tuples), the function will transform the permutations.
+        tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
+
+    Returns:
+        list[list[tuple[int, ...]]]: The same structure of lists as the input, but with the permutations transformed.
+    Raises:
+        AssertionError: If the input list does not have a length greater than 0.
+        ValueError: If the input is not a list.
     """
     assert len(lis3d) > 0
     if isinstance(lis3d[0][0][0], int):
@@ -279,12 +401,24 @@ def transform_cycle_cover(
         return [transform_cycle_cover(l, tr) for l in lis3d]
 
 
-def recursive_cycle_check(cycle, total_length=0) -> int:
+def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     """
-    Recursively check whether the given list is a cycle.
-    @param cycle: list of cycles
-    @param total_length: total length of the cycle, starts at 0.
-    @return: total length of the list of cycles
+    Recursively check whether the given list is a cycle. The input is a list of cycles of unknown depth.
+    The function will check the depth and return the total number of permutations in the lists of permutations.
+    For each list, the cycle property is checked (and whether it has duplicates).
+    Then the length of the cycle is added to the total length. The total length is returned.
+
+    Args:
+        cycle (list): List of cycles.
+        total_length (int): Total length of the cycle, starts at 0.
+
+    Returns:
+        int: Total length of the list of cycles.
+    
+    Raises:
+        AssertionError: If the input is not a list of length greater than 0.
+        AssertionError: If the input is not a list of cycles.
+        AssertionError: If the subcycles contain duplicates.
     """
     assert len(cycle) > 0
     assert isinstance(cycle, list)
