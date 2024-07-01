@@ -1,4 +1,4 @@
-stachowiak module
+Stachowiak
 =================
 
 .. automodule:: stachowiak

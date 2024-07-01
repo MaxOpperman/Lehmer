@@ -1,8 +1,6 @@
-figure\_generation\_files package
+Figure Generation packages
 =================================
 
-Submodules
-----------
 
 figure\_generation\_files.rivertz module
 ----------------------------------------
@@ -28,10 +26,3 @@ figure\_generation\_files.verhoeffCycleCoverPaths module
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
-
-.. automodule:: figure_generation_files
-   :members:
-   :undoc-members:
-   :show-inheritance:

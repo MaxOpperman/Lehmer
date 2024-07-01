@@ -1,4 +1,4 @@
-verhoeff module
+Verhoeff
 ===============
 
 .. automodule:: verhoeff

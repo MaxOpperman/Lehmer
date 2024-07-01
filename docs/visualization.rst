@@ -1,4 +1,4 @@
-visualization module
+Visualization
 ====================
 
 .. automodule:: visualization

@@ -1,8 +1,6 @@
-type\_variations package
+Type Variations
 ========================
 
-Submodules
-----------
 
 type\_variations.stachowiak\_list module
 ----------------------------------------
@@ -64,14 +62,6 @@ type\_variations.verhoeff\_numpy module
 ---------------------------------------
 
 .. automodule:: type_variations.verhoeff_numpy
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: type_variations
    :members:
    :undoc-members:
    :show-inheritance:

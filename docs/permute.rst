@@ -1,4 +1,4 @@
-permute module
+Permute
 ==============
 
 .. automodule:: permute

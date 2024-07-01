@@ -1,4 +1,4 @@
-cycle\_cover module
+Cycle Cover
 ===================
 
 .. automodule:: cycle_cover
