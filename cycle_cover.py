@@ -20,7 +20,7 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     swapPair,
 )
-from stachowiak import lemma11
+from stachowiak import Stachowiak
 from verhoeff import HpathNS
 
 
@@ -63,6 +63,9 @@ class CycleCover:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
     """
+
+    def __init__(self):
+        self.stachowiak = Stachowiak()
 
     def Hpath_even_1_1(self, k: int) -> list[tuple[int, ...]]:
         """
@@ -421,7 +424,7 @@ class CycleCover:
         # stachowiak's odd case
         elif sum(1 for n in sig if n % 2 == 1) >= 2:
             new_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
-            return [transform(lemma11(new_sig), transformer)]
+            return [transform(self.stachowiak.lemma11(new_sig), transformer)]
         # all-but-one even case
         elif any(n % 2 == 1 for n in sig):
             all_sub_cycles = []
@@ -436,7 +439,9 @@ class CycleCover:
                     and sorted_sub_sig[1] == 1
                     and sorted_sub_sig[2] == 2
                 ):
-                    c = [transform(lemma11(sorted_sub_sig), transformer)]
+                    c = [
+                        transform(self.stachowiak.lemma11(sorted_sub_sig), transformer)
+                    ]
                 else:
                     c = self.generate_cycle_cover(sub_sig)
                 all_sub_cycles.append(extend_cycle_cover(c, (idx,)))
@@ -568,7 +573,7 @@ class CycleCover:
                 or (sorted_s[0] == 2 and sorted_s[1] == 1)
             )
         ):
-            perms = [lemma11(s)]
+            perms = [self.stachowiak.lemma11(s)]
             if args.verbose:
                 print(f"Resulting path {perms}")
             print(

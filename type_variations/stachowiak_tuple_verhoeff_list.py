@@ -1,9 +1,12 @@
-import itertools
-
 from helper_operations.path_operations import get_transformer, transform
-from stachowiak import _lemma10_helper, lemma2_extended_path
+from stachowiak import Stachowiak
 from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from type_variations.verhoeff_list import HpathNS
+
+
+stach = Stachowiak()
+_lemma10_helper = stach._lemma10_helper
+lemma2_extended_path = stach.lemma2_extended_path
 
 
 def lemma10(sig: list[int]) -> list[tuple[int, ...]]:

@@ -1,10 +1,23 @@
 import pytest
 
-from stachowiak import lemma11
+from stachowiak import Stachowiak
 from type_variations import stachowiak_list
 
 
-def _cast_list(x):
+stach = Stachowiak()
+lemma11 = stach.lemma11
+
+
+def _cast_list(x: list[tuple[int, ...]]) -> list[list[int]]:
+    """
+    Cast a list of tuples to a list of lists.
+
+    Args:
+        x (list[tuple[int, ...]]): A list of tuples.
+
+    Returns:
+        list[list[int]]: A list of lists.
+    """
     # cast a list of tuples to a list of lists
     return [list(tup) for tup in x]
 

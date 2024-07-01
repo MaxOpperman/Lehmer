@@ -1,7 +1,11 @@
 import pytest
 
-from stachowiak import lemma11
+from stachowiak import Stachowiak
 from type_variations import stachowiak_tuple_verhoeff_list
+
+
+stach = Stachowiak()
+lemma11 = stach.lemma11
 
 
 class TestStachowiakListVerhoeffTuple:
