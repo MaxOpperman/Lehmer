@@ -110,7 +110,6 @@ def cutCycle(c: list[tuple[int, ...]], a: tuple[int, ...]) -> list[tuple[int, ..
 def spurBaseIndex(path: list[tuple[int, ...]], vertex: tuple[int, ...]) -> int:
     """Determines index of base of spur for given path and spur tip. Returns the index of the base of the spur or raises an error."""
     for i, item in enumerate(path):
-        print(f"item: {item}, vertex: {vertex}")
         if neighbor(item, vertex):
             return i
     raise ValueError(f"No vertex adjacent to {vertex} in the path: {path}")

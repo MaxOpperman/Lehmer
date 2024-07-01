@@ -16,6 +16,73 @@ from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from verhoeff import HpathNS
 
 
+def main():
+    """
+    This script uses Stachowiak's theorems to find Hamiltonian cycles in neighbor-swap graphs.
+
+    Args:
+        -s, --signature: Input permutation signature (comma separated, without spaces)
+        -v, --verbose: Enable verbose mode, `False` by default
+        -p, --parities: Show the even and odd counts of all permutations
+    Returns:
+        Prints whether the result is a Hamiltonian path or cycle in the neighbor-swap graph.
+        If verbose mode is enabled, it also prints the resulting path.
+    Raises:
+        ValueError: If the signature is empty.
+        ValueError: If the signature contains negative values.
+    References:
+        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+    """
+    parser = argparse.ArgumentParser(
+        description="Uses Stachowiak's theorems to find Hamiltonian cycles in neighbor-swap graphs"
+    )
+    parser.add_argument(
+        "-s",
+        "--signature",
+        type=str,
+        help="Input permutation signature (comma separated)",
+    )
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Enable verbose mode"
+    )
+    parser.add_argument(
+        "-p",
+        "--parities",
+        action="store_true",
+        help="Show the even and odd counts of all permutations",
+    )
+
+    args = parser.parse_args()
+    s = [int(x) for x in args.signature.split(",")]
+    if args.parities:
+        defect_g = defect(s)
+        print(f"Defect {defect_g} for n={sum(s)}")
+        if defect_g > 0:
+            print(
+                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} EVEN and defect={defect_g} != 0"
+            )
+        elif defect_g > 1:
+            print(
+                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} ODD and defect={defect_g} != 1"
+            )
+    if len(s) > 1:
+        if len(s) == 2:
+            perms_odd = HpathNS(s[0], s[1])
+            if args.verbose:
+                print(f"Resulting path {perms_odd}")
+            print(
+                f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
+                f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
+            )
+        else:
+            l11 = lemma11(s)
+            if args.verbose:
+                print(f"lemma 11 results {l11}")
+            print(
+                f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}"
+            )
+
+
 def _generate_all_di(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generate all possible `d_i` chains based on the given `chain_p`.
@@ -837,51 +904,4 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Uses Stachowiak's theorems to find Hamiltonian cycles in neighbor-swap graphs"
-    )
-    parser.add_argument(
-        "-s",
-        "--signature",
-        type=str,
-        help="Input permutation signature (comma separated)",
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
-    )
-    parser.add_argument(
-        "-p",
-        "--parities",
-        action="store_true",
-        help="Show the even and odd counts of all permutations",
-    )
-
-    args = parser.parse_args()
-    s = [int(x) for x in args.signature.split(",")]
-    if args.parities:
-        defect_g = defect(s)
-        print(f"Defect {defect_g} for n={sum(s)}")
-        if defect_g > 0:
-            print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} EVEN and defect={defect_g} != 0"
-            )
-        elif defect_g > 1:
-            print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} ODD and defect={defect_g} != 1"
-            )
-    if len(s) > 1:
-        if len(s) == 2:
-            perms_odd = HpathNS(s[0], s[1])
-            if args.verbose:
-                print(f"Resulting path {perms_odd}")
-            print(
-                f"Verhoeff's result for k0={s[0]} and k1={s[1]}: {len(set(perms_odd))}/{len(perms_odd)}/{math.comb(s[0] + s[1], s[1])} "
-                f"is a path: {pathQ(perms_odd)} and a cycle: {cycleQ(perms_odd)}"
-            )
-        else:
-            l11 = lemma11(s)
-            if args.verbose:
-                print(f"lemma 11 results {l11}")
-            print(
-                f"lemma 11 {len(set(l11))}/{len(l11)}/{multinomial(s)} is a path: {pathQ(l11)} and a cycle: {cycleQ(l11)}"
-            )
+    main()

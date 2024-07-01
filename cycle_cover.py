@@ -26,9 +26,18 @@ from verhoeff import HpathNS
 
 def Hpath_even_1_1(k: int) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the number of 0's `k` from 1 2 0^(k) to 0 2 1 0^(k-1)
-    @param k: The input value for k0
-    @return: The generated path
+    Generates a path based on the number of 0's `k` from `1 2 0^k` to `0 2 1 0^(k-1)`
+
+    Args:
+        k (int): The input value for the number of 0's. Must be odd!
+
+    Returns:
+        list[tuple[int, ...]]: The generated path from `c` to `d`\n
+        - `c = 1 2 0^k`
+        - `d = 0 2 1 0^(k-1)`
+
+    Raises:
+        ValueError: If `k` is not even
     """
     if k % 2 == 1:
         raise ValueError("k must be even")
@@ -79,9 +88,18 @@ def Hpath_even_1_1(k: int) -> list[tuple[int, ...]]:
 
 def Hpath_odd_2_1(k: int) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the number of 0's `k` from 1 2 0^{k0} 1 to 0 2 1 0^{k0-1} 1.
-    @param k: The input value for k0, must be odd
-    @return: The generated path from a to b
+    Generates a path based on the number of 0's `k` from `1 2 0^{k0} 1` to `0 2 1 0^{k0-1} 1`.
+
+    Args:
+        k (int): The input value for the number of 0's. Must be odd!
+
+    Returns:
+        list[tuple[int, ...]]: The generated path from `a` to `b`\n
+        - `a = 1 2 0^{k0} 1`
+        - `b = 0 2 1 0^{k0-1} 1`
+
+    Raises:
+        ValueError: If `k` is not odd
     """
     if k % 2 == 0:
         raise ValueError("k must be odd")
@@ -203,9 +221,17 @@ def Hpath_odd_2_1(k: int) -> list[tuple[int, ...]]:
 
 def parallel_sub_cycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
     """
-    Generates the parallel cycle from the 02 and 20 cycles with stutters
-    @param k: The input value for k0 (EVEN!) because we don't count the 0 in 02 or 20
-    @return: The generated path from 0 1 0^{k-1} 1 0 2 to 1 0^(k) 1 0 2
+    Generates the parallel cycle from the 02 and 20 cycles with stutters. Uses the createZigZagPath and incorporateSpursInZigZag functions.
+
+    Args:
+        k (int): The input value for `k`, the number of 0's\n
+        This must be even because we don't count the zero in the trailing `02 / 20`
+
+    Returns:
+        list[tuple[int, ...]]: The generated path from `0 1 0^{k-1} 1 0 2` to `1 0^(k) 1 0 2`
+
+    Raises:
+        ValueError: If k is odd
     """
     if k % 2 == 1:
         raise ValueError(f"k must be even, you probably mean {k-1} and not {k}")
@@ -221,11 +247,20 @@ def parallel_sub_cycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
 
 def incorporated_odd_2_1(k: int) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the number of 0's `k` from 1 2 0^{k0-1} 1 to 0 2 1 0^{k0-2} 1
+    Generates a path based on the number of 0's `k` from `a = 1 2 0^{k0} 1` to `b = 0 2 1 0^{k0-1} 1`.
     Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
+    First generates the a_b_path, then the parallel cycles, and then splits the a_b_path in 2 at the parallel edge.
+    The cross edges are:\n
+    - From `0 1 0^{k-1} 1 0 2` to `0 1 0^{k0-1} 1 2`\n
+    - From `1 0^k 1 0 2` to `1 0^(k) 1 0 2`.
 
-    @param k: The input value for k0, must be odd
-    @return: The generated path from a to b
+    Args:
+        k (int): The input value the number of 0s. Must be odd!
+
+    Returns:
+        list[tuple[int, ...]]: The generated path from `a` to `b`\n
+        - `a = 1 2 0^{k0} 1`
+        - `b = 0 2 1 0^{k0-1} 1`
     """
     if k % 2 == 0:
         raise ValueError(f"k must be odd")
@@ -240,6 +275,37 @@ def incorporated_odd_2_1(k: int) -> list[tuple[int, ...]]:
 
 
 def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
+    """
+    Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
+    **Theorem:** *When the arity is at least 3 and at most one k i is odd, the neighbor-swap graph
+    of non-stutter permutations admits a disjoint cycle cover, that is, a set of vertex-disjoint
+    cycles that visit all permutations exactly once.*\n
+    This is split into several cases below. Note that Even-1-1 and Odd-1-1 form a cycle together:\n
+    - Arity 1: The cycle is a single node of 0's.
+    - Arity 2: The cycle is a single cycle of 0's and 1's. Using Verhoeff's binary theorem.
+    - Even-1-1: A **path** from `c = 1 2 0^k0` to `d = 0 2 1 0^(k0-1)`
+    - Odd-1-1: The cycle from `1 0^k0 2` to `0 1 0^(k0-1) 2`.
+    - Odd-2-1: A **path** from `a = 1 2 0^{k0} 1` to `b = 0 2 1 0^{k0-1} 1`. (Also contains a cycle by Stachowiak's theorem)
+    - Even-2-1: A cycle formed by the path from Even-1-1 and Odd-2-1.
+    - All-but-one-even: Forms cycles by fixing the trailing element. (uses Stachowiak's Lemma 11 for the two-or-more-odd case)
+    - All-even: Forms cycles by fixing the trailing *two* elements.
+    - Two-or-more-odd: Stachowiak's theorem gives us a cycle on this graph.
+
+    Args:
+        sig (list[int]): The signature of the permutations. Must have at least one element.
+
+    Returns:
+        list[list[tuple[int, ...]]]: The cycle cover for the given signature `sig`.\n
+        Every list of tuples is a cycle in the cycle cover. The tuples are permutations.
+        The lists don't have a defined depth since they can consist of cycle covers themselves. But the depth is at least 2.
+
+    Raises:
+        ValueError: If the signature is empty.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+    """
     # sort list in descending order
     if len(sig) == 0:
         raise ValueError("Signature must have at least one element")
@@ -280,6 +346,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
             p0 = p0[::-1]
 
         if k % 2 == 1:
+            print(f"start {p2[-1:]} {p0} {p1[::-1]} {p2[:-1]}")
             return [p2[-1:] + p0 + p1[::-1] + p2[:-1]]
         else:
             # Even k, also need to add 0^k0 1 2 and 0^k0 2 1

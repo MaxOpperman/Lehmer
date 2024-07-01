@@ -12,6 +12,19 @@ from pathmarker import PathMarker
 def visualize(
     dict_graph: dict[str, set[str]], dict_inv: dict[tuple, int]
 ) -> tuple[nx.Graph, dict]:
+    """
+    Visualizes a graph based on the given dictionary adjacency matrix.\n
+    The inversion dictionary is used to determine the position of each node in the visualization.
+    The number of inversions of a node is represented by the number of elements that appear out of order in the permutation.
+    Two elements are considered out of order if the left element is strictly greater than the right element (the elements are not necessarily adjacent).
+
+    Args:
+        dict_graph (dict[str, set[str]]): A dictionary representing the graph, where each key is a node and the corresponding value is a set of adjacent nodes.
+        dict_inv (dict[tuple, int]): A dictionary mapping nodes to their respective number of inversions.
+
+    Returns:
+        tuple[nx.Graph, dict]: A tuple containing the graph object and a dictionary of edge colors.
+    """
     graph = nx.Graph()
     partite_counts = dict.fromkeys(set(dict_inv.values()), 0)
 

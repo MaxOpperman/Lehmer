@@ -42,6 +42,7 @@ exclude_patterns = [
     "./permutation-software-master",
 ]
 napoleon_use_param = True
+autodoc_member_order = "bysource"
 
 
 # -- Options for HTML output -------------------------------------------------
