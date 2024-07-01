@@ -18,7 +18,7 @@ from helper_operations.permutation_graphs import (
 class VerhoeffBinaryTheorem:
     """
     Uses Verhoeff's binary theorem to compute a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given binary signature.
-    See `HpathNS` for more details on the input and output.\n
+    See `HpathBinary` for more details on the input and output.\n
     Works using recursion, so the recursion limit is increased to 2500 from the default 1000.\n
     \n
     Note:
@@ -36,7 +36,7 @@ class VerhoeffBinaryTheorem:
 
     sys.setrecursionlimit(2500)
 
-    def HpathNS(self, k0: int, k1: int) -> list[tuple[int, ...]]:
+    def HpathBinary(self, k0: int, k1: int) -> list[tuple[int, ...]]:
         """
         Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.
         If `k0` and `k1` are both even, the path is a Hamiltonian cycle.
@@ -74,47 +74,47 @@ class VerhoeffBinaryTheorem:
             return odd_perms if k1 % 2 else odd_perms[1:]
         if k0 < k1:
             return [
-                tuple(1 if x == 0 else 0 for x in tup) for tup in self.HpathNS(k1, k0)
+                tuple(1 if x == 0 else 0 for x in tup) for tup in self.HpathBinary(k1, k0)
             ]
         if k0 % 2 == 1 and k1 % 2 == 0:
             p1 = extend(
-                self.HpathNS(k0, k1 - 1), (1,)
+                self.HpathBinary(k0, k1 - 1), (1,)
             )  # A Hamiltonian path from 0^k0 1^k1 to 1^(k1-1) 0^k0 1
             p0 = extend(
-                self.HpathNS(k0 - 1, k1), (0,)
+                self.HpathBinary(k0 - 1, k1), (0,)
             )  # A Hamiltonian cycle from 1^(k1-1) 0^(k0-1) 1 0
 
             return p1[:-1] + rotate(p0, 1) + [p1[-1]]
 
         elif k0 % 2 == 0 and k1 % 2 == 1:
             p1 = extend(
-                self.HpathNS(k0, k1 - 1), (1,)
+                self.HpathBinary(k0, k1 - 1), (1,)
             )  # A Hamiltonian cycle containing edge 0^(k0-1) 1^(k1-1) 0 1 ~ 0^(k0-2) 1 0 1^(k1-2) 0 1
             p0 = extend(
-                self.HpathNS(k0 - 1, k1), (0,)
+                self.HpathBinary(k0 - 1, k1), (0,)
             )  # A Hamiltonian path from 0^(k0-1) 1^k1 0 to 1^k1 0^k1
             v = p0[0]
 
             return [v] + cutCycle(p1[::-1], swapPair(v, -2)) + p0[1:]
         elif k0 % 2 == 0 and k1 % 2 == 0:
             p1 = extend(
-                self.HpathNS(k0, k1 - 1), (1,)
+                self.HpathBinary(k0, k1 - 1), (1,)
             )  # A Hamiltonian path from 0^(k0-1) 1^(k1-1) 0 1 to 1^(k1-1) 0^k0 1
-            p0 = extend(self.HpathNS(k0 - 1, k1), (0,))
+            p0 = extend(self.HpathBinary(k0 - 1, k1), (0,))
 
             if k0 == k1:  # p0 is a path from 0^(k0-1) 1^k1 0 to 1^(k1-1) 0^(k0-1) 1 0
                 return p1[::-1] + p0[::-1]
             return p1[::-1] + p0
         else:
-            p11 = self.HpathNS(k0, k1 - 2)
-            p1101 = self.HpathNS(k0 - 1, k1 - 3)
-            p0101 = self.HpathNS(k0 - 2, k1 - 2)
+            p11 = self.HpathBinary(k0, k1 - 2)
+            p1101 = self.HpathBinary(k0 - 1, k1 - 3)
+            p0101 = self.HpathBinary(k0 - 2, k1 - 2)
             if k0 == k1:
                 p0001 = [tuple([1 if x == 0 else 0 for x in tup]) for tup in p1101]
                 p00 = [tuple([1 if x == 0 else 0 for x in tup]) for tup in p11]
             else:
-                p0001 = self.HpathNS(k0 - 3, k1 - 1)
-                p00 = self.HpathNS(k0 - 2, k1)
+                p0001 = self.HpathBinary(k0 - 3, k1 - 1)
+                p00 = self.HpathBinary(k0 - 2, k1)
 
             sp00 = extend(stutterPermutations([k0 - 3, k1 - 1]), (0, 0))
             sp11 = extend(stutterPermutations([k0 - 1, k1 - 3]), (1, 1))
@@ -151,4 +151,4 @@ class VerhoeffBinaryTheorem:
             return path_ham
 
 
-HpathNS = VerhoeffBinaryTheorem().HpathNS
+HpathNS = VerhoeffBinaryTheorem().HpathBinary
