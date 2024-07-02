@@ -47,11 +47,27 @@ def visualize(
 
 def find_path_colors(
     edge_colors: dict, graph: nx.Graph, cli_args: Namespace, signature: list[int]
-) -> tuple[list, list]:
+) -> tuple[list[str], list[str]]:
     """
-    Finds the coloring if a possibly imperfect Hamiltonian path exits
+    Determines the colors of a Lehmer path in a neighbor-swap graph. The Lehmer path is computed using the ``lehmer_path`` function.
+    Uses whether the CLI arguments specify coloring or not.
+    If coloring is enabled, the nodes and edges are colored based on the Lehmer path (possibly with spurs).
+    If coloring is disabled, the nodes and edges are colored based on whether they are spurs or not.
+
+    Args:
+        edge_colors (dict):
+            A dictionary representing which edges are colored red (because they are in the Lehmer path), or black (rest).
+            The keys are tuples of nodes and the values are the color of the edge.
+        graph (nx.Graph): The networx graph to find the coloring for.
+        cli_args (Namespace): Command-line arguments. Contains the color flag, which activates coloring of the Lehmer path if `True`.
+        signature (list[int]): The signature of the permutations (for the Lehmer path)
+
+    Returns:
+        tuple[list[str], list[str]]:
+            A tuple containing the nodes and edges colors as lists of strings where the strings represent the colors.
+            The order of the colors corresponds to the order of the nodes and edges in the graph.
     """
-    h_nodes, spur_origins, spur_destinations = lehmer_path(
+    h_nodes, spur_bases, spur_destinations = lehmer_path(
         copy.deepcopy(graph), cli_args, signature
     )
     # Color the edges
@@ -64,8 +80,8 @@ def find_path_colors(
     if cli_args.color:
         node_colors = [
             (
-                "green"
-                if node in spur_origins
+                "orange"
+                if node in spur_bases
                 else (
                     "olive"
                     if node in spur_destinations
@@ -77,8 +93,8 @@ def find_path_colors(
     else:
         node_colors = [
             (
-                "green"
-                if node in spur_origins
+                "orange"
+                if node in spur_bases
                 else "olive" if node in spur_destinations else "skyblue"
             )
             for node in graph.nodes()
@@ -86,7 +102,18 @@ def find_path_colors(
     return node_colors, edge_colors.values()
 
 
-def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
+def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]):
+    """
+    Plot a graph using NetworkX and Matplotlib.
+
+    Args:
+        graph (nx.Graph): The graph to be plotted.
+        n_color (list): List of colors for nodes. The order corresponds to the order of the nodes in the graph.
+        e_color (list): List of colors for edges. The order corresponds to the order of the edges in the graph.
+
+    Returns:
+    - None
+    """
     plt.figure(figsize=(19, 38))
     pos = nx.get_node_attributes(graph, "pos")
     nx.draw(
@@ -105,6 +132,16 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
 
     # Register click event handler
     def onclick(event):
+        """
+        Handles the click event of the plot. Toggles the color of nodes and edges based on the click.
+        Finds the nearest node or edge to the click and toggles the color of the node or edge.
+
+        Parameters:
+        - event: The onclick event object.
+
+        Returns:
+        None
+        """
         if event.inaxes is not None:
             x, y = event.xdata, event.ydata
             node = None
@@ -137,6 +174,15 @@ def plot_graph(graph: nx.Graph, n_color: list, e_color: list):
 
     # Register key press event handler
     def onkeypress(event):
+        """
+        Reset the colors of the path marker and update the plot. This is triggered when the **C** key is pressed.
+
+        Parameters:
+        - event: The key press event object.
+
+        Returns:
+        None
+        """
         if event.key == "c":
             path_marker.reset_colors()
             path_marker.update_plot(nx, plt)
@@ -168,10 +214,18 @@ def point_to_line_distance(x, y, x1, y1, x2, y2):
     return distance
 
 
-def is_stutter_permutation(perm, max_arity):
+def is_stutter_permutation(perm: str, max_arity: bool) -> bool:
     """
-    Returns whether the permutation is a stutter permutation
-    Always returns False when the permutation has the maximum arity in the graph
+    Returns whether the permutation is a stutter permutation.
+    Always returns False when the permutation has the maximum arity in the graph.
+    This is used to determine whether to automatically recognize stutters as spurs in a variation on Lehmer's algorithm.
+    
+    Args:
+        perm (str): The permutation to check
+        max_arity (bool): Whether the permutation has the maximum arity in the graph
+    
+    Returns:
+        bool: `True` if the permutation is a stutter permutation, `False` otherwise.
     """
     if max_arity:
         return False
@@ -188,10 +242,17 @@ def lehmer_path(
 ) -> tuple[list, list, list]:
     """
     Implementation Lehmer's permutations by adjacent interchanges algorithm
-    @param graph: The neighbor-swap graph
-    @param cli_args: Command line arguments
-    @param signature: The permutation signature
-    @return: Lehmer path, spur count, node count
+
+    Args:
+        graph (nx.Graph): The neighbor-swap graph
+        cli_args (Namespace): Command line arguments
+        signature (list[int]): The permutation signature
+    
+    Returns:
+        tuple[list, list, list]: A tuple containing the Lehmer path, spur bases, and spur tips
+    
+    References:
+        - D. H. Lehmer. Permutation by Adjacent Interchanges. Technical Report 2, 1965.
     """
     # Step 1: Set node tally at 1
     node_tally = 1

@@ -95,7 +95,7 @@ if __name__ == "__main__":
                     edge_color_dict, perm_graph_dict, args, sig
                 )
             else:
-                node_colors = ["k" for node in perm_graph_dict.nodes()]
+                node_colors = ["k" for _ in perm_graph_dict.nodes()]
                 edge_colors = edge_color_dict.values()
             if args.graph:
                 plot_graph(perm_graph_dict, node_colors, edge_colors)

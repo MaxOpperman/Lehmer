@@ -1,22 +1,35 @@
-"""
-This file is directly copied from the original source code of the article:
-"Multiset permutation generation by transpositions" by Rivertz
-The original source code is available at: https://doi.org/10.48550/arXiv.2309.11781
-
-Therefore we also did not test this file as it is not part of our codebase.
-"""
-
 from abc import ABC
 from collections.abc import Iterator
 
 
 def swap_elements(a_list, i, j):
+    """
+    Swaps the elements at positions i and j in the given list.
+
+    Args:
+        a_list (list): The list in which the elements will be swapped.
+        i (int): The index of the first element to be swapped.
+        j (int): The index of the second element to be swapped.
+
+    Returns:
+        None (the list is modified in place)
+    """
     tmp = a_list[i]
     a_list[i] = a_list[j]
     a_list[j] = tmp
 
 
 class SetPerm(Iterator, ABC):
+    """
+    This file is directly copied from the original source code of the article:
+    "Multiset permutation generation by transpositions" by Rivertz
+    The original source code is available at: https://doi.org/10.48550/arXiv.2309.11781
+
+    Therefore we also did not test or document this file as it is not part of our codebase.
+
+    References:
+        - Hans Jakob Rivertz. Multiset permutation generation by transpositions. 9 2023
+    """
     def __init__(self, multiplicity):
         self.m = multiplicity
         self.k = len(multiplicity)

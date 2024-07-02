@@ -2,7 +2,7 @@ Figure Generation packages
 =================================
 
 
-figure\_generation\_files.rivertz module
+Rivertz module
 ----------------------------------------
 
 .. automodule:: figure_generation_files.rivertz
@@ -10,7 +10,7 @@ figure\_generation\_files.rivertz module
    :undoc-members:
    :show-inheritance:
 
-figure\_generation\_files.timetests module
+Timetests module
 ------------------------------------------
 
 .. automodule:: figure_generation_files.timetests
@@ -18,7 +18,7 @@ figure\_generation\_files.timetests module
    :undoc-members:
    :show-inheritance:
 
-figure\_generation\_files.verhoeffCycleCoverPaths module
+Verhoeff Cycle Cover Paths module
 --------------------------------------------------------
 
 .. automodule:: figure_generation_files.verhoeffCycleCoverPaths

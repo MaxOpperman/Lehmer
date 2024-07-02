@@ -15,6 +15,17 @@ from helper_operations.permutation_graphs import multinomial
 
 
 class TimeTests:
+    """
+    A class that is used in the time_tests function to store the signatures for the time tests.
+
+    Attributes:
+        signatures (None): The signatures attribute. It is set to None by default but changed to the appropriate list in the ``time_tests`` function.
+        signatures_l2 (list): A list of Stachowiak's Lemma 2 signatures.
+        signatures_verhoeff (list): A list of Verhoeff signatures. (binary case)
+        signatures_sjt (list): A list of SJT signatures. (permutahedron)
+        sigantures_stachowiak (list): A list of Stachowiak signatures. Cases where the binary 3,3 signature is used and extended with Stachowiak's theorem.
+    """
+
     signatures = None
     signatures_l2 = [
         [1, 1, 24],
@@ -52,10 +63,32 @@ class TimeTests:
 
     @staticmethod
     def setup(n):
+        """
+        Returns the signature at index n.
+
+        Args:
+            n (int): The index of the signature to retrieve.
+
+        Returns:
+            list: The signature at index n.
+        """
         return TimeTests.signatures[n]
 
 
 def time_tests(args: Namespace):
+    """
+    Perform time tests for different signature types and generate graphs and tables.
+
+    Args:
+        args (Namespace):
+            Command-line arguments.\n
+            - numpy (bool): Include numpy in the tests.
+            - graph (bool): Save the graphs files for the results.
+            - latex (bool): Save LaTeX tables files for the results.
+
+    Returns:
+        None. The results are saved in the `.\out` directory.
+    """
     if not os.path.exists("./out") and (args.graph or args.latex):
         os.makedirs("./out")
     for l11_type in ["Lemma2", "Verhoeff", "SJT", "Stachowiak"]:

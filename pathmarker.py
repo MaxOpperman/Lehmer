@@ -1,20 +1,37 @@
+from matplotlib import pyplot as plt
+import networkx as nx
+
+
 class PathMarker:
     """
-    A class that represents a path marker for a graph.
+    A class that represents a path marker for a graph. This is used as a class since we want to keep track of one instance of a graph.
+    This instance is used to keep track of the marked nodes and edges in the graph.
+    Note we can mark nodes with left-click and right-click. Marked nodes and edges are drawn in royalblue color,
+    while right-click marked nodes are drawn in darkturquoise color.
+
+    Note:
+        - Both nodes and edges can be marked with left-click.
+        - Only nodes can be right-click marked. Edges cannot!
 
     Attributes:
-        graph (object): The graph object.
-        pos (dict): A dictionary containing the positions of the nodes in the graph.
-        default_edges (list): A list of default edge colors.
-        default_nodes (list): A list of default node colors.
-        marked_nodes (set): A set of marked nodes.
-        right_marked_nodes (set): A set of right-click marked nodes.
-        marked_edges (set): A set of marked edges.
-        edge_colors (list): A list of edge colors.
-        node_colors (list): A list of node colors.
+        graph (nx.Graph): The networkx graph object.
+        pos (dict): The position of the nodes in the graph. The keys are the nodes and the values are the positions.
+        marked_nodes (set): A set of marked nodes. Starts empty.
+        right_marked_nodes (set): A set of right-click marked nodes. Starts empty.
+        marked_edges (set): A set of marked edges. Starts empty.
+        edge_colors (list):
+            A list of colors for the edges. Is black by default.
+            If a Lehmer path is highlighted, the edge colors are changed to red.
+        node_colors (list):
+            A list of colors for the nodes. Is lightblue by default.
+            If a Lehmer path is highlighted, the graph has the following colors:\n
+            - Orange for the spur bases
+            - Olive for the spur tips
+            - Deeppink for the other visited nodes
+            - Lightblue for the unvisited nodes
     """
 
-    def __init__(self, graph, pos, default_edges, default_nodes):
+    def __init__(self, graph: nx.Graph, pos: dict, default_edges: list, default_nodes: list):
         self.graph = graph
         self.pos = pos
         self.marked_nodes = set()
@@ -79,7 +96,7 @@ class PathMarker:
 
     def toggle_right_mark_node(self, node):
         """
-        Toggles the right-click marking of a node.
+        Toggles the right-click marking of a node. If the node is already right-click marked, it will be unmarked and vice versa.
 
         Args:
             node: The node to be toggled.
@@ -113,7 +130,7 @@ class PathMarker:
 
     def toggle_edge(self, edge):
         """
-        Toggles the marking of an edge.
+        Toggles the marking of an edge. If the edge is already marked, it will be unmarked and vice versa.
 
         Args:
             edge: The edge to be toggled.
@@ -125,44 +142,23 @@ class PathMarker:
 
     def reset_colors(self):
         """
-        Resets the marked nodes and edges to their default colors.
+        Clears the sets of marked nodes and edges. This is to reset the colors of the graph.
         """
         self.marked_nodes.clear()
         self.marked_edges.clear()
 
-    def is_node_marked(self, node):
+
+    def update_plot(self, nx: nx.Graph, plt_instance: plt):
         """
-        Checks if a node is marked.
+        Updates the plot with the marked nodes and edges. Draws it in the matplotlib pyplot instance.
+        Marked nodes and edges are drawn in royalblue color.
+        For right-click marked nodes, they are drawn in darkturquoise color.
 
         Args:
-            node: The node to be checked.
-
-        Returns:
-            bool: True if the node is marked, False otherwise.
+            nx (nx.Graph): The networkx graph object.
+            plt_instance (plt): The matplotlib pyplot instance.
         """
-        return node in self.marked_nodes
-
-    def is_edge_marked(self, edge):
-        """
-        Checks if an edge is marked.
-
-        Args:
-            edge: The edge to be checked.
-
-        Returns:
-            bool: True if the edge is marked, False otherwise.
-        """
-        return edge in self.marked_edges
-
-    def update_plot(self, nx, plt):
-        """
-        Updates the plot with the marked nodes and edges.
-
-        Args:
-            nx: The networkx module.
-            plt: The matplotlib.pyplot module.
-        """
-        plt.clf()
+        plt_instance.clf()
         nx.draw(
             self.graph,
             self.pos,
@@ -202,5 +198,5 @@ class PathMarker:
             width=3,
         )
 
-        plt.title("Permutation Inversions Graph")
-        plt.draw()
+        plt_instance.title("Permutation Inversions Graph")
+        plt_instance.draw()
