@@ -274,6 +274,67 @@ def incorporated_odd_2_1(k: int) -> list[tuple[int, ...]]:
     return split1 + parallelCycles + split2
 
 
+def add_cycle_in_order(
+    cycle_cover: list[list[tuple[int, ...]]],
+    cycle: list[list[tuple[int, ...]]],
+    cycle_end: tuple[int, int],
+) -> list[list[tuple[int, ...]]]:
+    """
+    Adds a cycle to the cycle cover in order. The order is based on the last two elements of the cycle.
+    The last element should be the smallest and then the second to last element should be the smallest.
+
+    Args:
+        cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to add the cycle to. The depth of the list is undefined and depends on the cycle cover.
+        cycle (list[list[tuple[int, ...]]]): The cycle to add.
+        cycle_end (tuple[int, int]): The last two elements of the cycle. The last element should be the largest.
+
+    Returns:
+        list[list[tuple[int, ...]]]: The cycle cover with the added cycle.
+
+    Raises:
+        AssertionError: If the cycle is empty.
+    """
+    assert len(cycle) > 0
+    if len(cycle_cover) == 0:
+        return [cycle]
+    last_element = cycle_end[1]
+    second_last_element = cycle_end[0]
+    for idx, c in enumerate(cycle_cover):
+        # get the tuple
+        perm_list = get_cycle_cover_tuple(c)
+        # sort the last two elements from small to large
+        old_last_element = max(perm_list[-1], perm_list[-2])
+        old_second_last_element = min(perm_list[-1], perm_list[-2])
+        # if the last element is less than the old last element, prepend it
+        if last_element < old_last_element:
+            cycle_cover.insert(idx, cycle)
+            return cycle_cover
+        # if the last element is equal to the old last element, check the second last element
+        elif (
+            old_last_element == last_element
+            and second_last_element < old_second_last_element
+        ):
+            cycle_cover.insert(idx, cycle)
+            return cycle_cover
+    # if the new cycle is larger than all the old cycles, append it
+    return cycle_cover
+
+
+def get_cycle_cover_tuple(perm_list: list[tuple[int, ...]]) -> tuple[int, ...]:
+    """
+    Gets the first tuple from the cycle cover.
+
+    Args:
+        perm_list (list[tuple[int, ...]]): The cycle cover to get the tuple from. Does not have a defined depth.
+
+    Returns:
+        tuple[int, ...]: The first tuple from the cycle cover.
+    """
+    while isinstance(perm_list, list):
+        perm_list = perm_list[0]
+    return perm_list
+
+
 def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     """
     Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
@@ -402,6 +463,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     # all-even case
     else:
         all_sub_cycles = []
+        between_cycles = []
         for idx, color in enumerate(sig):
             temp_sig = sig[:idx] + [color - 1] + sig[idx + 1 :]
             for idx2, second_color in enumerate(temp_sig[idx:], start=idx):
@@ -429,14 +491,27 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
                         sub_cycles.append(
                             extend(cyc, (idx2, idx))[::-1] + extend(cyc, (idx, idx2))
                         )
+                    if idx2 - idx <= 1:
+                        all_sub_cycles.append(sub_cycles)
+                    else:
+                        between_cycles = add_cycle_in_order(
+                            between_cycles, sub_cycles, (idx, idx2)
+                        )
                 else:
                     # this gives all the non-stutter permutations
                     sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
-                all_sub_cycles.append(sub_cycles)
+                    all_sub_cycles.append(sub_cycles)
+                    while len(between_cycles) > 0 and idx == max(
+                        get_cycle_cover_tuple(between_cycles)[-2:]
+                    ):
+                        all_sub_cycles.append(between_cycles.pop(0))
+        if len(between_cycles) > 0:
+            all_sub_cycles.append(between_cycles.pop(0))
         return all_sub_cycles
 
 
 if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(
         description="Create a cycle cover from a given permutation signature."
     )
@@ -456,6 +531,12 @@ if __name__ == "__main__":
         perms = generate_cycle_cover(s)
         if args.verbose:
             print(f"Resulting path {perms}")
+        get_first_element = lambda x: (
+            get_first_element(x[0]) if isinstance(x, list) else x
+        )
+        for p in perms:
+            first = get_first_element(p)
+            print(f"last number: {first[-2:]}\n {p}")
         stut_count = len(stutterPermutations(s))
         try:
             total_perms = recursive_cycle_check(perms)
