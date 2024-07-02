@@ -16,17 +16,14 @@ from helper_operations.permutation_graphs import multinomial
 
 class TimeTests:
     """
-    A class that is used in the time_tests function to store the signatures for the time tests.
-
-    Attributes:
-        signatures (None): The signatures attribute. It is set to None by default but changed to the appropriate list in the ``time_tests`` function.
-        signatures_l2 (list): A list of Stachowiak's Lemma 2 signatures.
-        signatures_verhoeff (list): A list of Verhoeff signatures. (binary case)
-        signatures_sjt (list): A list of SJT signatures. (permutahedron)
-        sigantures_stachowiak (list): A list of Stachowiak signatures. Cases where the binary 3,3 signature is used and extended with Stachowiak's theorem.
+    A class that stores the signatures and provides them for the `time_tests` function.
+    The signatures are categorized into four types: Stachowiak's Lemma 2, Verhoeff's binary case, Steinhaus-Johnson-Trotter (permutahedron), and Stachowiak's theorem.
+    There is also a function that can provide the signature at a given index: ``setup``.
     """
 
+    #: None: The signatures attribute. It is set to None by default but changed to the appropriate list in the ``time_tests`` function.
     signatures = None
+    #: list: A list of Stachowiak's Lemma 2 signatures.
     signatures_l2 = [
         [1, 1, 24],
         [1, 1, 22],
@@ -35,6 +32,7 @@ class TimeTests:
         [1, 1, 16],
         [1, 1, 14],
     ]
+    #: list: A list of Verhoeff signatures. (binary case)
     signatures_verhoeff = [
         [11, 9],
         [9, 11],
@@ -45,12 +43,14 @@ class TimeTests:
         [9, 7],
         [13, 5],
     ]
+    #: list: A list of Steinhaus-Johnson-Trotter signatures. (permutahedron)
     signatures_sjt = [
         [1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1],
         [1, 1, 1, 1, 1, 1, 1, 1],
     ]
+    #: list: A list of Stachowiak signatures. Cases where the binary 3,3 signature is used and extended with Stachowiak's theorem.
     sigantures_stachowiak = [
         [3, 3, 4, 1],
         [3, 3, 3, 2],
@@ -87,7 +87,7 @@ def time_tests(args: Namespace):
             - latex (bool): Save LaTeX tables files for the results.
 
     Returns:
-        None. The results are saved in the `.\out` directory.
+        None: The results are saved in the `.\out` directory.
     """
     if not os.path.exists("./out") and (args.graph or args.latex):
         os.makedirs("./out")

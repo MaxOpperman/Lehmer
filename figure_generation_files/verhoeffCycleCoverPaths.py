@@ -5,6 +5,22 @@ import matplotlib.pyplot as plt
 
 
 def fig11(ax, even_int: int):
+    """
+    Generate and plot Figure 11 from Verhoeff's paper (see References). The figure displays a path between `c` and `d`:\n
+        - `c1 = 12 0^k_0 1`
+        - `d1 = 0 21 0^{k_0-1} 1`\n
+    where `k_0` is an even integer (`even_int`). The path is highlighted in blue and important nodes are marked.
+
+    Args:
+        ax: The matplotlib Axes object to plot the figure on.
+        even_int: An even integer value.
+
+    Returns:
+        None: Works in place to plot the figure on the given `ax`.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     diff_4 = even_int - 4
 
     # Set limits and aspect ratio
@@ -88,6 +104,22 @@ def fig11(ax, even_int: int):
 
 
 def fig12(ax, even_int: int):
+    """
+    Generate and plot Figure 12 from Verhoeff's paper (see References). The figure displays a path between `a` and `b`:\n
+        - `a0 = 12 0^{k_0-1} 1 0`
+        - `b0 = 0 21 0^{k_0-2} 1 0`\n
+    where `k_0` is an even integer (`even_int`). The path is highlighted in blue and important nodes are marked.
+
+    Args:
+        ax: The matplotlib Axes object to plot the figure on.
+        even_int: An even integer value.
+
+    Returns:
+        None: Works in place to plot the figure on the given `ax`.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     diff_4 = even_int - 4
 
     # Set limits and aspect ratio
@@ -159,6 +191,20 @@ def fig12(ax, even_int: int):
 
 
 def combined_figure(even_int: int, save=False):
+    """
+    Generate and plot both Figure 11 and Figure 12 from Verhoeff's paper (see References) in a single plot.
+    The figures display paths between `c` and `d` and between `a` and `b` respectively. The paths are highlighted in blue and important nodes are marked.
+
+    Args:
+        even_int (int): An even integer value.
+        save (bool): Save the image in the `./out` directory.
+
+    Returns:
+        None: Works in place to plot the figure.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 7))
 
     # Draw both figures in the subplots
@@ -180,6 +226,21 @@ def combined_figure(even_int: int, save=False):
 
 
 def plot_individual_figures(even_int: int, save=False):
+    """
+    Generate and plot Figure 11 and Figure 12 from Verhoeff's paper (see References) in separate plots.
+    The figures display paths between `c` and `d` and between `a` and `b` respectively. The paths are highlighted in blue and important nodes are marked.
+    If `save` is enabled, the images are saved in the `./out` directory. If not, the figures are displayed.
+
+    Args:
+        even_int (int): An even integer value, the number of 0s in the signature.
+        save (bool): Save the images in the `./out` directory. If `False`, the figures are displayed.
+
+    Returns:
+        None: Works in place to plot the figures.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+    """
     # Plot fig11
     fig, ax = plt.subplots()
     fig11(ax, even_int)

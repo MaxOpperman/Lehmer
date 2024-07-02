@@ -16,6 +16,7 @@ Timetests module
 .. automodule:: figure_generation_files.timetests
    :members:
    :undoc-members:
+   :no-index:
    :show-inheritance:
 
 Verhoeff Cycle Cover Paths module

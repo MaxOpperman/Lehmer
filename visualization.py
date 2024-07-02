@@ -194,7 +194,27 @@ def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]):
     plt.show()
 
 
-def point_to_line_distance(x, y, x1, y1, x2, y2):
+import math
+
+
+def point_to_line_distance(
+    x: float, y: float, x1: float, y1: float, x2: float, y2: float
+) -> float:
+    """
+    Calculates the shortest distance between a point `(x, y)` and a line segment defined by two points `(x1, y1)` and `(x2, y2)`.
+    We will say that the click is close to the edge if the distance is less than 0.01.
+
+    Args:
+        x (float): The x-coordinate of the clicked point.
+        y (float): The y-coordinate of the clicked point.
+        x1 (float): The x-coordinate of the first point defining the line segment.
+        y1 (float): The y-coordinate of the first point defining the line segment.
+        x2 (float): The x-coordinate of the second point defining the line segment.
+        y2 (float): The y-coordinate of the second point defining the line segment.
+
+    Returns:
+        distance (float): The shortest distance between the point and the line segment.
+    """
     # Calculate the dot product of the vectors (x - x1, y - y1) and (x2 - x1, y2 - y1)
     dot_product = (x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)
 
@@ -219,11 +239,11 @@ def is_stutter_permutation(perm: str, max_arity: bool) -> bool:
     Returns whether the permutation is a stutter permutation.
     Always returns False when the permutation has the maximum arity in the graph.
     This is used to determine whether to automatically recognize stutters as spurs in a variation on Lehmer's algorithm.
-    
+
     Args:
         perm (str): The permutation to check
         max_arity (bool): Whether the permutation has the maximum arity in the graph
-    
+
     Returns:
         bool: `True` if the permutation is a stutter permutation, `False` otherwise.
     """
@@ -247,10 +267,10 @@ def lehmer_path(
         graph (nx.Graph): The neighbor-swap graph
         cli_args (Namespace): Command line arguments
         signature (list[int]): The permutation signature
-    
+
     Returns:
         tuple[list, list, list]: A tuple containing the Lehmer path, spur bases, and spur tips
-    
+
     References:
         - D. H. Lehmer. Permutation by Adjacent Interchanges. Technical Report 2, 1965.
     """
