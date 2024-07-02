@@ -2,11 +2,7 @@ import copy
 import sys
 
 from helper_operations.path_operations import adjacent, cutCycle, spurBaseIndex
-from helper_operations.permutation_graphs import (
-    halve_signature,
-    permutations_from_sig,
-    rotate,
-)
+from helper_operations.permutation_graphs import halve_signature, permutations_from_sig, rotate
 
 
 def stutterize(p: list[int]) -> list[list[int]]:
