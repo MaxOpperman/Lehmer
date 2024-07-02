@@ -1,8 +1,8 @@
-Type Variation Modules
+Type Variations
 ========================
 
 
-Stachowiak Lists with Verhoeff Lists
+type\_variations.stachowiak\_list module
 ----------------------------------------
 
 .. automodule:: type_variations.stachowiak_list
@@ -10,7 +10,7 @@ Stachowiak Lists with Verhoeff Lists
    :undoc-members:
    :show-inheritance:
 
-Stachowiak Lists with Verhoeff Tuples
+type\_variations.stachowiak\_list\_verhoeff\_tuple module
 ---------------------------------------------------------
 
 .. automodule:: type_variations.stachowiak_list_verhoeff_tuple
@@ -18,7 +18,7 @@ Stachowiak Lists with Verhoeff Tuples
    :undoc-members:
    :show-inheritance:
 
-Stachowiak Numpy with Verhoeff Numpy
+type\_variations.stachowiak\_numpy module
 -----------------------------------------
 
 .. automodule:: type_variations.stachowiak_numpy
@@ -26,7 +26,7 @@ Stachowiak Numpy with Verhoeff Numpy
    :undoc-members:
    :show-inheritance:
 
-Stachowiak Tuples with Verhoeff Lists
+type\_variations.stachowiak\_tuple\_verhoeff\_list module
 ---------------------------------------------------------
 
 .. automodule:: type_variations.stachowiak_tuple_verhoeff_list
@@ -34,7 +34,7 @@ Stachowiak Tuples with Verhoeff Lists
    :undoc-members:
    :show-inheritance:
 
-Steinhaus Johnson Trotter Lists
+type\_variations.steinhaus\_johnson\_trotter\_list module
 ---------------------------------------------------------
 
 .. automodule:: type_variations.steinhaus_johnson_trotter_list
@@ -42,7 +42,7 @@ Steinhaus Johnson Trotter Lists
    :undoc-members:
    :show-inheritance:
 
-Steinhaus Johnson Trotter Numpy
+type\_variations.steinhaus\_johnson\_trotter\_numpy module
 ----------------------------------------------------------
 
 .. automodule:: type_variations.steinhaus_johnson_trotter_numpy
@@ -50,7 +50,7 @@ Steinhaus Johnson Trotter Numpy
    :undoc-members:
    :show-inheritance:
 
-Verhoeff Lists
+type\_variations.verhoeff\_list module
 --------------------------------------
 
 .. automodule:: type_variations.verhoeff_list
@@ -58,7 +58,7 @@ Verhoeff Lists
    :undoc-members:
    :show-inheritance:
 
-Verhoeff Numpy
+type\_variations.verhoeff\_numpy module
 ---------------------------------------
 
 .. automodule:: type_variations.verhoeff_numpy
