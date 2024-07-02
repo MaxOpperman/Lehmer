@@ -317,6 +317,7 @@ def add_cycle_in_order(
             cycle_cover.insert(idx, cycle)
             return cycle_cover
     # if the new cycle is larger than all the old cycles, append it
+    cycle_cover.append(cycle)
     return cycle_cover
 
 
