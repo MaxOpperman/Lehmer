@@ -92,12 +92,11 @@ def time_tests(args: Namespace):
             return kernel(np.array(input))
 
         def get_kernels():
-            stach_tuples = stachowiak.Stachowiak()
             kernels = [
                 lambda input: wrapper_list(
                     type_variations.stachowiak_list.lemma11, input
                 ),
-                lambda input: wrapper_list(stach_tuples.lemma11, input),
+                lambda input: wrapper_list(stachowiak.lemma11, input),
                 lambda input: wrapper_list(
                     type_variations.stachowiak_tuple_verhoeff_list.lemma11, input
                 ),

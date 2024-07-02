@@ -9,6 +9,7 @@ This software is made available under the terms of the (To Be Supplied) License.
 import copy
 import math
 
+import numpy as np
 import pytest
 
 from helper_operations.path_operations import cycleQ, pathQ
@@ -18,15 +19,14 @@ from helper_operations.permutation_graphs import (
     LargeHcycleQ,
     multinomial,
 )
-from stachowiak import Stachowiak
-
-stach = Stachowiak()
-_lemma10_helper = stach._lemma10_helper
-lemma2_extended_path = stach.lemma2_extended_path
-lemma7 = stach.lemma7
-lemma8 = stach.lemma8
-lemma9 = stach.lemma9
-lemma11 = stach.lemma11
+from stachowiak import (
+    _lemma10_helper,
+    lemma2_extended_path,
+    lemma7,
+    lemma8,
+    lemma9,
+    lemma11,
+)
 
 
 class Test_Lemma2:

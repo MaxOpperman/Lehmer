@@ -1,12 +1,9 @@
 import pytest
 
-from cycle_cover import CycleCover
+from cycle_cover import generate_cycle_cover
 from helper_operations.path_operations import pathQ, recursive_cycle_check
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
 from verhoeff import HpathNS
-
-
-generate_cycle_cover = CycleCover().generate_cycle_cover
 
 
 class Test_HpathCycleCover_Edge_Cases:

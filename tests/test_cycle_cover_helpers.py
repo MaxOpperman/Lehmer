@@ -1,17 +1,13 @@
 import pytest
 
 from cycle_cover import (
-    CycleCover,
+    Hpath_even_1_1,
+    Hpath_odd_2_1,
+    incorporated_odd_2_1,
+    parallel_sub_cycle_odd_2_1,
 )
 from helper_operations.path_operations import cycleQ, pathQ
 from helper_operations.permutation_graphs import HpathQ, extend, multinomial
-
-
-cycle_cov = CycleCover()
-Hpath_even_1_1 = cycle_cov.Hpath_even_1_1
-Hpath_odd_2_1 = cycle_cov.Hpath_odd_2_1
-incorporated_odd_2_1 = cycle_cov.incorporated_odd_2_1
-parallel_sub_cycle_odd_2_1 = cycle_cov.parallel_sub_cycle_odd_2_1
 
 
 class Test_HpathOdd_2_1:

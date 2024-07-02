@@ -1,3 +1,6 @@
+Stachowiak
+=================
+
 .. automodule:: stachowiak
    :members:
    :undoc-members:
