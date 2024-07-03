@@ -234,7 +234,7 @@ def point_to_line_distance(
     return distance
 
 
-def is_stutter_permutation(perm: str, max_arity: bool) -> bool:
+def is_stutter_permutation(perm: str, max_arity=False) -> bool:
     """
     Returns whether the permutation is a stutter permutation.
     Always returns False when the permutation has the maximum arity in the graph.
@@ -242,7 +242,7 @@ def is_stutter_permutation(perm: str, max_arity: bool) -> bool:
 
     Args:
         perm (str): The permutation to check
-        max_arity (bool): Whether the permutation has the maximum arity in the graph
+        max_arity (bool, optional): Whether the permutation has the maximum arity in the graph
 
     Returns:
         bool: `True` if the permutation is a stutter permutation, `False` otherwise.

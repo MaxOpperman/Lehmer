@@ -4,6 +4,7 @@ from helper_operations.path_operations import (
     createZigZagPath,
     cutCycle,
     cycleQ,
+    get_first_element,
     get_transformer,
     incorporateSpursInZigZag,
     pathQ,
@@ -532,12 +533,9 @@ if __name__ == "__main__":
         perms = generate_cycle_cover(s)
         if args.verbose:
             print(f"Resulting path {perms}")
-        get_first_element = lambda x: (
-            get_first_element(x[0]) if isinstance(x, list) else x
-        )
         for p in perms:
             first = get_first_element(p)
-            print(f"last number: {first[-2:]}\n {p}")
+            print(f"last number: {first[-2:]}")
         stut_count = len(stutterPermutations(s))
         try:
             total_perms = recursive_cycle_check(perms)

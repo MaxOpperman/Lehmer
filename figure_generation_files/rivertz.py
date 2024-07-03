@@ -30,6 +30,7 @@ class SetPerm(Iterator, ABC):
     References:
         - Hans Jakob Rivertz. Multiset permutation generation by transpositions. 9 2023
     """
+
     def __init__(self, multiplicity):
         self.m = multiplicity
         self.k = len(multiplicity)

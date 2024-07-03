@@ -74,7 +74,9 @@ def cycleQ(c: list[tuple[int, ...]]) -> bool:
     return True
 
 
-def pathEdges(p: list[tuple[int, ...]]) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+def pathEdges(
+    p: list[tuple[int, ...]]
+) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
     """
     Returns a list of edges of a path. T
 
@@ -83,7 +85,7 @@ def pathEdges(p: list[tuple[int, ...]]) -> list[tuple[tuple[int, ...], tuple[int
 
     Returns:
         list[list[tuple[int, ...]]]: A list of edges, where each edge is represented as a tuple of two adjacent vertices.
-    
+
     Raises:
         ValueError: If the given list of vertices does not represent a path.
     """
@@ -210,7 +212,7 @@ def createZigZagPath(
     Returns:
         list[tuple[int, ...]]:
             Path obtained by combining two "parallel" copies of the given path `p`.
-    
+
     Raises:
         AssertionError: If the path `p` is not a path.
         AssertionError: If the length of the path is less than 1.
@@ -231,7 +233,7 @@ def incorporateSpurInZigZag(
     Incorporates a spur in a zigzag path. A spur consists of two vertices,
     both ending with two trailing elements that are the same as in the zigzag path.
     The spur is incorporated by finding the base of the spur in the zigzag path,
-    i.e. the vertex adjacent to the spur tip which is in the "zig" part. 
+    i.e. the vertex adjacent to the spur tip which is in the "zig" part.
     Then the spur is inserted in the path at that index. Then the path continues with the "zag" part.
 
     Args:
@@ -278,12 +280,12 @@ def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, .
     - The first vertices with `uu, uv, vv, vu, vu, vv, uv, uu`
     - Only the last one with `uu, uv, vv, vu, vu, uu, uv, vv`\n
     Every vertex in the original path is repeated 4 times. Once for each combination of `u` and `v` above.
-    
+
     Args:
         path (list[tuple]): List of vertices, a path.
         u (tuple): Tuple to append.
         v (tuple): Tuple adjacent to `u` to append.
-        
+
     Returns:
         list[tuple[int, ...]]: List of vertices, the square tube. Every vertex in the original path is repeated 4 times.
     """
@@ -350,10 +352,10 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
 
     Returns:
         list[tuple[int, ...]]: List of tuples of integers. The transformed permutations.
-        
+
     Raises:
         ValueError: If the index of an element in the permutation is larger than the length of the transformation list.
-    
+
     Example:
         >>> transform([(0, 1, 2), (1, 0, 2)], [4, 5, 6])
         [(4, 5, 6), (4, 4, 6)]
@@ -372,9 +374,7 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
     return l
 
 
-def transform_cycle_cover(
-    lis3d: list[list], tr: list[int]
-) -> list[list]:
+def transform_cycle_cover(lis3d: list[list], tr: list[int]) -> list[list]:
     """
     Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
     The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
@@ -401,6 +401,33 @@ def transform_cycle_cover(
         return [transform_cycle_cover(l, tr) for l in lis3d]
 
 
+def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[list]:
+    """
+    Shortens a list of unknown depth holding a list of permutations by the given elements. Used for the cycle cover.
+    The elements are removed from the permutations in the lists of tuples. Also checks whether all tuples end with the given elements.
+
+    Args:
+        lis3d (list[list[tuple[int, ...]]]):
+            List of lists of permutations. Does not have a fixed depth. The depth is determined by the cycle cover function.
+            If the depth is 2 (list of lists of permutations, where permutations are tuples), the function will shorten the permutations.
+        elements (tuple[int, ...]): Tuple of integers to remove from the permutations.
+
+    Returns:
+        list[list[tuple[int, ...]]]: The same structure of lists as the input, but with the permutations shortend by `elements`.
+    Raises:
+        AssertionError: If the input list does not have a length greater than 0.
+        AssertionError: If a permutation does not end with the given elements.
+    """
+    assert len(lis3d) > 0
+    if isinstance(lis3d[0][0][0], int):
+        assert all(tup[-len(elements) :] == elements for l in lis3d for tup in l)
+        return [tup[: -len(elements)] for l in lis3d for tup in l]
+    elif not isinstance(lis3d, list):
+        raise ValueError("The input is not a list")
+    else:
+        return [shorten_cycle_cover(l, elements) for l in lis3d]
+
+
 def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     """
     Recursively check whether the given list is a cycle. The input is a list of cycles of unknown depth.
@@ -414,7 +441,7 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
 
     Returns:
         int: Total length of the list of cycles.
-    
+
     Raises:
         AssertionError: If the input is not a list of length greater than 0.
         AssertionError: If the input is not a list of cycles.
@@ -430,3 +457,47 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
         for sub_cycle in cycle:
             total_length = recursive_cycle_check(sub_cycle, total_length)
     return total_length
+
+
+def get_first_element(nested_list: list) -> tuple[int, ...]:
+    """
+    Recursively retrieves the first element of a nested list.
+
+    Args:
+        nested_list (list): The nested list. Ultimately a tuple of integers (the permutations).
+
+    Returns:
+        tuple[int, ...]: The first element of the nested list.
+    """
+    if isinstance(nested_list, list):
+        return get_first_element(nested_list[0])
+    else:
+        return nested_list
+
+
+def get_single_list(nested_list: list) -> list[tuple[int, ...]]:
+    """
+    Recursively retrieves the first singular list of a nested list of tuples.
+
+    Args:
+        nested_list (list): The nested list. Ultimately a tuple of integers (the permutations).
+
+    Returns:
+        list[tuple[int, ...]]: A list of tuples that in the first position of the nested list.
+    """
+    if (
+        isinstance(nested_list, list)
+        and len(nested_list) > 0
+        and isinstance(nested_list[0], tuple)
+    ):
+        return nested_list
+    elif (
+        isinstance(nested_list, list)
+        and len(nested_list) > 0
+        and isinstance(nested_list[0], list)
+    ):
+        return get_single_list(nested_list[0])
+    else:
+        raise ValueError(
+            f"The input {nested_list} is not a nested list of permutations."
+        )

@@ -1,5 +1,5 @@
-from matplotlib import pyplot as plt
 import networkx as nx
+from matplotlib import pyplot as plt
 
 
 class PathMarker:
@@ -31,7 +31,9 @@ class PathMarker:
             - Lightblue for the unvisited nodes
     """
 
-    def __init__(self, graph: nx.Graph, pos: dict, default_edges: list, default_nodes: list):
+    def __init__(
+        self, graph: nx.Graph, pos: dict, default_edges: list, default_nodes: list
+    ):
         self.graph = graph
         self.pos = pos
         self.marked_nodes = set()
@@ -146,7 +148,6 @@ class PathMarker:
         """
         self.marked_nodes.clear()
         self.marked_edges.clear()
-
 
     def update_plot(self, nx: nx.Graph, plt_instance: plt):
         """
