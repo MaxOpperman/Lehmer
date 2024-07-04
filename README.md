@@ -6,7 +6,8 @@ Gruaduation project about finding Lehmer's paths on neighbor-swap graphs of perm
 Primarily based on articles by T. Verhoeff: [The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations](https://doi.org/10.1007/s10623-016-0301-9) and by G. Stachowiak [Hamilton Paths in Graphs of Linear Extensions for Unions of Posets](https://doi.org/10.1137/0405016).
 
 ## Generate the Documentation
-The docs are published online at via Github. [Read the docs](https://maxopperman.github.io/Lehmer).
+The docs are published online at via GitHub: [Read the docs](https://maxopperman.github.io/Lehmer).
+
 Run `pip install -r requirements.txt && cd docs && sphinx-apidoc -o . .. ../*tests* && ./make.bat html`. Or consecutively:
 ```
 pip install -r requirements.txt

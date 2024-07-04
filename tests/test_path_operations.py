@@ -13,6 +13,7 @@ from helper_operations.path_operations import (
     pathEdges,
     pathQ,
     recursive_cycle_check,
+    shorten_cycle_cover,
     splitPathIn2,
     spurBaseIndex,
     transform,
@@ -661,3 +662,89 @@ class TestPathOperations:
             )
             == 4
         )
+
+    def test_shorten_cycle_cover_depth1(self):
+        assert shorten_cycle_cover([[(0, 1, 1), (1, 0, 1)]], (1,)) == [[(0, 1), (1, 0)]]
+
+    def test_shorten_cycle_cover_depth2(self):
+        p = [
+            [
+                [
+                    [
+                        (0, 0, 1, 1, 3, 2),
+                        (0, 1, 0, 1, 3, 2),
+                        (1, 0, 0, 1, 3, 2),
+                        (0, 1, 1, 0, 3, 2),
+                        (1, 0, 1, 0, 3, 2),
+                        (1, 1, 0, 0, 3, 2),
+                    ]
+                ]
+            ],
+            [[(0, 1, 3, 2), (1, 0, 3, 2)]],
+        ]
+        assert shorten_cycle_cover(p, (3, 2)) == [
+            [
+                [
+                    [
+                        (0, 0, 1, 1),
+                        (0, 1, 0, 1),
+                        (1, 0, 0, 1),
+                        (0, 1, 1, 0),
+                        (1, 0, 1, 0),
+                        (1, 1, 0, 0),
+                    ]
+                ]
+            ],
+            [[(0, 1), (1, 0)]],
+        ]
+
+    def test_shorten_cycle_cover_depth3(self):
+        p = [
+            [
+                [
+                    [
+                        (0, 0, 1, 1, 0, 0, 0, 0),
+                        (0, 1, 0, 1, 0, 0, 0, 0),
+                        (1, 0, 0, 1, 0, 0, 0, 0),
+                        (0, 1, 1, 0, 0, 0, 0, 0),
+                        (1, 0, 1, 0, 0, 0, 0, 0),
+                        (1, 1, 0, 0, 0, 0, 0, 0),
+                    ]
+                ]
+            ],
+            [[(0, 1, 0, 0, 0, 0), (1, 0, 0, 0, 0, 0)]],
+            [[[[(3, 0, 0, 0, 0)]]]],
+        ]
+        assert shorten_cycle_cover(p, (0, 0, 0, 0)) == [
+            [
+                [
+                    [
+                        (0, 0, 1, 1),
+                        (0, 1, 0, 1),
+                        (1, 0, 0, 1),
+                        (0, 1, 1, 0),
+                        (1, 0, 1, 0),
+                        (1, 1, 0, 0),
+                    ]
+                ]
+            ],
+            [[(0, 1), (1, 0)]],
+            [[[[(3,)]]]],
+        ]
+
+    def test_shorten_cycle_cover_empty_tail(self):
+        p = [[(0, 1, 1), (1, 0, 1), (1, 1, 0)]]
+        assert shorten_cycle_cover(p, tuple()) == p
+
+    def test_shorten_cycle_cover_empty_cycle_cover(self):
+        with pytest.raises(AssertionError):
+            shorten_cycle_cover([], (1, 2, 3))
+
+    def test_shorten_cycle_cover_not_list(self):
+        with pytest.raises(ValueError):
+            shorten_cycle_cover((1, 2, 3), (1, 2, 3))
+
+    def test_shorten_cycle_cover_not_all_tail(self):
+        p = [[(0, 1, 1), (1, 0, 1), (1, 1, 0)]]
+        with pytest.raises(AssertionError):
+            shorten_cycle_cover(p, (1,))

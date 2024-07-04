@@ -358,7 +358,7 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
 
     Example:
         >>> transform([(0, 1, 2), (1, 0, 2)], [4, 5, 6])
-        [(4, 5, 6), (4, 4, 6)]
+        [(4, 5, 6), (5, 4, 6)]
     """
     l = []
     for i in lis:
@@ -419,11 +419,19 @@ def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[li
         AssertionError: If a permutation does not end with the given elements.
     """
     assert len(lis3d) > 0
-    if isinstance(lis3d[0][0][0], int):
-        assert all(tup[-len(elements) :] == elements for l in lis3d for tup in l)
-        return [tup[: -len(elements)] for l in lis3d for tup in l]
-    elif not isinstance(lis3d, list):
+    if len(elements) == 0:
+        return lis3d
+    elif (
+        not isinstance(lis3d, list)
+        or len(lis3d) == 0
+        or not isinstance(lis3d[0], list)
+        or len(lis3d[0]) == 0
+        or len(lis3d[0][0]) == 0
+    ):
         raise ValueError("The input is not a list")
+    elif isinstance(lis3d[0][0][0], int):
+        assert all(tup[-len(elements) :] == elements for l in lis3d for tup in l)
+        return [[tup[: -len(elements)] for l in lis3d for tup in l]]
     else:
         return [shorten_cycle_cover(l, elements) for l in lis3d]
 
