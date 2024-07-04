@@ -20,24 +20,56 @@ from helper_operations.permutation_graphs import (
 from visualization import is_stutter_permutation
 
 
-def connect_subcycle_cover(subcyles: list[list], sig: tuple[int, ...]) -> list:
+def merge_even_signatures(
+    cycle_cover_segments: list[list[tuple[int, ...]]],
+    tail_len: int,
+    sig: tuple[int, ...],
+) -> list[tuple[int, ...]]:
     """
-    If the cycle cover is a disjoint cycle cover, connect the subcycles to a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
-    Checks whether the subcycle cover is a list of lists, and takes the first list (not a tuple) of length > 1, then connects the subcycles to a Hamiltonian cycle.
+    Merges the cycles in the cycle cover for all-even and all-but-one-even permutations.
+    The cycles are connected to form a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
+    The end tuples of the cycles are based on the last `tail_length` elements of the cycle, which is 2 for all-even and 1 for all-but-one-even permutations.
+    The cycles are split on the last elements and connected to the next cycle.
 
     Args:
-        subcyles (list[list]): The disjoint cycle cover to connect.
+        cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to merge.
+        tail_length (int): The length of the suffix of the cycle that is used to connect the cycles.
         sig (tuple[int, ...]): The permutation signature, number of occurrences of each element.
 
     Returns:
-        list: The connected subcycle cover.
+        list[tuple[int, ...]]: The merged cycle cover
     """
-    if not all(isinstance(subcycle, list) for subcycle in subcyles):
-        raise ValueError("Subcycle cover is not a list of lists.")
-    subcycle = next((subcycle for subcycle in subcyles), None)
-    if subcycle is None:
-        raise ValueError("No subcycle found in subcycle cover.")
-    return connect_cycle_cover(subcycle, sig)
+    # while the depth of the list is more than 2, we need to connect the previous cycles
+    single_cycle_cover = connect_recursive_cycles(cycle_cover_segments, tail_len, sig)
+    # The cycles are split on the last elements
+    end_tuple_order = generate_end_tuple_order(single_cycle_cover, tail_len)
+    # The first cycle is a cycle
+    # Ensure that the first cycle has start and end nodes that have the suffix _100
+    tail = end_tuple_order[0]
+    single_list = get_single_list(single_cycle_cover)
+    start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
+    print(f"cut nodes 0: {start_cycles[-1]}, {end_cycles[0]}")
+    for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
+        cut_cycle = cut_sub_cycle_to_past(
+            cycle_list[0],
+            swapPair(start_cycles[-1], -(tail_len + 1)),
+            swapPair(end_cycles[0], -(tail_len + 1)),
+        )
+        new_tail = end_tuple_order[i]
+        cycle_split = split_sub_cycle_for_next(cut_cycle, new_tail)
+        start_cycles += cycle_split[0]
+        end_cycles = cycle_split[1] + end_cycles
+        print(f"cut nodes {i}: {start_cycles[-1]}, {end_cycles[0]}")
+
+    # The last cycle is a cycle and has to be pasted to the past one but not cut in itself
+    cut_cycle = cut_sub_cycle_to_past(
+        single_cycle_cover[-1][0],
+        swapPair(start_cycles[-1], -(tail_len + 1)),
+        swapPair(end_cycles[0], -(tail_len + 1)),
+    )
+    start_cycles += cut_cycle
+    print(f"cut nodes {len(single_cycle_cover)-1}: {start_cycles[-1]}")
+    return start_cycles + end_cycles
 
 
 def connect_cycle_cover(
@@ -53,85 +85,24 @@ def connect_cycle_cover(
     Returns:
         list[tuple[int, ...]]: The connected cycle cover
     """
-    print(f"CONNECTING FOR SIGNATURE {sig}")
-    print(f"cyc: {cycle_cover}")
     if len(cycle_cover) == 1:
         return cycle_cover[0]
-    # If there is one color that occurs an odd number of times
     elif isinstance(cycle_cover[0][0], int):
         return cycle_cover
+    # If there is one color that occurs an odd number of times
     elif any(n % 2 == 1 for n in sig):
         # Loop over the cycles in the cover and connect the cycle at index `i` ends with an element of color `i`
         tail_length = 1
-        single_cycle_cover = connect_previous_cycles(cycle_cover, tail_length, sig)
-        # The cycles are split on the last elements
-        print(f"Single cycle cover: {single_cycle_cover}")
-        end_tuple_order = generate_end_tuple_order(single_cycle_cover, tail_length)
-        # The first cycle is a cycle
-        # Ensure that the first cycle has start and end nodes that have the suffix _100
-        tail = end_tuple_order[0]
-        start_cycles, end_cycles = cut_sub_cycle_for_next(
-            single_cycle_cover[0][0], tail
-        )
-        for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
-            cut_cycle = cut_sub_cycle_to_past(
-                cycle_list[0],
-                swapPair(start_cycles[-1], -(tail_length + 1)),
-                swapPair(end_cycles[0], -(tail_length + 1)),
-            )
-            new_tail = end_tuple_order[i]
-            cycle_split = cut_sub_cycle_for_next(cut_cycle, new_tail)
-            start_cycles += cycle_split[0]
-            end_cycles = cycle_split[1] + end_cycles
-
-        # The last cycle is a cycle and has to be pasted to the past one but not cut in itself
-        cut_cycle = cut_sub_cycle_to_past(
-            single_cycle_cover[-1][0],
-            swapPair(start_cycles[-1], -(tail_length + 1)),
-            swapPair(end_cycles[0], -(tail_length + 1)),
-        )
-        start_cycles += cut_cycle
-        return start_cycles + end_cycles
+        return merge_even_signatures(cycle_cover, tail_length, sig)
     elif all(n % 2 == 0 for n in sig):
         # The cycles are split on the last two elements
         tail_length = 2
-        # while the depth of the list is more than 2, we need to connect the previous cycles
-        single_cycle_cover = connect_previous_cycles(cycle_cover, tail_length, sig)
-        print(f"Single cycle cover: {single_cycle_cover}")
-        end_tuple_order = generate_end_tuple_order(single_cycle_cover, tail_length)
-        # The first cycle is a cycle
-        # Ensure that the first cycle has start and end nodes that have the suffix _100
-        tail = end_tuple_order[0]
-        print(
-            f"End tuple order: {end_tuple_order}, tail: {tail}, cycle cover: {single_cycle_cover[0][0]}, sig: {sig}"
-        )
-        single_list = get_single_list(single_cycle_cover)
-        start_cycles, end_cycles = cut_sub_cycle_for_next(single_list, tail)
-        for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
-            print(f"index: {i}, signature: {sig}, last element: {start_cycles[-1]}")
-            cut_cycle = cut_sub_cycle_to_past(
-                cycle_list[0],
-                swapPair(start_cycles[-1], -(tail_length + 1)),
-                swapPair(end_cycles[0], -(tail_length + 1)),
-            )
-            new_tail = end_tuple_order[i]
-            cycle_split = cut_sub_cycle_for_next(cut_cycle, new_tail)
-            start_cycles += cycle_split[0]
-            end_cycles = cycle_split[1] + end_cycles
-
-        # The last cycle is a cycle and has to be pasted to the past one but not cut in itself
-        cut_cycle = cut_sub_cycle_to_past(
-            single_cycle_cover[-1][0],
-            swapPair(start_cycles[-1], -(tail_length + 1)),
-            swapPair(end_cycles[0], -(tail_length + 1)),
-        )
-        start_cycles += cut_cycle
-        return start_cycles + end_cycles
+        return merge_even_signatures(cycle_cover, tail_length, sig)
     else:
         print(f"Not sure why this would happen, but happened for {sig}")
 
 
-def connect_previous_cycles(
+def connect_recursive_cycles(
     cycle_cover: list[list[tuple[int, ...]]], tail_length: int, sig: tuple[int, ...]
 ) -> list[list[tuple[int, ...]]]:
     """
@@ -167,10 +138,7 @@ def connect_previous_cycles(
             print(
                 f"subsig: {subsig}, last element: {last_element}, previous signature: {sig}"
             )
-            # subsig = tuple([n - 1 if i == last_element[0] else n for i, n in enumerate(sig)])
-            print(f"shortened: {shortened_cycle}")
             connected_shortened = connect_cycle_cover(shortened_cycle, subsig)
-            print(f"connected shortened: {connected_shortened}")
             # Now we need to add the last element back to the connected shortened cycle
             if isinstance(connected_shortened[0], tuple):
                 connected_shortened = [connected_shortened]
@@ -266,23 +234,23 @@ def cut_sub_cycle_to_past(
         )
 
 
-def cut_sub_cycle_for_next(
+def split_sub_cycle_for_next(
     cycle_to_cut: list[tuple[int, ...]], tail: tuple[int, ...]
 ) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
     """
     Cuts the subcycle cover at nodes that end with `tail` and opens them such that the next cycle can be connected to the current cycle.
-    The tail nodes are the nodes that should be at the end of the cycle.
+    The tail is the part of the permutation that should be at the end of the nodes.
     The first two nodes of the tail are swapped to ensure they are not forming stutter permutations.
 
     Args:
         cycle_to_cut (list[tuple[int, ...]]): The cycle to cut open at nodes with the provided tail. Both the node before and after the cut should end with `tail`.
-        tail (tuple[int, ...]): The tails that the nodes should end with.
+        tail (tuple[int, ...]): The exact elements as a tuple of integers that the nodes should end with.
 
     Returns:
         tuple[list[tuple[int, ...]], list[tuple[int, ...]]]: The cycle cover cut open between the two nodes with the provided tail.
 
     Raises:
-        ValueError: If not enough tail nodes are found in the first cycle.
+        ValueError: If not enough tail nodes are found in the first cycle (i.e. less than 2).
         ValueError: If no valid tail nodes are found.
     """
     tail_nodes = selectByTail(cycle_to_cut, tail)
@@ -291,13 +259,18 @@ def cut_sub_cycle_for_next(
         raise ValueError(
             f"Not enough tail nodes found in the first cycle: {tail_nodes}. The tail was {tail}."
         )
-    print(f"Tail nodes: {tail_nodes}")
-    # Now check if swapping the first two elements of the tail nodes gives a stutter permutation\
     tail_idx = 0
+    # Now check if swapping the first two elements of the tail nodes gives a stutter permutation
+    # Also check whether the nodes are adjacent within the cycle
     while (
         is_stutter_permutation(swapPair(tail_nodes[tail_idx], -len(tail)))
         or is_stutter_permutation(swapPair(tail_nodes[tail_idx + 1], -len(tail)))
         or not adjacent(tail_nodes[tail_idx], tail_nodes[tail_idx + 1])
+        or not abs(
+            cycle_to_cut.index(tail_nodes[tail_idx])
+            - cycle_to_cut.index(tail_nodes[tail_idx + 1])
+        )
+        == 1
     ):
         tail_idx += 1
         if tail_idx == len(tail_nodes) - 1:
@@ -306,13 +279,15 @@ def cut_sub_cycle_for_next(
                 is_stutter_permutation(swapPair(tail_nodes[-1], -len(tail)))
                 or is_stutter_permutation(swapPair(tail_nodes[0], -len(tail)))
                 or not adjacent(tail_nodes[-1], tail_nodes[0])
+                or not abs(
+                    cycle_to_cut.index(tail_nodes[-1])
+                    - cycle_to_cut.index(tail_nodes[0])
+                )
+                == 1
             ):
                 raise ValueError(f"No valid tail nodes found: {tail_nodes}")
             else:
                 break
-    print(
-        f"cycle to cut: {cycle_to_cut}, tail nodes: {tail_nodes}, tail idx: {tail_idx}"
-    )
     return splitPathIn2(cycle_to_cut, tail_nodes[tail_idx])
 
 
