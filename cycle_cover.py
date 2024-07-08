@@ -346,7 +346,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     This is split into several cases below. Note that Even-1-1 and Odd-1-1 form a cycle together:\n
     - Arity 1: The cycle is a single node of 0's.
     - Arity 2: The cycle is a single cycle of 0's and 1's. Using Verhoeff's binary theorem.
-    - Even-1-1: A **path** from `c = 1 2 0^k0` to `d = 0 2 1 0^(k0-1)`
+    - Even-1-1: A **path** from `c = 1 2 0^k0` to `d = 0 2 1 0^(k0-1)`. Does not contain a cycle.
     - Odd-1-1: The cycle from `1 0^k0 2` to `0 1 0^(k0-1) 2`.
     - Odd-2-1: A **path** from `a = 1 2 0^{k0} 1` to `b = 0 2 1 0^{k0-1} 1`. (Also contains a cycle by Stachowiak's theorem)
     - Even-2-1: A cycle formed by the path from Even-1-1 and Odd-2-1.

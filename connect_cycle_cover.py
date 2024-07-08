@@ -8,15 +8,19 @@ from helper_operations.path_operations import (
     cycleQ,
     get_first_element,
     get_single_list,
+    get_transformer,
     pathQ,
     shorten_cycle_cover,
     splitPathIn2,
+    transform,
 )
 from helper_operations.permutation_graphs import (
     extend_cycle_cover,
     selectByTail,
     swapPair,
 )
+from stachowiak import lemma11
+from verhoeff import HpathNS
 from visualization import is_stutter_permutation
 
 
@@ -167,13 +171,13 @@ def generate_end_tuple_order(
         list[tuple[int, ...]]: The order of the end tuples of the cycles in the cycle
 
     Raises:
-        ValueError: If there is more than one change in the end tuple order.
+        ValueError: If there is more than one change in consecutive end tuples.
     """
     end_tuple_order = []
     for c in cycle_cover:
         end_tuple_order.append(get_first_element(c)[-tail_length:])
-        # Now prepend to every end_tuple the element that is different in the next end_tuple
     for i in range(len(end_tuple_order) - 1):
+        # Now prepend to every end_tuple the element that is different in the next end_tuple
         # find the duplicates in the end tuple
         dups = [
             item
@@ -197,7 +201,6 @@ def generate_end_tuple_order(
             end_tuple_order[i] = changes + end_tuple_order[i]
         else:
             end_tuple_order[i] = changes + end_tuple_order[i][::-1]
-    print(f"End tuple order: {end_tuple_order}")
     return end_tuple_order
 
 
@@ -291,6 +294,39 @@ def split_sub_cycle_for_next(
     return splitPathIn2(cycle_to_cut, tail_nodes[tail_idx])
 
 
+def get_connected_cycle_cover(sig: list[int]) -> list[tuple[int, ...]]:
+    """
+    Computes the a cycle on the non-stutter permutations for a given signature.
+    If the signature is odd-2-1, the connected cycle cover is computed using lemma 11 by Stachowiak.
+    Otherwise Verhoeff's cycle cover theorem is used to generate the cycle cover and that is then connected using the ``connect_cycle_cover`` function.
+
+    Args:
+        sig (list[int]): The signature for which the cycle on non-stutter permutations needs to be computed.
+
+    Returns:
+        list[tuple[int, ...]]: The connected cycle cover as a list of tuples, where each tuple represents a permutation.
+
+    Raises:
+        AssertionError: If the generated cycle cover by Verhoeff's theorem is empty.
+
+    References:
+        - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
+        - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
+    """
+    sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
+    if sig != sorted_sig:
+        return transform(get_connected_cycle_cover(sorted_sig), transformer)
+    if len(sig) == 2 and any(c % 2 == 0 for c in sig):
+        return HpathNS(sig[0], sig[1])
+    # if sig contains a 1, a 2 and an odd number, we need to compute separately
+    if len(sig) < 3 or (sig[0] % 2 == 1 and sig[1] == 1 and sig[2] == 2):
+        return lemma11(sig)
+    else:
+        cover = generate_cycle_cover(sig)
+        assert len(cover) > 0
+        return connect_cycle_cover(cover, sig)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Connects the cycle cover to a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph."
@@ -306,21 +342,9 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     sig = [int(x) for x in args.signature.split(",")]
-    cycle_cover = generate_cycle_cover(sig)
-    assert len(cycle_cover) > 0
-    if len(cycle_cover) == 1:
-        cycle = cycle_cover[0]
-        if args.verbose:
-            print(f"Cycle cover is a cycle: {cycle}")
-        print(f"Cycle cover is a cycle {cycleQ(cycle)} and a path {pathQ(cycle)}")
-    else:
-        connected_cycle_cover = connect_cycle_cover(cycle_cover, sig)
-        if args.verbose:
-            print(f"Connected cycle cover: {connected_cycle_cover}")
-        print(
-            f"Cycle cover is a cycle {cycleQ(connected_cycle_cover)} and a path {pathQ(connected_cycle_cover)}"
-        )
-        # stutter_count = len(stutterPermutations(sig))
-        # print(
-        #     f"Cycle of length {len(connect_cycle_cover)}/{len(set(connect_cycle_cover))}/{multinomial(sig)} (contains {stutter_count} stutters) so in total {stutter_count + len(cycle_cover)} permutations."
-        # )
+    connected_cycle_cover = get_connected_cycle_cover(sig)
+    if args.verbose:
+        print(f"Connected cycle cover: {connected_cycle_cover}")
+    print(
+        f"Cycle cover is a cycle {cycleQ(connected_cycle_cover)} and a path {pathQ(connected_cycle_cover)}"
+    )

@@ -16,6 +16,7 @@ from helper_operations.path_operations import (
     shorten_cycle_cover,
     splitPathIn2,
     spurBaseIndex,
+    stutterPermutationQ,
     transform,
     transform_cycle_cover,
 )
@@ -748,3 +749,39 @@ class TestPathOperations:
         p = [[(0, 1, 1), (1, 0, 1), (1, 1, 0)]]
         with pytest.raises(AssertionError):
             shorten_cycle_cover(p, (1,))
+
+    def test_StutterPermutationQ_empty(self):
+        assert stutterPermutationQ([]) == True
+
+    def test_StutterPermutationQ_one_element(self):
+        assert stutterPermutationQ([0]) == True
+        assert stutterPermutationQ([1]) == True
+        assert stutterPermutationQ([10]) == True
+
+    def test_StutterPermutationQ_two_elements(self):
+        assert stutterPermutationQ([0, 0]) == True
+        assert stutterPermutationQ([1, 1]) == True
+        assert stutterPermutationQ([10, 10]) == True
+        assert stutterPermutationQ([0, 1]) == False
+        assert stutterPermutationQ([1, 0]) == False
+        assert stutterPermutationQ([10, 11]) == False
+        assert stutterPermutationQ([11, 10]) == False
+
+    def test_StutterPermutationQ_multiple_elements_even(self):
+        assert stutterPermutationQ([0, 0, 0, 0]) == True
+        assert stutterPermutationQ([1, 1, 1, 1]) == True
+        assert stutterPermutationQ([10, 10, 5, 5]) == True
+        assert stutterPermutationQ([2, 2, 0, 1]) == False
+        assert stutterPermutationQ([1, 0, 1, 0]) == False
+        assert stutterPermutationQ([3, 3, 10, 11]) == False
+
+    def test_StutterPermutationQ_multiple_elements_odd(self):
+        assert stutterPermutationQ([0, 0, 0, 0, 0]) == True
+        assert stutterPermutationQ([2, 2, 0, 0, 0]) == True
+        assert stutterPermutationQ([2, 2, 0, 0, 4]) == True
+        assert stutterPermutationQ([1, 1, 1, 1, 2]) == True
+        assert stutterPermutationQ([10, 10, 5, 5, 5]) == True
+        assert stutterPermutationQ([2, 2, 0, 1, 1]) == False
+        assert stutterPermutationQ([1, 0, 1, 0, 1]) == False
+        assert stutterPermutationQ([1, 0, 1, 1, 1]) == False
+        assert stutterPermutationQ([3, 3, 10, 11, 11]) == False

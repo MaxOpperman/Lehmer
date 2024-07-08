@@ -509,3 +509,58 @@ def get_single_list(nested_list: list) -> list[tuple[int, ...]]:
         raise ValueError(
             f"The input {nested_list} is not a nested list of permutations."
         )
+
+
+def non_stutter_cycleQ(sig: list[int]) -> bool:
+    """
+    Return whether a cycle on the non-stutter permutations is possible for the given signature.
+    This cycle is not possible for the following signatures:\n
+    - Linear neighbor-swap graphs (even-1 or odd-1)
+    - Odd-odd
+    - Odd-even / even-odd
+    - Even-1-1
+
+    Args:
+        sig (list[int]): The signature of the multiset permutations.
+
+    Returns:
+        bool: True if a cycle on the non-stutter permutations is possible, False if only a path is possible.
+    """
+    if len(sig) == 0:
+        # empty signature cannot be a cycle
+        return False
+    if len(sig) == 1:
+        # one element cannot be a cycle
+        return False
+    if len(sig) == 2 and 1 in sig:
+        # this is a linear graph
+        return False
+    if len(sig) == 2 and (
+        sig[0] % 2 != sig[1] % 2 or (sig[0] % 2 == 1 and sig[1] % 2 == 1)
+    ):
+        # odd-even or even-odd or odd-odd
+        return False
+    # sort the signature
+    sorted_sig, _ = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
+    if len(sig) == 3 and (
+        sorted_sig[0] == 1 and sorted_sig[1] == 1 and sorted_sig[2] % 2 == 0
+    ):
+        # Even-1-1
+        return False
+    return True
+
+
+def stutterPermutationQ(perm: tuple[int, ...]) -> bool:
+    """
+    Check whether a given permutation is a stutter permutation.
+    A stutter permutation is a permutation where all elements are the same except for the last two elements.
+
+    Args:
+        perm (tuple[int, ...]): The permutation to check.
+
+    Returns:
+        bool: True if the permutation is a stutter permutation, False otherwise.
+    """
+    if len(perm) < 2:
+        return True
+    return all(perm[i] == perm[i + 1] for i in range(0, len(perm) - 1, 2))
