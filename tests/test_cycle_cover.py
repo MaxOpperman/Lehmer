@@ -8,8 +8,7 @@ from verhoeff import HpathNS
 
 class Test_HpathCycleCover_Edge_Cases:
     def test_HpathCycleCover_Empty(self):
-        with pytest.raises(ValueError) as e_info:
-            generate_cycle_cover([])
+        assert generate_cycle_cover([]) == []
 
     def test_HpathCycleCover_1_Element(self):
         p = generate_cycle_cover([2])
@@ -41,6 +40,12 @@ class Test_HpathCycleCover_Even_1_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with c and ends with d
+        print(f"path {path[0]}")
+        print(f"path start, end = {path[0][0]}, {path[0][-1]}")
+        print(f"should be start, end = {(1, 2, 0, 0)}, {(0, 2, 1, 0)}")
+        assert path[0][0] == (1, 2, 0, 0)
+        assert path[0][-1] == (0, 2, 1, 0)
 
     def test_HpathCycleCover_4_1_1(self):
         signature = [4, 1, 1]
@@ -130,6 +135,17 @@ class Test_HpathCycleCover_Odd_1_1:
 
 
 class TestHpathCycleCover_Odd_2_1:
+    def test_HpathCycleCover_1_2_1(self):
+        signature = [1, 2, 1]
+        path = generate_cycle_cover(signature)
+        assert len(path) == 1
+        assert pathQ(path[0])
+        assert len(path[0]) == len(set(path[0]))
+        assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 1)
+
     def test_HpathCycleCover_3_2_1(self):
         signature = [3, 2, 1]
         path = generate_cycle_cover(signature)
@@ -137,6 +153,9 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 0, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 0, 0, 1)
 
     def test_HpathCycleCover_5_2_1(self):
         signature = [5, 2, 1]
@@ -145,6 +164,9 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 1)
 
     def test_HpathCycleCover_7_2_1(self):
         signature = [7, 2, 1]
@@ -153,6 +175,9 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 1)
 
     @pytest.mark.slow
     def test_HpathCycleCover_9_2_1(self):
@@ -162,6 +187,9 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 
     @pytest.mark.slow
     def test_HpathCycleCover_13_2_1(self):
@@ -171,6 +199,9 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 
 
 class Test_HpathCycleCover_Even_2_1:

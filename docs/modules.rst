@@ -8,6 +8,7 @@ Lehmer Paths in Neighbor-Swap Graphs
    cycle_cover
    figure_generation_files
    helper_operations
+   lehmer_paths
    pathmarker
    permute
    stachowiak

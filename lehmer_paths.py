@@ -5,17 +5,18 @@ from helper_operations.permutation_graphs import stutterPermutations
 
 def incorporate_stutters(sig: list[int]) -> list[tuple[int, ...]]:
     """
-    Creates a cycle on the non-stutter permutations and then incorporates the stutters to create a Lehmer cycle.
+    Creates a cycle/path on the non-stutter permutations and then incorporates the stutters to create a Lehmer cycle/path.
+    See the Notes for which signatures result in a path instead of a cycle.
 
     Args:
         sig (list[int]): The input signature.
 
     Returns:
-        list[tuple[int, ...]]: The list of tuples representing the valid cycle on non-stutter permutations with the stutters incorporated.
+        list[tuple[int, ...]]: The list of tuples representing the valid cycle/path on non-stutter permutations with the stutters incorporated.
 
     Note:
-        Some signatures do not result in a cycle but in a path, these signatures are:\n
-        - Linear neighbor-swap graphs (even-1 or odd-1)
+        Some signatures do not result in a cycle but in a path, the signatures that result in a path are:\n
+        - Even-1 or odd-1 *(Linear neighbor-swap graphs)*
         - Odd-odd
         - Odd-even / even-odd
         - Even-1-1

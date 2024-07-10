@@ -1,4 +1,4 @@
-Connect Cycle Cover module
+Connect Cycle Cover
 ============================
 
 .. automodule:: connect_cycle_cover

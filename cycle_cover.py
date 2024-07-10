@@ -363,7 +363,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
         The lists don't have a defined depth since they can consist of cycle covers themselves. But the depth is at least 2.
 
     Raises:
-        ValueError: If the signature is empty.
+        ValueError: If the signature contains a negative number.
 
     References:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
@@ -371,7 +371,9 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     """
     # sort list in descending order
     if len(sig) == 0:
-        raise ValueError("Signature must have at least one element")
+        return []
+    if any(n < 0 for n in sig):
+        raise ValueError("Signature cannot contain negative numbers")
     elif len(sig) == 1:
         return [[(0,) * sig[0]]]
     sorted_sig = sorted(sig, reverse=True)
@@ -412,19 +414,26 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
             print(f"start {p2[-1:]} {p0} {p1[::-1]} {p2[:-1]}")
             return [p2[-1:] + p0 + p1[::-1] + p2[:-1]]
         else:
+            print(f"c={(1, 2) + (0,) * k} and d={(0, 1, 2) + (0,) * (k-1)}")
+            # split the cycle p0 in two at the point where 2 0^(k-1) 1 0 is such that the second part starts with 0 2 0^(k-2) 1 0
+            p0 = cutCycle(p0, (1, 2) + (0,) * k)
+            print(f"even p0 {p0}, p1 {p1}, p2 {p2}")
+            print(f"lemma2 stachowiak {lemma11([k, 1, 1])}")
             # Even k, also need to add 0^k0 1 2 and 0^k0 2 1
-            return [p2[-1:] + p0 + p2[:-1][::-1] + p1]
+            return [lemma11([k, 1, 1])]
     # even-2-1 case
     elif len(sig) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
-        p2 = extend(HpathNS(k, 2), (2,))  # a cycle from 1 0^k 1 2 to 1 0 1 0^(k-1) 2
+        p2 = extend(HpathNS(k, 2), (2,))[
+            ::-1
+        ]  # a cycle from 1 0^(k-1) 1 0 2 to 1 0^k 1 2
         p1 = extend(
             Hpath_even_1_1(k),
             (1,),
-        )  # a path from c = 1 2 0^k 1 to d = 0 2 1 0^(k-1) 1
+        )  # a path from c1 = 1 2 0^k 1 to d1 = 0 2 1 0^(k-1) 1
         p0 = extend(
             generate_cycle_cover([k - 1, 2, 1])[0][::-1], (0,)
-        )  # a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0
-        # 1 2 0^{k2} to 0 2 1 0^{k2-1}.
+        )  # a path from a0 = 1 2 0^(k-1) 1 0 to b0 = 0 2 1 0^(k-2) 1 0
+        # 1 2 0^{k} to 0 2 1 0^{k-1}.
         v = (1,) + tuple([0] * k) + (1, 2)
         c = p0 + p1
         return [cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))]
@@ -513,7 +522,6 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(
         description="Create a cycle cover from a given permutation signature."
     )
