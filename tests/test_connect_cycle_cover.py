@@ -7,103 +7,53 @@ from helper_operations.permutation_graphs import multinomial, stutterPermutation
 
 
 class Test_TailsOrdering:
-    def test_end_tuple_order_negative(self):
-        with pytest.raises(ValueError):
-            sig = [2, 2]
-            generate_end_tuple_order(sig, generate_cycle_cover(sig), -1)
-        with pytest.raises(ValueError):
-            sig = [-1, 2]
-            generate_end_tuple_order(sig, generate_cycle_cover(sig), 1)
-        with pytest.raises(ValueError):
-            sig = [2, 2, 2]
-            generate_end_tuple_order(sig, generate_cycle_cover(sig), -3)
-
-    def test_end_tuple_order_all_even_wrong_tail_length(self):
-        sig_all_even = [2, 2, 2]
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_even, generate_cycle_cover(sig_all_even), 0
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_even, generate_cycle_cover(sig_all_even), 1
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_even, generate_cycle_cover(sig_all_even), 3
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_even, generate_cycle_cover(sig_all_even), 4
-            )
-
-    def test_end_tuple_order_all_but_one_even_wrong_tail_length(self):
-        sig_all_but_one_even = [2, 2, 3]
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_but_one_even, generate_cycle_cover(sig_all_but_one_even), 0
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_but_one_even, generate_cycle_cover(sig_all_but_one_even), 2
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_but_one_even, generate_cycle_cover(sig_all_but_one_even), 3
-            )
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(
-                sig_all_but_one_even, generate_cycle_cover(sig_all_but_one_even), 4
-            )
-
     def test_end_tuple_order_two_or_more_odd_not_possible(self):
         sig_two_or_more_odd = [3, 3, 2]
         with pytest.raises(ValueError):
             generate_end_tuple_order(
-                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd), 0
+                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd)
             )
         with pytest.raises(ValueError):
             generate_end_tuple_order(
-                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd), 1
+                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd)
             )
         with pytest.raises(ValueError):
             generate_end_tuple_order(
-                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd), 2
+                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd)
             )
         with pytest.raises(ValueError):
             generate_end_tuple_order(
-                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd), 3
-            )
+                sig_two_or_more_odd, generate_cycle_cover(sig_two_or_more_odd)
+            )        
 
     def test_end_tuple_order_one_element(self):
         sig = [2]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 2)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(0, 0)]
         sig = [0]
-        with pytest.raises(ValueError):
-            generate_end_tuple_order(sig, generate_cycle_cover(sig), 2)
+        assert generate_end_tuple_order(sig, generate_cycle_cover(sig)) == [()]
         sig = [1]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 1)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(0,)]
 
     def test_end_tuple_order_two_elements(self):
         sig = [2, 2]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 2)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(0, 1)]
         sig = [4, 3]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 1)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(0,)]
         sig = [6, 2]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 2)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(0, 1)]
         sig = [3, 6]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 1)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(1,)]
         sig = [4, 6]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 2)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(1, 0)]
         sig = [7, 4]
-        result = generate_end_tuple_order(sig, generate_cycle_cover(sig), 1)
+        result = generate_end_tuple_order(sig, generate_cycle_cover(sig))
         assert result == [(1,)]
 
 
