@@ -52,11 +52,15 @@ def merge_even_signatures(
         )
     # while the depth of the list is more than 2, we need to connect the previous cycles
     single_cycle_cover = connect_recursive_cycles(cycle_cover_segments, sig)
-    
+
     cross_edges = find_cross_edges(sig, single_cycle_cover)
-    print(f"Cross edges sig {sig}: {{\n" + "\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items()) + "\n }")
+    print(
+        f"Cross edges sig {sig}: {{\n"
+        + "\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items())
+        + "\n }"
+    )
     # The cycles are split on the last elements
-    end_tuple_order = generate_end_tuple_order(sig, single_cycle_cover)
+    end_tuple_order = generate_end_tuple_order(sig)
     print(f"End tuple order: {end_tuple_order} for signature {sig}")
     # The first cycle is a cycle
     # Ensure that the first cycle has start and end nodes that have the suffix _100
@@ -168,20 +172,16 @@ def connect_recursive_cycles(
     return single_cycle_cover
 
 
-def generate_end_tuple_order(
-    sig: list[int], cycle_cover: list[list[tuple[int, ...]]]
-) -> list[tuple[int, ...]]:
+def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
     """
     Generates the order of the end tuples of the cycles in the cycle cover.
-    The end tuples are the last `tail_length` elements of the cycle.
-    The tail
+    The end tuples are the tails of the cycles that are the nodes that connect them.
     They are cycles are ordered by their end tuples:\n
     - **All-even**: _00, _01/_10, _11, _12/_21, _22, _02/_20, _23/_32, _33, _03/_30, _31/_13, _34/_43, _44, _04/_40, _41/_14, _42/_24, ...
     - **All-but-one-even**: _0, _1, _2, _3, _4, _5, ...
 
     Args:
         sig (list[int]): The signature of the permutation.
-        cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to generate the end tuple order for.
 
     Returns:
         list[tuple[int, ...]]:
@@ -196,9 +196,9 @@ def generate_end_tuple_order(
 
     Raises:
         ValueError: If there is more than one change in consecutive end tuples.
-        ValueError: If the tail length is not 1 or 2, i.e. the signature is not all-even or all-but-one-even.
+        ValueError: If the signature is not all-even or all-but-one-even.
     """
-    if len(cycle_cover) == 0:
+    if len(sig) <= 2:
         return []
     tail_length = (
         2 if all(n % 2 == 0 for n in sig) else 1 if sum(n % 2 for n in sig) == 1 else 0
@@ -208,37 +208,34 @@ def generate_end_tuple_order(
             f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
         )
     end_tuple_order = []
-    for c in cycle_cover:
-        end_tuple_order.append(get_first_element(c)[-tail_length:])
-    for i in range(len(end_tuple_order) - 1):
-        # Now prepend to every end_tuple the element that is different in the next end_tuple
-        # find the duplicates in the end tuple
-        dups = [
-            item
-            for item, count in collections.Counter(end_tuple_order[i + 1]).items()
-            if count > 1
-        ]
-        if len(dups) > 0:
-            changes = tuple(dups)
-        else:
-            changes = tuple(
-                end_tuple_order[i + 1][j]
-                for j in range(len(end_tuple_order[i]))
-                if not end_tuple_order[i + 1][j] in end_tuple_order[i]
-            )
-        print(
-            f"changes: {changes}, end_tuple_order[i]: {end_tuple_order[i]}, dups: {dups}"
-        )
-        if len(changes) != 1:
-            raise ValueError(
-                f"There should be only one change in the end tuple order: {changes} + {end_tuple_order[i]}"
-            )
-        # make sure that the change number is different from the first number in end_tuple_order[i]
-        if changes[0] != end_tuple_order[i][0]:
-            end_tuple_order[i] = changes + end_tuple_order[i]
-        else:
-            end_tuple_order[i] = changes + end_tuple_order[i][::-1]
-    return end_tuple_order
+    _, transformer = get_transformer(sig, lambda x: x[0])
+    new_tails = []
+    if tail_length == 1:
+        # All-but-one-even signature
+        for i, t in enumerate(transformer[:-1]):
+            new_tails.append((transformer[i + 1], t))
+        new_tails.append((transformer[0], transformer[-1]))
+        return new_tails
+    else:
+        # All-even signature
+        for i in range(len(sig)):
+            if i == 0:
+                end_tuple_order.append((1, 0, 0))
+            elif i == 1:
+                end_tuple_order.append((1, 0, 1))
+                end_tuple_order.append((2, 1, 1))
+            else:
+                end_tuple_order.append((i, i - 1, i))
+                end_tuple_order.append((0, i, i))
+                for j in range(i - 1):
+                    if j == i - 2 and i == len(sig) - 1:
+                        end_tuple_order.append((0, i, j))
+                    elif j == i - 2:
+                        end_tuple_order.append((i + 1, j, i))
+                    else:
+                        end_tuple_order.append((j + 1, j, i))
+        transformed_end_tuple_order = transform(end_tuple_order, transformer)
+        return transformed_end_tuple_order
 
 
 def cut_sub_cycle_to_past(
@@ -425,27 +422,34 @@ def find_parallel_edges_in_cycle_cover(
     if tail_length == 0:
         # this is stachowiak's case, this already is a cycle
         return []
-    tails = generate_end_tuple_order(sig, cycle_cover)
+    tails = generate_end_tuple_order(sig)
     # generate the start tuples by swapping the first two elements of the tails
     print(f"tails: {tails}")
     start_tails = [swapPair(tail, 0) for tail in tails]
     if len(cycle_cover) == 1:
         return {
             (tails[0]): [filter_adjacent_edges_by_tail(cycle_cover[0], tails[0])],
-            (start_tails[0]): [filter_adjacent_edges_by_tail(cycle_cover[0], start_tails[0])],
+            (start_tails[0]): [
+                filter_adjacent_edges_by_tail(cycle_cover[0], start_tails[0])
+            ],
         }
     parallel_edges = {}
     for i, cycle in enumerate(cycle_cover[:-1]):
         parallel_edges[tails[i]] = filter_adjacent_edges_by_tail(cycle[0], tails[i])
-        parallel_edges[start_tails[i]] = filter_adjacent_edges_by_tail(cycle_cover[i + 1][0], start_tails[i])
+        parallel_edges[start_tails[i]] = filter_adjacent_edges_by_tail(
+            cycle_cover[i + 1][0], start_tails[i]
+        )
     return parallel_edges
-
 
 
 def find_cross_edges(
     sig: list[int],
     cycle_cover: list[tuple[int, ...]],
-) -> dict[list[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]]:
+) -> dict[
+    list[
+        tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]
+    ]
+]:
     """
     Find the cross edges in the cycle cover. These are pairs of parallel edges between cycles that are adjacent.
     The cross edges are used to connect the cycles in the cycle cover.
