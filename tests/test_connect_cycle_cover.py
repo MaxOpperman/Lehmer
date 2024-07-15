@@ -50,15 +50,6 @@ class Test_TailsOrdering:
     def test_end_tuple_order_2_2_2(self):
         sig = [2, 2, 2]
         result = generate_end_tuple_order(sig)
-        expected_result = [
-            (1, 0, 0),
-            (1, 0, 1),
-            (2, 1, 1),
-            (2, 1, 2),
-            (0, 2, 2),
-            (0, 2, 0),
-        ]
-        print(f"expected:\n{expected_result}")
         assert result == [
             (1, 0, 0),
             (1, 0, 1),
@@ -66,6 +57,18 @@ class Test_TailsOrdering:
             (2, 1, 2),
             (0, 2, 2),
             (0, 2, 0),
+        ]
+
+    def test_end_tuple_order_with0s_2_2_2(self):
+        sig = [0, 0, 0, 2, 2, 2, 0]
+        result = generate_end_tuple_order(sig)
+        assert result == [
+            (4, 3, 3),
+            (4, 3, 4),
+            (5, 4, 4),
+            (5, 4, 5),
+            (3, 5, 5),
+            (3, 5, 3),
         ]
 
     def test_end_tuple_order_6_4_4(self):

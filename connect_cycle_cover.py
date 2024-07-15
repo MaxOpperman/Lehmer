@@ -208,7 +208,7 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
             f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
         )
     end_tuple_order = []
-    _, transformer = get_transformer(sig, lambda x: x[0])
+    sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
     new_tails = []
     if tail_length == 1:
         # All-but-one-even signature
@@ -218,7 +218,7 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
         return new_tails
     else:
         # All-even signature
-        for i in range(len(sig)):
+        for i in range(len(sorted_sig)):
             if i == 0:
                 end_tuple_order.append((1, 0, 0))
             elif i == 1:
@@ -228,7 +228,7 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
                 end_tuple_order.append((i, i - 1, i))
                 end_tuple_order.append((0, i, i))
                 for j in range(i - 1):
-                    if j == i - 2 and i == len(sig) - 1:
+                    if j == i - 2 and i == len(sorted_sig) - 1:
                         end_tuple_order.append((0, i, j))
                     elif j == i - 2:
                         end_tuple_order.append((i + 1, j, i))
