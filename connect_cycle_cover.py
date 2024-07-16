@@ -56,7 +56,7 @@ def merge_even_signatures(
     cross_edges = find_cross_edges(sig, single_cycle_cover)
     print(
         f"Cross edges sig {sig}: {{\n"
-        + "\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items())
+        + "\n\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items())
         + "\n }"
     )
     # The cycles are split on the last elements
@@ -200,23 +200,15 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
     """
     if len(sig) <= 2:
         return []
-    tail_length = (
-        2 if all(n % 2 == 0 for n in sig) else 1 if sum(n % 2 for n in sig) == 1 else 0
-    )
-    if tail_length == 0:
-        raise ValueError(
-            f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
-        )
     end_tuple_order = []
     sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
-    new_tails = []
-    if tail_length == 1:
+    if sum(n % 2 for n in sig) == 1:
         # All-but-one-even signature
         for i, t in enumerate(transformer[:-1]):
-            new_tails.append((transformer[i + 1], t))
-        new_tails.append((transformer[0], transformer[-1]))
-        return new_tails
-    else:
+            end_tuple_order.append((transformer[i + 1], t))
+        end_tuple_order.append((transformer[0], transformer[-1]))
+        return end_tuple_order
+    elif all(n % 2 == 0 for n in sig):
         # All-even signature
         for i in range(len(sorted_sig)):
             if i == 0:
@@ -236,6 +228,10 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
                         end_tuple_order.append((j + 1, j, i))
         transformed_end_tuple_order = transform(end_tuple_order, transformer)
         return transformed_end_tuple_order
+    else:
+        raise ValueError(
+            f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
+        )
 
 
 def cut_sub_cycle_to_past(
