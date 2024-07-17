@@ -21,7 +21,7 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     swapPair,
 )
-from stachowiak import lemma11
+from stachowiak import lemma2_cycle, lemma2_extended_path, lemma11
 from verhoeff import HpathNS
 
 
@@ -96,9 +96,10 @@ def Hpath_odd_2_1(k: int) -> list[tuple[int, ...]]:
         k (int): The input value for the number of 0's. Must be odd!
 
     Returns:
-        list[tuple[int, ...]]: The generated path from `a` to `b`\n
-        - `a = 1 2 0^{k0} 1`
-        - `b = 0 2 1 0^{k0-1} 1`
+        list[tuple[int, ...]]:
+            The generated path from `a` to `b`\n
+            - `a = 1 2 0^{k0} 1`
+            - `b = 0 2 1 0^{k0-1} 1`
 
     Raises:
         ValueError: If `k` is not odd
@@ -260,9 +261,10 @@ def incorporated_odd_2_1(k: int) -> list[tuple[int, ...]]:
         k (int): The input value the number of 0s. Must be odd!
 
     Returns:
-        list[tuple[int, ...]]: The generated path from `a` to `b`\n
-        - `a = 1 2 0^{k0} 1`
-        - `b = 0 2 1 0^{k0-1} 1`
+        list[tuple[int, ...]]:
+            The generated path from `a` to `b`\n
+            - `a = 1 2 0^{k0} 1`
+            - `b = 0 2 1 0^{k0-1} 1`
     """
     if k % 2 == 0:
         raise ValueError(f"k must be odd")
@@ -303,7 +305,7 @@ def add_cycle_in_order(
     second_last_element = cycle_end[0]
     for idx, c in enumerate(cycle_cover):
         # get the tuple
-        perm_list = get_cycle_cover_tuple(c)
+        perm_list = get_first_element(c)
         # sort the last two elements from small to large
         old_last_element = max(perm_list[-1], perm_list[-2])
         old_second_last_element = min(perm_list[-1], perm_list[-2])
@@ -323,22 +325,7 @@ def add_cycle_in_order(
     return cycle_cover
 
 
-def get_cycle_cover_tuple(perm_list: list[tuple[int, ...]]) -> tuple[int, ...]:
-    """
-    Gets the first tuple from the cycle cover.
-
-    Args:
-        perm_list (list[tuple[int, ...]]): The cycle cover to get the tuple from. Does not have a defined depth.
-
-    Returns:
-        tuple[int, ...]: The first tuple from the cycle cover.
-    """
-    while isinstance(perm_list, list):
-        perm_list = perm_list[0]
-    return perm_list
-
-
-def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
+def generate_cycle_cover(sig: tuple[int]) -> list[list[tuple[int, ...]]]:
     """
     Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
     **Theorem:** *When the arity is at least 3 and at most one k i is odd, the neighbor-swap graph
@@ -356,110 +343,91 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
     - Two-or-more-odd: Stachowiak's theorem gives us a cycle on this graph.
 
     Args:
-        sig (list[int]): The signature of the permutations. Must have at least one element.
+        sig (tuple[int]): The signature of the permutations. Must have at least one element.
 
     Returns:
-        list[list[tuple[int, ...]]]: The cycle cover for the given signature `sig`.\n
-        Every list of tuples is a cycle in the cycle cover. The tuples are permutations.
-        The lists don't have a defined depth since they can consist of cycle covers themselves. But the depth is at least 2.
+        list[list[tuple[int, ...]]]:
+            The cycle cover for the given signature `sig`.\n
+            Every list of tuples is a cycle in the cycle cover. The tuples are permutations.
+            The lists do not have a defined depth since they can consist of cycle covers themselves. But the depth is at least 2.
 
     Raises:
-        ValueError: If the signature contains a negative number.
+        ValueError: If the signature is empty.
 
     References:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
     """
     # sort list in descending order
-    if len(sig) == 0:
+    if len(list(sig)) == 0:
         return []
-    if any(n < 0 for n in sig):
+    elif any(n < 0 for n in sig):
         raise ValueError("Signature cannot contain negative numbers")
-    elif len(sig) == 1:
+    elif len(list(sig)) == 1:
         return [[(0,) * sig[0]]]
-    sorted_sig = sorted(sig, reverse=True)
+    sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
     if sorted_sig != sig:
-        if sig == [1, 2, 1]:
+        if sig == (1, 2, 1):
             return [Hpath_odd_2_1(1)]
-        new_sig, transformer = get_transformer(sig, lambda x: x[0])
-        return transform_cycle_cover(generate_cycle_cover(new_sig), transformer)
+        return transform_cycle_cover(generate_cycle_cover(sorted_sig), transformer)
     k = sig[0]
-    if len(sig) == 2:
+    if len(list(sig)) == 2:
         return [HpathNS(sig[0], sig[1])]
     elif 0 in sig:
         return generate_cycle_cover(sig[:-1])
-    # Odd-1-1 AND Even-1-1 case
-    elif len(sig) == 3 and sig[1] == 1 and sig[2] == 1:
-        # Split off the trailing number x
-        # p_path is k|1 and (after transformation) also k|2
-        linear_path = HpathNS(k, 1)
-        # a path from 0^k 1 2 to 1 0^k 2
-        p2 = extend(linear_path, (2,))
-        # a path from 0^k 2 1 to 2 0^k 1
-        p1 = extend(
-            [tuple(2 if x == 1 else 0 for x in tup) for tup in linear_path], (1,)
+    # Odd-1-1
+    elif len(list(sig)) == 3 and k % 2 == 1 and sig[1] == 1 and sig[2] == 1:
+        # A cycle from 1 0^k 2 to 0 1 0^(k-1) 2
+        lemma2_stachowiak = lemma2_extended_path(tuple([2] * k), False)
+        transformed_lemma2 = cutCycle(
+            transform(lemma2_stachowiak, [2, 1, 0]), (1,) + tuple([0] * k) + (2,)
         )
-        # by IH, a path/cycle from 1 0^k 2 (path to 2 0^k 1)
-        p0 = extend(generate_cycle_cover([k - 1, 1, 1])[0], (0,))
-
-        # HpathNS is missing a node when k_0 is even, we add this back
-        if k % 2 == 0:
-            p2 = [tuple([0] * k) + (1, 2)] + p2
-            p1 = [tuple([0] * k) + (2, 1)] + p1
-        if k == 0:
-            # reverse these, because sorting of signature reversed up the order
-            p1 = p1[::-1]
-            p0 = p0[::-1]
-
-        if k % 2 == 1:
-            print(f"start {p2[-1:]} {p0} {p1[::-1]} {p2[:-1]}")
-            return [p2[-1:] + p0 + p1[::-1] + p2[:-1]]
-        else:
-            print(f"c={(1, 2) + (0,) * k} and d={(0, 1, 2) + (0,) * (k-1)}")
-            # split the cycle p0 in two at the point where 2 0^(k-1) 1 0 is such that the second part starts with 0 2 0^(k-2) 1 0
-            p0 = cutCycle(p0, (1, 2) + (0,) * k)
-            print(f"even p0 {p0}, p1 {p1}, p2 {p2}")
-            print(f"lemma2 stachowiak {lemma11([k, 1, 1])}")
-            # Even k, also need to add 0^k0 1 2 and 0^k0 2 1
-            return [lemma11([k, 1, 1])]
+        return [transformed_lemma2]
+    # Even-1-1
+    elif len(list(sig)) == 3 and k % 2 == 0 and sig[1] == 1 and sig[2] == 1:
+        # The path from 1 2 0^k to 0 2 1 0^(k-1)
+        lemma2_stachowiak = lemma2_extended_path(tuple([2] * k))
+        transformed_lemma2 = transform(lemma2_stachowiak, [2, 1, 0])
+        return [lemma11((k, 1, 1))]
     # even-2-1 case
-    elif len(sig) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
-        p2 = extend(HpathNS(k, 2), (2,))[
-            ::-1
-        ]  # a cycle from 1 0^(k-1) 1 0 2 to 1 0^k 1 2
-        p1 = extend(
-            Hpath_even_1_1(k),
-            (1,),
-        )  # a path from c1 = 1 2 0^k 1 to d1 = 0 2 1 0^(k-1) 1
-        p0 = extend(
-            generate_cycle_cover([k - 1, 2, 1])[0][::-1], (0,)
-        )  # a path from a0 = 1 2 0^(k-1) 1 0 to b0 = 0 2 1 0^(k-2) 1 0
-        # 1 2 0^{k} to 0 2 1 0^{k-1}.
+    elif len(list(sig)) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
+        # a cycle from 1 0 1 0^(k-1) 2 to 1 0^k 1 2
+        p2 = extend(HpathNS(k, 2), (2,))[::-1]
+
+        # p0 and p1 are combined into a cycle
+        # a path from c1 = 1 2 0^k 1 to d1 = 0 2 1 0^(k-1) 1
+        p1 = extend(Hpath_even_1_1(k), (1,))
+        # a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0
+        p0 = extend(generate_cycle_cover((k - 1, 2, 1))[0][::-1], (0,))
+
+        # v = 1 0^(k-1) 1 2
         v = (1,) + tuple([0] * k) + (1, 2)
         c = p0 + p1
         return [cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))]
     # odd-2-1 case
-    elif len(sig) == 3 and k % 2 == 1 and sig[1] == 2 and sig[2] == 1:
+    elif len(list(sig)) == 3 and k % 2 == 1 and sig[1] == 2 and sig[2] == 1:
         # the path from a to b (_1 | _12) with parallel 02-20 cycles incorporated
         p1_p12_p02_p20 = incorporated_odd_2_1(k)
         # path from c'10=120^{k_0-1}10 to d'10=0210^{k_0-1}10 (_10)
         p10 = extend(Hpath_even_1_1(k - 1), (1, 0))
         # path from a'00=120^{k_0-2}100 to b'00=0210^{k_0-3}100 (_00)
-        p00 = extend(generate_cycle_cover([k - 2, 2, 1])[0], (0, 0))
+        p00 = extend(generate_cycle_cover((k - 2, 2, 1))[0], (0, 0))
         cycle = rotate(p10 + p00[::-1], 1)[::-1]
         # b = 0 2 1 0^(k-2) 1 to a = 1 2 0^(k-1) 1
         return [p1_p12_p02_p20[:1] + cycle + p1_p12_p02_p20[1:]]
     # stachowiak's odd case
     elif sum(1 for n in sig if n % 2 == 1) >= 2:
-        new_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
-        return [transform(lemma11(new_sig), transformer)]
+        new_sig, transformer_stachowiak = get_transformer(
+            sig, lambda x: [x[0] % 2, x[0]]
+        )
+        return [transform(lemma11(new_sig), transformer_stachowiak)]
     # all-but-one even case
     elif any(n % 2 == 1 for n in sig):
         all_sub_cycles = []
         for idx, color in enumerate(sig):
-            sub_sig = sig[:idx] + [color - 1] + sig[idx + 1 :]
+            sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
             # check if this results an odd-2-1 case, then we need a cycle and not a path
-            sorted_sub_sig, transformer = get_transformer(
+            sorted_sub_sig, transformer2 = get_transformer(
                 sub_sig, lambda x: [x[0] % 2, x[0]]
             )
             if (
@@ -467,7 +435,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
                 and sorted_sub_sig[1] == 1
                 and sorted_sub_sig[2] == 2
             ):
-                c = [transform(lemma11(sorted_sub_sig), transformer)]
+                c = [transform(lemma11(sorted_sub_sig), transformer2)]
             else:
                 c = generate_cycle_cover(sub_sig)
             all_sub_cycles.append(extend_cycle_cover(c, (idx,)))
@@ -477,11 +445,11 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
         all_sub_cycles = []
         between_cycles = []
         for idx, color in enumerate(sig):
-            temp_sig = sig[:idx] + [color - 1] + sig[idx + 1 :]
+            temp_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
             for idx2, second_color in enumerate(temp_sig[idx:], start=idx):
-                sub_sig = temp_sig[:idx2] + [second_color - 1] + temp_sig[idx2 + 1 :]
+                sub_sig = temp_sig[:idx2] + (second_color - 1,) + temp_sig[idx2 + 1 :]
                 # check if this results an even-1-1 case
-                sorted_sub_sig, transformer = get_transformer(sub_sig, lambda x: x[0])
+                sorted_sub_sig, transformer2 = get_transformer(sub_sig, lambda x: x[0])
                 # for the even-1-1 case we need a specific path that has parallel edges
                 if (
                     sorted_sub_sig[0] % 2 == 0
@@ -491,7 +459,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
                     cycle_cover = [
                         transform(
                             Hpath_even_1_1(sorted_sub_sig[0]),
-                            transformer,
+                            transformer2,
                         )
                     ]
                 else:
@@ -514,7 +482,7 @@ def generate_cycle_cover(sig: list[int]) -> list[list[tuple[int, ...]]]:
                     sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
                     all_sub_cycles.append(sub_cycles)
                     while len(between_cycles) > 0 and idx == max(
-                        get_cycle_cover_tuple(between_cycles)[-2:]
+                        get_first_element(between_cycles)[-2:]
                     ):
                         all_sub_cycles.append(between_cycles.pop(0))
         if len(between_cycles) > 0:
@@ -537,8 +505,8 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    s = [int(x) for x in args.signature.split(",")]
-    if len(s) > 1:
+    s = tuple([int(x) for x in args.signature.split(",")])
+    if len(list(s)) > 1:
         perms = generate_cycle_cover(s)
         if args.verbose:
             print(f"Resulting path {perms}")

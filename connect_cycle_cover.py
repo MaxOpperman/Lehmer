@@ -172,7 +172,7 @@ def connect_recursive_cycles(
     return single_cycle_cover
 
 
-def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
+def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Generates the order of the end tuples of the cycles in the cycle cover.
     The end tuples are the tails of the cycles that are the nodes that connect them.
@@ -181,7 +181,7 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
     - **All-but-one-even**: _0, _1, _2, _3, _4, _5, ...
 
     Args:
-        sig (list[int]): The signature of the permutation.
+        sig (tuple[int]): The signature of the permutation.
 
     Returns:
         list[tuple[int, ...]]:
@@ -198,7 +198,7 @@ def generate_end_tuple_order(sig: list[int]) -> list[tuple[int, ...]]:
         ValueError: If there is more than one change in consecutive end tuples.
         ValueError: If the signature is not all-even or all-but-one-even.
     """
-    if len(sig) <= 2:
+    if len(list(sig)) <= 2:
         return []
     end_tuple_order = []
     sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
@@ -327,14 +327,14 @@ def split_sub_cycle_for_next(
     return splitPathIn2(cycle_to_cut, tail_nodes[tail_idx])
 
 
-def get_connected_cycle_cover(sig: list[int]) -> list[tuple[int, ...]]:
+def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Computes the a cycle on the non-stutter permutations for a given signature.
     If the signature is odd-2-1, the connected cycle cover is computed using lemma 11 by Stachowiak.
     Otherwise Verhoeff's cycle cover theorem is used to generate the cycle cover and that is then connected using the ``connect_cycle_cover`` function.
 
     Args:
-        sig (list[int]): The signature for which the cycle on non-stutter permutations needs to be computed.
+        sig (tuple[int]): The signature for which the cycle on non-stutter permutations needs to be computed.
 
     Returns:
         list[tuple[int, ...]]: The connected cycle cover as a list of tuples, where each tuple represents a permutation.
@@ -346,18 +346,19 @@ def get_connected_cycle_cover(sig: list[int]) -> list[tuple[int, ...]]:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
     """
-    if len(sig) == 0:
+    if len(list(sig)) == 0:
         return []
     sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
     if sig != sorted_sig:
         return transform(get_connected_cycle_cover(sorted_sig), transformer)
-    if len(sig) == 2 and any(c % 2 == 0 for c in sig):
+    if len(list(sig)) == 2 and any(c % 2 == 0 for c in sig):
         return HpathNS(sig[0], sig[1])
     # if sig contains a 1, a 2 and an odd number, we need to compute separately
-    if len(sig) < 3 or (sig[0] % 2 == 1 and sig[1] == 1 and sig[2] == 2):
+    if len(list(sig)) < 3 or (sig[0] % 2 == 1 and sig[1] == 1 and sig[2] == 2):
         return lemma11(sig)
     else:
         cover = generate_cycle_cover(sig)
+        print(f"cycle cover {cover}")
         assert len(cover) > 0
         return connect_cycle_cover(cover, sig)
 
@@ -390,7 +391,7 @@ def filter_adjacent_edges_by_tail(
 
 
 def find_parallel_edges_in_cycle_cover(
-    sig: list[int],
+    sig: tuple[int],
     cycle_cover: list[tuple[int, ...]],
 ) -> dict[list[tuple[tuple[int, ...], tuple[int, ...]]]]:
     """
@@ -398,7 +399,7 @@ def find_parallel_edges_in_cycle_cover(
     The tail is defined by the number of odd colors in the signature.
 
     Args:
-        sig (list[int]): The signature of the permutation.
+        sig (tuple[int]): The signature of the permutation.
         cycle_cover (list[tuple[int, ...]]): The cycle cover to find parallel edges in.
 
     Returns:
@@ -406,7 +407,7 @@ def find_parallel_edges_in_cycle_cover(
             A dictionary where the key is the pair of tails of the cycle that are combined and the value is the list of parallel edges.
             Each parallel edge is a tuple of two tuples of permutations (a permutation is a tuple of integers).
     """
-    if len(sig) == 0:
+    if len(list(sig)) == 0:
         raise ValueError("Signature should contain at least one element")
     if any(c < 0 for c in sig):
         raise ValueError("Signature should contain only positive integers")
@@ -439,7 +440,7 @@ def find_parallel_edges_in_cycle_cover(
 
 
 def find_cross_edges(
-    sig: list[int],
+    sig: tuple[int],
     cycle_cover: list[tuple[int, ...]],
 ) -> dict[
     list[
@@ -451,7 +452,7 @@ def find_cross_edges(
     The cross edges are used to connect the cycles in the cycle cover.
 
     Args:
-        sig (list[int]): The signature of the permutation.
+        sig (tuple[int]): The signature of the permutation.
         cycle_cover (list[tuple[int, ...]]): The cycle cover to find cross edges in.
 
     Returns:

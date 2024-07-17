@@ -468,104 +468,104 @@ class TestPathOperations:
         assert transform([(0, 1), (1, 2)], [1, 2, 3]) == [(1, 2), (2, 3)]
 
     def test_get_transformer_empty(self):
-        assert get_transformer([], lambda x: x[0]) == ([], [])
-        assert get_transformer([], lambda x: [x[0] % 2, x[0]]) == ([], [])
+        assert get_transformer(tuple(), lambda x: x[0]) == (tuple(), [])
+        assert get_transformer(tuple(), lambda x: [x[0] % 2, x[0]]) == (tuple(), [])
 
     def test_get_transformer_negative_signature(self):
         with pytest.raises(ValueError):
-            get_transformer([-2], lambda x: x[0])
+            get_transformer((-2,), lambda x: x[0])
         with pytest.raises(ValueError):
-            get_transformer([3, 4, 5, -3], lambda x: x[0])
+            get_transformer((3, 4, 5, -3), lambda x: x[0])
         with pytest.raises(ValueError):
-            get_transformer([3, -1, 5, 4], lambda x: [x[0] % 2, x[0]])
+            get_transformer((3, -1, 5, 4), lambda x: [x[0] % 2, x[0]])
 
     def test_get_transformer_one_element(self):
-        assert get_transformer([1], lambda x: x[0]) == ([1], [0])
-        assert get_transformer([2], lambda x: [x[0] % 2, x[0]]) == ([2], [0])
+        assert get_transformer((1,), lambda x: x[0]) == ((1,), [0])
+        assert get_transformer((2,), lambda x: [x[0] % 2, x[0]]) == ((2,), [0])
 
     def test_get_transformer_with_zero(self):
-        assert get_transformer([0], lambda x: [x[0] % 2, x[0]]) == ([], [])
-        assert get_transformer([0, 3, 2], lambda x: x[0]) == ([3, 2], [1, 2])
-        assert get_transformer([0, 3, 2], lambda x: -x[0]) == ([2, 3], [2, 1])
+        assert get_transformer((0,), lambda x: [x[0] % 2, x[0]]) == (tuple(), [])
+        assert get_transformer((0, 3, 2), lambda x: x[0]) == ((3, 2), [1, 2])
+        assert get_transformer((0, 3, 2), lambda x: -x[0]) == ((2, 3), [2, 1])
 
     def test_get_transformer_function_not_callable(self):
-        assert get_transformer([], 0) == ([], [])
+        assert get_transformer(tuple(), 0) == (tuple(), [])
         with pytest.raises(ValueError):
-            get_transformer([0], 0)
+            get_transformer((0,), 0)
         with pytest.raises(ValueError):
-            get_transformer([0], [0])
+            get_transformer((0,), [0])
         with pytest.raises(ValueError):
-            get_transformer([1, 2, 3], None)
+            get_transformer((1, 2, 3), None)
 
     def test_get_transformer_multiple_elements_odd_first(self):
-        assert get_transformer([2, 3, 4, 5], lambda x: [x[0] % 2, x[0]]) == (
-            [5, 3, 4, 2],
+        assert get_transformer((2, 3, 4, 5), lambda x: [x[0] % 2, x[0]]) == (
+            (5, 3, 4, 2),
             [3, 1, 2, 0],
         )
-        assert get_transformer([9, 4, 4, 9], lambda x: [x[0] % 2, x[0]]) == (
-            [9, 9, 4, 4],
+        assert get_transformer((9, 4, 4, 9), lambda x: [x[0] % 2, x[0]]) == (
+            (9, 9, 4, 4),
             [0, 3, 1, 2],
         )
-        assert get_transformer([4, 9, 9, 4], lambda x: [x[0] % 2, x[0]]) == (
-            [9, 9, 4, 4],
+        assert get_transformer((4, 9, 9, 4), lambda x: [x[0] % 2, x[0]]) == (
+            (9, 9, 4, 4),
             [1, 2, 0, 3],
         )
-        assert get_transformer([5, 0, 3, 4, 7, 6], lambda x: [x[0] % 2, x[0]]) == (
-            [7, 5, 3, 6, 4],
+        assert get_transformer((5, 0, 3, 4, 7, 6), lambda x: [x[0] % 2, x[0]]) == (
+            (7, 5, 3, 6, 4),
             [4, 0, 2, 5, 3],
         )
 
     def test_get_transformer_multiple_elements_even_first(self):
-        assert get_transformer([3, 4, 5, 6], lambda x: [x[0] % 2 == 0, x[0]]) == (
-            [6, 4, 5, 3],
+        assert get_transformer((3, 4, 5, 6), lambda x: [x[0] % 2 == 0, x[0]]) == (
+            (6, 4, 5, 3),
             [3, 1, 2, 0],
         )
-        assert get_transformer([4, 9, 9, 4], lambda x: [x[0] % 2 == 0, x[0]]) == (
-            [4, 4, 9, 9],
+        assert get_transformer((4, 9, 9, 4), lambda x: [x[0] % 2 == 0, x[0]]) == (
+            (4, 4, 9, 9),
             [0, 3, 1, 2],
         )
-        assert get_transformer([9, 4, 4, 9], lambda x: [x[0] % 2 == 0, x[0]]) == (
-            [4, 4, 9, 9],
+        assert get_transformer((9, 4, 4, 9), lambda x: [x[0] % 2 == 0, x[0]]) == (
+            (4, 4, 9, 9),
             [1, 2, 0, 3],
         )
-        assert get_transformer([0, 5, 6, 7, 4, 3], lambda x: [x[0] % 2 == 0, x[0]]) == (
-            [6, 4, 7, 5, 3],
+        assert get_transformer((0, 5, 6, 7, 4, 3), lambda x: [x[0] % 2 == 0, x[0]]) == (
+            (6, 4, 7, 5, 3),
             [2, 4, 3, 1, 5],
         )
 
     def test_get_transformer_multiple_elements_descending(self):
-        assert get_transformer([4, 5, 6, 7, 8], lambda x: x[0]) == (
-            [8, 7, 6, 5, 4],
+        assert get_transformer((4, 5, 6, 7, 8), lambda x: x[0]) == (
+            (8, 7, 6, 5, 4),
             [4, 3, 2, 1, 0],
         )
-        assert get_transformer([8, 7, 6, 5, 4], lambda x: x[0]) == (
-            [8, 7, 6, 5, 4],
+        assert get_transformer((8, 7, 6, 5, 4), lambda x: x[0]) == (
+            (8, 7, 6, 5, 4),
             [0, 1, 2, 3, 4],
         )
-        assert get_transformer([8, 6, 7, 2, 5], lambda x: x[0]) == (
-            [8, 7, 6, 5, 2],
+        assert get_transformer((8, 6, 7, 2, 5), lambda x: x[0]) == (
+            (8, 7, 6, 5, 2),
             [0, 2, 1, 4, 3],
         )
-        assert get_transformer([6, 6, 8, 8], lambda x: x[0]) == (
-            [8, 8, 6, 6],
+        assert get_transformer((6, 6, 8, 8), lambda x: x[0]) == (
+            (8, 8, 6, 6),
             [2, 3, 0, 1],
         )
 
     def test_get_transformer_multiple_elements_ascending(self):
-        assert get_transformer([8, 7, 6, 5, 4], lambda x: -x[0]) == (
-            [4, 5, 6, 7, 8],
+        assert get_transformer((8, 7, 6, 5, 4), lambda x: -x[0]) == (
+            (4, 5, 6, 7, 8),
             [4, 3, 2, 1, 0],
         )
-        assert get_transformer([4, 5, 6, 7, 8], lambda x: -x[0]) == (
-            [4, 5, 6, 7, 8],
+        assert get_transformer((4, 5, 6, 7, 8), lambda x: -x[0]) == (
+            (4, 5, 6, 7, 8),
             [0, 1, 2, 3, 4],
         )
-        assert get_transformer([8, 6, 7, 2, 5], lambda x: -x[0]) == (
-            [2, 5, 6, 7, 8],
+        assert get_transformer((8, 6, 7, 2, 5), lambda x: -x[0]) == (
+            (2, 5, 6, 7, 8),
             [3, 4, 1, 2, 0],
         )
-        assert get_transformer([8, 8, 6, 6], lambda x: -x[0]) == (
-            [6, 6, 8, 8],
+        assert get_transformer((8, 8, 6, 6), lambda x: -x[0]) == (
+            (6, 6, 8, 8),
             [2, 3, 0, 1],
         )
 
@@ -751,37 +751,37 @@ class TestPathOperations:
             shorten_cycle_cover(p, (1,))
 
     def test_StutterPermutationQ_empty(self):
-        assert stutterPermutationQ([]) == True
+        assert stutterPermutationQ(tuple()) == True
 
     def test_StutterPermutationQ_one_element(self):
-        assert stutterPermutationQ([0]) == True
-        assert stutterPermutationQ([1]) == True
-        assert stutterPermutationQ([10]) == True
+        assert stutterPermutationQ((0,)) == True
+        assert stutterPermutationQ((1,)) == True
+        assert stutterPermutationQ((10,)) == True
 
     def test_StutterPermutationQ_two_elements(self):
-        assert stutterPermutationQ([0, 0]) == True
-        assert stutterPermutationQ([1, 1]) == True
-        assert stutterPermutationQ([10, 10]) == True
-        assert stutterPermutationQ([0, 1]) == False
-        assert stutterPermutationQ([1, 0]) == False
-        assert stutterPermutationQ([10, 11]) == False
-        assert stutterPermutationQ([11, 10]) == False
+        assert stutterPermutationQ((0, 0)) == True
+        assert stutterPermutationQ((1, 1)) == True
+        assert stutterPermutationQ((10, 10)) == True
+        assert stutterPermutationQ((0, 1)) == False
+        assert stutterPermutationQ((1, 0)) == False
+        assert stutterPermutationQ((10, 11)) == False
+        assert stutterPermutationQ((11, 10)) == False
 
     def test_StutterPermutationQ_multiple_elements_even(self):
-        assert stutterPermutationQ([0, 0, 0, 0]) == True
-        assert stutterPermutationQ([1, 1, 1, 1]) == True
-        assert stutterPermutationQ([10, 10, 5, 5]) == True
-        assert stutterPermutationQ([2, 2, 0, 1]) == False
-        assert stutterPermutationQ([1, 0, 1, 0]) == False
-        assert stutterPermutationQ([3, 3, 10, 11]) == False
+        assert stutterPermutationQ((0, 0, 0, 0)) == True
+        assert stutterPermutationQ((1, 1, 1, 1)) == True
+        assert stutterPermutationQ((10, 10, 5, 5)) == True
+        assert stutterPermutationQ((2, 2, 0, 1)) == False
+        assert stutterPermutationQ((1, 0, 1, 0)) == False
+        assert stutterPermutationQ((3, 3, 10, 11)) == False
 
     def test_StutterPermutationQ_multiple_elements_odd(self):
-        assert stutterPermutationQ([0, 0, 0, 0, 0]) == True
-        assert stutterPermutationQ([2, 2, 0, 0, 0]) == True
-        assert stutterPermutationQ([2, 2, 0, 0, 4]) == True
-        assert stutterPermutationQ([1, 1, 1, 1, 2]) == True
-        assert stutterPermutationQ([10, 10, 5, 5, 5]) == True
-        assert stutterPermutationQ([2, 2, 0, 1, 1]) == False
-        assert stutterPermutationQ([1, 0, 1, 0, 1]) == False
-        assert stutterPermutationQ([1, 0, 1, 1, 1]) == False
-        assert stutterPermutationQ([3, 3, 10, 11, 11]) == False
+        assert stutterPermutationQ((0, 0, 0, 0, 0)) == True
+        assert stutterPermutationQ((2, 2, 0, 0, 0)) == True
+        assert stutterPermutationQ((2, 2, 0, 0, 4)) == True
+        assert stutterPermutationQ((1, 1, 1, 1, 2)) == True
+        assert stutterPermutationQ((10, 10, 5, 5, 5)) == True
+        assert stutterPermutationQ((2, 2, 0, 1, 1)) == False
+        assert stutterPermutationQ((1, 0, 1, 0, 1)) == False
+        assert stutterPermutationQ((1, 0, 1, 1, 1)) == False
+        assert stutterPermutationQ((3, 3, 10, 11, 11)) == False

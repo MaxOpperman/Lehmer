@@ -3,13 +3,13 @@ from helper_operations.path_operations import adjacent
 from helper_operations.permutation_graphs import stutterPermutations
 
 
-def incorporate_stutters(sig: list[int]) -> list[tuple[int, ...]]:
+def incorporate_stutters(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Creates a cycle/path on the non-stutter permutations and then incorporates the stutters to create a Lehmer cycle/path.
     See the Notes for which signatures result in a path instead of a cycle.
 
     Args:
-        sig (list[int]): The input signature.
+        sig (tuple[int]): The input signature.
 
     Returns:
         list[tuple[int, ...]]: The list of tuples representing the valid cycle/path on non-stutter permutations with the stutters incorporated.

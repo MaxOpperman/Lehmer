@@ -89,7 +89,7 @@ def main():
     args = parser.parse_args()
     sig = [int(x) for x in args.signature.split(",")]
 
-    if len(sig) > 0:
+    if len(list(sig)) > 0:
         # Compute permutations using Lehmer's algorithm
         if args.lehmer:
             perms = perm(sig)

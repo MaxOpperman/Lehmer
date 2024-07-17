@@ -70,6 +70,7 @@ def cycleQ(c: list[tuple[int, ...]]) -> bool:
         return False
     for i, item in enumerate(c):
         if not adjacent(item, c[(i + 1) % len(c)]):
+            print(f"not a cycle: {item} and {c[(i + 1) % len(c)]}")
             return False
     return True
 
@@ -308,37 +309,37 @@ def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, .
     return result
 
 
-def get_transformer(s: list[int], func: callable) -> tuple[list[int], list[int]]:
+def get_transformer(s: tuple[int], func: callable) -> tuple[tuple[int], list[int]]:
     """
     Sorts the signature using a given function and provides array to transform it back.
     The transformer array is built by indexing the numbers. See ``transform`` for more details on the format.
 
     Args:
-        s (list[int]): The signature as a list of integers.
+        s (tuple[int]): The signature as a tuple of integers.
         func (callable): The lambda function of tuples of form (value, index) to sort the signature.
 
     Returns:
-        tuple[list[int], list[int]]:
-            A tuple of two lists of integers:
-            - the first list is the sorted signature.
-            - the second list is the transformation array (used in the ``tranform`` function).
+        tuple[tuple[int], list[int]]:
+            A tuple of a tuple and a list of integers:
+            - the first is a tuple: the sorted signature.
+            - the second is a list: the transformation array (used in the ``tranform`` function).
     """
     if len(s) == 0:
-        return [], []
+        return tuple(), []
     elif any(s_i < 0 for s_i in s):
-        raise ValueError("Signature must be a list of non-negative integers.")
+        raise ValueError("Signature must be a tuple of non-negative integers.")
     elif not callable(func):
         raise ValueError("Function must be callable.")
     # index the numbers in the signature such that we can transform them back later
     indexed_sig = [(value, idx) for idx, value in enumerate(s)]
     # put the odd numbers first in the signature
     indexed_sig.sort(reverse=True, key=func)
-    return [x[0] for x in indexed_sig if x[0] != 0], [
+    return tuple([x[0] for x in indexed_sig if x[0] != 0]), [
         x[1] for x in indexed_sig if x[0] != 0
     ]
 
 
-def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
+def transform(perms: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
     """
     Transforms a list of permutations as tuples according to the given renaming.
     The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
@@ -347,7 +348,7 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
     So the transformation list should be at least as long as the largest index in the permutations.
 
     Args:
-        lis (list[tuple[int, ...]]): List of permutations.
+        perms (list[tuple[int, ...]]): List of permutations.
         tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
 
     Returns:
@@ -361,7 +362,7 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
         [(4, 5, 6), (5, 4, 6)]
     """
     l = []
-    for i in lis:
+    for i in perms:
         v = []
         for j in i:
             try:
@@ -374,14 +375,14 @@ def transform(lis: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]
     return l
 
 
-def transform_cycle_cover(lis3d: list[list], tr: list[int]) -> list[list]:
+def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
     """
     Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
     The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
     The depth is at least 2 and determined by the cycle cover function.
 
     Args:
-        lis3d (list[list[tuple[int, ...]]]):
+        perms3d (list[list[tuple[int, ...]]]):
             List of lists of permutations. Does not have a fixed depth. The depth is determined by the cycle cover function.
             If the depth is 2 (list of lists of permutations, where permutations are tuples), the function will transform the permutations.
         tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
@@ -392,13 +393,13 @@ def transform_cycle_cover(lis3d: list[list], tr: list[int]) -> list[list]:
         AssertionError: If the input list does not have a length greater than 0.
         ValueError: If the input is not a list.
     """
-    assert len(lis3d) > 0
-    if isinstance(lis3d[0][0][0], int):
-        return [transform(l, tr) for l in lis3d]
-    elif not isinstance(lis3d, list):
+    assert len(perms3d) > 0
+    if isinstance(perms3d[0][0][0], int):
+        return [transform(l, tr) for l in perms3d]
+    elif not isinstance(perms3d, list):
         raise ValueError("The input is not a list")
     else:
-        return [transform_cycle_cover(l, tr) for l in lis3d]
+        return [transform_cycle_cover(l, tr) for l in perms3d]
 
 
 def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[list]:
@@ -511,7 +512,7 @@ def get_single_list(nested_list: list) -> list[tuple[int, ...]]:
         )
 
 
-def non_stutter_cycleQ(sig: list[int]) -> bool:
+def non_stutter_cycleQ(sig: tuple[int]) -> bool:
     """
     Return whether a cycle on the non-stutter permutations is possible for the given signature.
     This cycle is not possible for the following signatures:\n
@@ -521,28 +522,28 @@ def non_stutter_cycleQ(sig: list[int]) -> bool:
     - Even-1-1
 
     Args:
-        sig (list[int]): The signature of the multiset permutations.
+        sig (tuple[int]): The signature of the multiset permutations.
 
     Returns:
         bool: True if a cycle on the non-stutter permutations is possible, False if only a path is possible.
     """
-    if len(sig) == 0:
+    if len(list(sig)) == 0:
         # empty signature cannot be a cycle
         return False
-    if len(sig) == 1:
+    if len(list(sig)) == 1:
         # one element cannot be a cycle
         return False
-    if len(sig) == 2 and 1 in sig:
+    if len(list(sig)) == 2 and 1 in sig:
         # this is a linear graph
         return False
-    if len(sig) == 2 and (
+    if len(list(sig)) == 2 and (
         sig[0] % 2 != sig[1] % 2 or (sig[0] % 2 == 1 and sig[1] % 2 == 1)
     ):
         # odd-even or even-odd or odd-odd
         return False
     # sort the signature
     sorted_sig, _ = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
-    if len(sig) == 3 and (
+    if len(list(sig)) == 3 and (
         sorted_sig[0] == 1 and sorted_sig[1] == 1 and sorted_sig[2] % 2 == 0
     ):
         # Even-1-1
