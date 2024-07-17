@@ -33,9 +33,10 @@ def Hpath_even_1_1(k: int) -> list[tuple[int, ...]]:
         k (int): The input value for the number of 0's. Must be odd!
 
     Returns:
-        list[tuple[int, ...]]: The generated path from `c` to `d`\n
-        - `c = 1 2 0^k`
-        - `d = 0 2 1 0^(k-1)`
+        list[tuple[int, ...]]:
+            The generated path from `c` to `d`\n
+            - `c = 1 2 0^k`
+            - `d = 0 2 1 0^(k-1)`
 
     Raises:
         ValueError: If `k` is not even
