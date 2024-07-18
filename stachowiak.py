@@ -607,7 +607,7 @@ def lemma9(sig: tuple[int]) -> list[tuple[int, ...]]:
         G = []
         for i in range(len(l_p) + 1):
             # induction on r, for every 0 \leq i \leq p
-            g = lemma9(sig[:2] + [sig[2] - 1, sig[3], i])
+            g = lemma9((sig[0], sig[1], sig[2] - 1, sig[3], i))
             recursive_lists = []
             for item in g:
                 recursive_lists.append(l_p[: len(l_p) - i] + k_r[:1] + item)

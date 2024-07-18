@@ -237,13 +237,13 @@ class Test_Lemma7:
     """
 
     def test_lemma7_1_1_1_1(self):
-        signature = [1, 1, 1, 1]
+        signature = (1, 1, 1, 1)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert result == [(0, 1, 2, 3), (0, 1, 3, 2), (1, 0, 3, 2), (1, 0, 2, 3)]
 
     def test_lemma7_1_1_1_2(self):
-        signature = [1, 1, 1, 2]
+        signature = (1, 1, 1, 2)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert result == [
@@ -256,7 +256,7 @@ class Test_Lemma7:
         ]
 
     def test_lemma7_1_1_2_1(self):
-        signature = [1, 1, 2, 1]
+        signature = (1, 1, 2, 1)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert result == [
@@ -269,7 +269,7 @@ class Test_Lemma7:
         ]
 
     def test_lemma7_1_1_2_2(self):
-        signature = [1, 1, 2, 2]
+        signature = (1, 1, 2, 2)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert result == [
@@ -288,7 +288,7 @@ class Test_Lemma7:
         ]
 
     def test_lemma7_1_1_3_2(self):
-        signature = [1, 1, 3, 2]
+        signature = (1, 1, 3, 2)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert result == [
@@ -315,7 +315,7 @@ class Test_Lemma7:
         ]
 
     def test_lemma7_1_1_3_4(self):
-        signature = [1, 1, 3, 4]
+        signature = (1, 1, 3, 4)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert len(result) == len(set(result))
@@ -325,7 +325,7 @@ class Test_Lemma7:
             assert p[1] in [0, 1]
 
     def test_lemma7_1_1_8_8(self):
-        signature = [1, 1, 8, 8]
+        signature = (1, 1, 8, 8)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert len(result) == len(set(result))
@@ -335,7 +335,7 @@ class Test_Lemma7:
             assert p[1] in [0, 1]
 
     def test_lemma7_1_1_7_10(self):
-        signature = [1, 1, 7, 10]
+        signature = (1, 1, 7, 10)
         result = lemma7(signature)
         assert len(result) == 2 * multinomial(signature[2:])
         assert len(result) == len(set(result))
@@ -352,7 +352,7 @@ class Test_Lemma8:
     """
 
     def test_lemma8_1_1_1_1(self):
-        signature = [1, 1, 1, 1]
+        signature = (1, 1, 1, 1)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert result == [
@@ -367,7 +367,7 @@ class Test_Lemma8:
         ]
 
     def test_lemma8_1_1_2_1(self):
-        signature = [1, 1, 2, 1]
+        signature = (1, 1, 2, 1)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert result == [
@@ -384,7 +384,7 @@ class Test_Lemma8:
         ]
 
     def test_lemma8_1_1_1_2(self):
-        signature = [1, 1, 1, 2]
+        signature = (1, 1, 1, 2)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert result == [
@@ -411,7 +411,7 @@ class Test_Lemma8:
         ]
 
     def test_lemma8_1_1_2_2(self):
-        signature = [1, 1, 2, 2]
+        signature = (1, 1, 2, 2)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert result == [
@@ -448,7 +448,7 @@ class Test_Lemma8:
         ]
 
     def test_lemma8_1_1_3_4(self):
-        signature = [1, 1, 3, 4]
+        signature = (1, 1, 3, 4)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert len(result) == len(set(result))
@@ -458,7 +458,7 @@ class Test_Lemma8:
             assert p[1] in [0, 1, 3]
 
     def test_lemma8_1_1_4_5(self):
-        signature = [1, 1, 4, 5]
+        signature = (1, 1, 4, 5)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert len(result) == len(set(result))
@@ -468,7 +468,7 @@ class Test_Lemma8:
             assert p[1] in [0, 1, 3]
 
     def test_lemma8_1_1_7_7(self):
-        signature = [1, 1, 7, 7]
+        signature = (1, 1, 7, 7)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert len(result) == len(set(result))
@@ -478,7 +478,7 @@ class Test_Lemma8:
             assert p[1] in [0, 1, 3]
 
     def test_lemma8_1_1_6_9(self):
-        signature = [1, 1, 6, 9]
+        signature = (1, 1, 6, 9)
         result = lemma8(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[3])
         assert len(result) == len(set(result))
@@ -495,7 +495,7 @@ class Test_Lemma9:
     """
 
     def test_lemma9_1_1_1_0_1(self):
-        signature = [1, 1, 1, 0, 1]
+        signature = (1, 1, 1, 0, 1)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert result == [
@@ -510,7 +510,7 @@ class Test_Lemma9:
         ]
 
     def test_lemma9_1_1_0_1_1(self):
-        signature = [1, 1, 0, 1, 1]
+        signature = (1, 1, 0, 1, 1)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert result == [
@@ -525,7 +525,7 @@ class Test_Lemma9:
         ]
 
     def test_lemma9_1_1_1_1_1(self):
-        signature = [1, 1, 1, 1, 1]
+        signature = (1, 1, 1, 1, 1)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert result == [
@@ -542,21 +542,21 @@ class Test_Lemma9:
         ]
 
     def test_lemma9_1_1_1_1_4(self):
-        signature = [1, 1, 1, 1, 4]
+        signature = (1, 1, 1, 1, 4)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
     def test_lemma9_1_1_3_1_3(self):
-        signature = [1, 1, 3, 1, 3]
+        signature = (1, 1, 3, 1, 3)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
     def test_lemma9_1_1_2_4_5(self):
-        signature = [1, 1, 2, 4, 5]
+        signature = (1, 1, 2, 4, 5)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
@@ -564,7 +564,7 @@ class Test_Lemma9:
 
     @pytest.mark.slow
     def test_lemma9_1_1_4_7_4(self):
-        signature = [1, 1, 4, 7, 4]
+        signature = (1, 1, 4, 7, 4)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
@@ -572,7 +572,7 @@ class Test_Lemma9:
 
     @pytest.mark.slow
     def test_lemma9_1_1_8_7_5(self):
-        signature = [1, 1, 8, 7, 5]
+        signature = (1, 1, 8, 7, 5)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
@@ -580,7 +580,7 @@ class Test_Lemma9:
 
     @pytest.mark.slow
     def test_lemma9_1_1_6_6_6(self):
-        signature = [1, 1, 6, 6, 6]
+        signature = (1, 1, 6, 6, 6)
         result = lemma9(signature)
         assert len(result) == 2 * math.comb(sum(signature), signature[4])
         assert cycleQ(result)
@@ -595,86 +595,86 @@ class Test_Lemma10_and_11:
     This way we can be sure that the permutations are all found and that they form a cycle.
     """
 
-    l11sig_3_3_2 = lemma11([3, 3, 2])
+    l11sig_3_3_2 = lemma11((3, 3, 2))
 
     def test_lemma11_empty(self):
         with pytest.raises(ValueError):
-            lemma11([])
+            lemma11(tuple())
 
     def test_lemma11_2(self):
-        result = lemma11([2])
+        result = lemma11((2,))
         assert result == [(0, 0)]
 
     def test_lemma11_5(self):
-        result = lemma11([5])
+        result = lemma11((5,))
         assert result == [(0, 0, 0, 0, 0)]
 
     def test_lemma11_1_1(self):
-        result = lemma11([1, 1])
-        assert HpathQ(result, [1, 1])
+        result = lemma11((1, 1))
+        assert HpathQ(result, (1, 1))
 
     # at least two odd numbers
     def test_lemma11_not_enough_odd_numbers(self):
         with pytest.raises(ValueError):
-            lemma11([1, 2])
+            lemma11((1, 2))
         with pytest.raises(ValueError):
-            lemma11([5, 4])
+            lemma11((5, 4))
         with pytest.raises(ValueError):
-            lemma11([6, 7])
+            lemma11((6, 7))
         with pytest.raises(ValueError):
-            lemma11([2, 2])
+            lemma11((2, 2))
 
     def test_lemma11_different_order_1_1_4(self):
-        assert HpathQ(lemma11([4, 1, 1]), [4, 1, 1])
-        assert HpathQ(lemma11([1, 4, 1]), [1, 4, 1])
-        assert HpathQ(lemma11([5, 1, 1]), [5, 1, 1])
-        assert HpathQ(lemma11([1, 5, 1]), [1, 5, 1])
+        assert HpathQ(lemma11((4, 1, 1)), (4, 1, 1))
+        assert HpathQ(lemma11((1, 4, 1)), (1, 4, 1))
+        assert HpathQ(lemma11((5, 1, 1)), (5, 1, 1))
+        assert HpathQ(lemma11((1, 5, 1)), (1, 5, 1))
 
     def test_lemma11_4_2_3_1(self):
-        assert HpathQ(lemma11([4, 2, 3, 1]), [4, 2, 3, 1])
+        assert HpathQ(lemma11((4, 2, 3, 1)), (4, 2, 3, 1))
 
     def test_lemma11_3_2_3_1(self):
-        assert HpathQ(lemma11([3, 2, 3, 1]), [3, 2, 3, 1])
+        assert HpathQ(lemma11((3, 2, 3, 1)), (3, 2, 3, 1))
 
     def test_lemma11_1_2_3_5(self):
-        assert HpathQ(lemma11([1, 2, 3, 5]), [1, 2, 3, 5])
+        assert HpathQ(lemma11((1, 2, 3, 5)), (1, 2, 3, 5))
 
     def test_lemma11_3_3_2(self):
         result = copy.deepcopy(self.l11sig_3_3_2)
-        assert HcycleQ(result, [3, 3, 2])
+        assert HcycleQ(result, (3, 3, 2))
 
     def test_lemma11_3_3_1_2(self):
-        sig = [3, 3, 1, 2]
+        sig = (3, 3, 1, 2)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_7(self):
-        sig = [3, 3, 7]
+        sig = (3, 3, 7)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_10(self):
-        sig = [3, 3, 10]
+        sig = (3, 3, 10)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_3_2_1(self):
         # we only have to add the last element (which occurs once) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 1, 3)
-        assert LargeHcycleQ(result, [3, 3, 2, 1])
+        assert LargeHcycleQ(result, (3, 3, 2, 1))
 
     def test_lemma11_3_3_2_2(self):
         # we only have to add the last the last element (whihc occurs twice) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 2, 3)
-        assert LargeHcycleQ(result, [3, 3, 2, 2])
+        assert LargeHcycleQ(result, (3, 3, 2, 2))
 
     def test_lemma11_5_3_2(self):
-        sig = [5, 3, 2]
+        sig = (5, 3, 2)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_3(self):
-        sig = [5, 5, 3]
+        sig = (5, 5, 3)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
@@ -682,21 +682,21 @@ class Test_Lemma10_and_11:
 @pytest.mark.slow
 class Test_Lemma11_Large:
     def test_lemma11_7_7_2(self):
-        sig = [7, 7, 2]
+        sig = (7, 7, 2)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_4(self):
-        sig = [5, 5, 4]
+        sig = (5, 5, 4)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_3_5_6(self):
-        sig = [3, 5, 6]
+        sig = (3, 5, 6)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
     def test_lemma11_5_5_1_3(self):
-        sig = [5, 5, 1, 3]
+        sig = (5, 5, 1, 3)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
