@@ -268,9 +268,9 @@ def shorten(lis: list[tuple[int, ...]], num: int) -> list[tuple[int, ...]]:
     return [i[:-num] for i in lis]
 
 
-def signature(permutation: tuple[int, ...]) -> tuple[int]:
+def get_perm_signature(permutation: tuple[int, ...]) -> tuple[int]:
     """
-    Returns the signature of a permutation.
+    Get the signature of a permutation.
 
     Args:
         permutation (tuple[int, ...]): The permutation as a tuple of integers.

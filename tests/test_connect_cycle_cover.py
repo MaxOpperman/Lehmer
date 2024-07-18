@@ -59,7 +59,7 @@ class Test_TailsOrdering:
             (0, 2, 0),
         ]
 
-    def test_end_tuple_order_with0s_2_2_2(self):
+    def test_end_tuple_order_with_0s_2_2_2(self):
         sig = (0, 0, 0, 2, 2, 2, 0)
         result = generate_end_tuple_order(sig)
         assert result == [

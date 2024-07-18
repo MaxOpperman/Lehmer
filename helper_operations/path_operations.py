@@ -324,7 +324,7 @@ def get_transformer(s: tuple[int], func: callable) -> tuple[tuple[int], list[int
             - the first is a tuple: the sorted signature.
             - the second is a list: the transformation array (used in the ``tranform`` function).
     """
-    if len(s) == 0:
+    if len(list(s)) == 0:
         return tuple(), []
     elif any(s_i < 0 for s_i in s):
         raise ValueError("Signature must be a tuple of non-negative integers.")

@@ -1,5 +1,4 @@
 import argparse
-import collections
 
 from cycle_cover import generate_cycle_cover
 from helper_operations.path_operations import (
@@ -13,9 +12,11 @@ from helper_operations.path_operations import (
     shorten_cycle_cover,
     splitPathIn2,
     transform,
+    transform_cycle_cover,
 )
 from helper_operations.permutation_graphs import (
     extend_cycle_cover,
+    get_perm_signature,
     selectByTail,
     swapPair,
 )
@@ -26,7 +27,7 @@ from visualization import is_stutter_permutation
 
 def merge_even_signatures(
     cycle_cover_segments: list[list[tuple[int, ...]]],
-    sig: tuple[int, ...],
+    subsig: tuple[int, ...],
 ) -> list[tuple[int, ...]]:
     """
     Merges the cycles in the cycle cover for all-even and all-but-one-even permutations.
@@ -44,29 +45,33 @@ def merge_even_signatures(
         list[tuple[int, ...]]: The merged cycle cover
     """
     tail_length = (
-        2 if all(n % 2 == 0 for n in sig) else 1 if sum(n % 2 for n in sig) == 1 else 0
+        2
+        if all(n % 2 == 0 for n in subsig)
+        else 1 if sum(n % 2 for n in subsig) == 1 else 0
     )
     if tail_length == 0:
         raise ValueError(
-            f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
+            f"Signature should contain at most one odd number. Got {subsig} with {sum(n % 2 for n in subsig)} odd numbers."
         )
+    # The cycles are split on the last elements
+    end_tuple_order = generate_end_tuple_order(subsig)
     # while the depth of the list is more than 2, we need to connect the previous cycles
-    single_cycle_cover = connect_recursive_cycles(cycle_cover_segments, sig)
-
-    cross_edges = find_cross_edges(sig, single_cycle_cover)
+    print(f"cycle cover segments: {cycle_cover_segments}, subsig: {subsig}")
+    single_cycle_cover = connect_recursive_cycles(cycle_cover_segments, subsig)
+    print(f"")
+    cross_edges = find_cross_edges(subsig, single_cycle_cover)
     print(
-        f"Cross edges sig {sig}: {{\n"
+        f"Cross edges sig {subsig}: {{\n"
         + "\n\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items())
         + "\n }"
     )
-    # The cycles are split on the last elements
-    end_tuple_order = generate_end_tuple_order(sig)
-    print(f"End tuple order: {end_tuple_order} for signature {sig}")
+    print(f"End tuple order: {end_tuple_order} for signature {subsig}")
     # The first cycle is a cycle
     # Ensure that the first cycle has start and end nodes that have the suffix _100
     tail = end_tuple_order[0]
     single_list = get_single_list(single_cycle_cover)
     start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
+    print(f"signature {subsig}")
     print(f"cut nodes 0: {start_cycles[-1]}, {end_cycles[0]}")
     for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
         cut_cycle = cut_sub_cycle_to_past(
@@ -90,31 +95,37 @@ def merge_even_signatures(
 
 
 def connect_cycle_cover(
-    cycle_cover: list[list[tuple[int, ...]]], sig: tuple[int, ...]
+    cycle_cover: list[list[tuple[int, ...]]], subsig: tuple[int, ...]
 ) -> list[tuple[int, ...]]:
     """
     Connects the cycle cover to a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
 
     Args:
         cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to connect, the depth of the list is undefined and depends on the cycle cover.
-        sig (tuple[int, ...]): The permutation signature, number of occurrences of each element.
+        subsig (tuple[int, ...]): The current signature, number of occurrences of each element.
 
     Returns:
         list[tuple[int, ...]]: The connected cycle cover
     """
+    print(f"subsig: {subsig}")
     if len(cycle_cover) == 1:
         return cycle_cover[0]
     elif isinstance(cycle_cover[0][0], int):
         return cycle_cover
+    # If there are multiple colors that occur an odd number of times
+    if sum(n % 2 for n in subsig) > 1:
+        # Use Stachowiak Lemma 11
+        print(f"cycle cover: {cycle_cover}, subsig: {subsig}")
+        return []
     # If there is one color that occurs an odd number of times
-    elif any(n % 2 == 1 for n in sig):
+    elif any(n % 2 == 1 for n in subsig):
         # Loop over the cycles in the cover and connect the cycle at index `i` ends with an element of color `i`
-        return merge_even_signatures(cycle_cover, sig)
-    elif all(n % 2 == 0 for n in sig):
+        return merge_even_signatures(cycle_cover, subsig)
+    elif all(n % 2 == 0 for n in subsig):
         # The cycles are split on the last two elements
-        return merge_even_signatures(cycle_cover, sig)
+        return merge_even_signatures(cycle_cover, subsig)
     else:
-        print(f"Not sure why this would happen, but happened for {sig}")
+        print(f"Not sure why this would happen, but happened for {subsig}")
 
 
 def connect_recursive_cycles(
@@ -150,22 +161,31 @@ def connect_recursive_cycles(
             and isinstance(nested_cycle[0][0], list)
         ):
             # we need to remove the last element from every list in the nested cycle to connect them
-            last_element = get_first_element(nested_cycle)[-(tail_length):]
-            shortened_cycle = shorten_cycle_cover(nested_cycle, last_element)
-            # For every element in last_element, we need to subtract 1 from the corresponding element in the signature
-            subsig = tuple(
-                (
-                    val - collections.Counter(last_element)[idx]
-                    if idx in last_element
-                    else val
-                )
-                for idx, val in enumerate(list(sig))
+            first_cycle_element = get_first_element(nested_cycle)
+            last_element = first_cycle_element[-(tail_length):]
+
+            # Get the new signature
+            subsig = get_perm_signature(first_cycle_element[:-tail_length])
+            sorted_subsig, subsig_transformer = get_transformer(subsig, lambda x: x[0])
+
+            # if the sorted subsig is not the same as the subsig, we will just transform it into a sorted case and transform it back after
+            print(
+                f"transformer: {subsig_transformer} for subsig {subsig} case {1 if sorted_subsig != subsig else 2}"
             )
-            connected_shortened = connect_cycle_cover(shortened_cycle, subsig)
+            shortened_cycle = None
+            if sorted_subsig != subsig:
+                shortened_cycle = generate_cycle_cover(sorted_subsig)
+            else:
+                shortened_cycle = shorten_cycle_cover(nested_cycle, last_element)
+            connected_shortened = connect_cycle_cover(shortened_cycle, sorted_subsig)
             # Now we need to add the last element back to the connected shortened cycle
             if isinstance(connected_shortened[0], tuple):
                 connected_shortened = [connected_shortened]
-            connected = extend_cycle_cover(connected_shortened, last_element)
+            # now transform the connected shortened subsig back to the original values
+            transformed_short = transform_cycle_cover(
+                connected_shortened, subsig_transformer
+            )
+            connected = extend_cycle_cover(transformed_short, last_element)
             single_cycle_cover.append(connected)
         else:
             single_cycle_cover.append(nested_cycle)
@@ -358,7 +378,6 @@ def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
         return lemma11(sig)
     else:
         cover = generate_cycle_cover(sig)
-        print(f"cycle cover {cover}")
         assert len(cover) > 0
         return connect_cycle_cover(cover, sig)
 
@@ -434,8 +453,17 @@ def find_parallel_edges_in_cycle_cover(
     for i, cycle in enumerate(cycle_cover[:-1]):
         parallel_edges[tails[i]] = filter_adjacent_edges_by_tail(cycle[0], tails[i])
         parallel_edges[start_tails[i]] = filter_adjacent_edges_by_tail(
-            cycle_cover[i + 1][0], start_tails[i]
+            cycle_cover[i + 1][0],
+            start_tails[i],
         )
+    parallel_edges[tails[-1]] = filter_adjacent_edges_by_tail(
+        cycle_cover[-1][0],
+        tails[-1],
+    )
+    parallel_edges[start_tails[-1]] = filter_adjacent_edges_by_tail(
+        cycle_cover[0][0],
+        start_tails[-1],
+    )
     return parallel_edges
 
 
@@ -490,10 +518,19 @@ def find_cross_edges(
                 elif adjacent(edge1[1], edge2[0]) and adjacent(edge1[0], edge2[1]):
                     cross = (edge1[::-1], edge2)
                 if cross is not None:
-                    if (tail1, tail2) in cross_edges:
-                        cross_edges[(tail1, tail2)].append(cross)
+                    # set tail1 and tail2 to be in lexographical order
+                    tail1sorted, tail2sorted = sorted([tail1, tail2])
+                    if tail1sorted != tail1 or tail2sorted != tail2:
+                        cross = ((cross[1][1], cross[1][0]), (cross[0][1], cross[0][0]))
+                    if (
+                        tail1sorted,
+                        tail2sorted,
+                    ) in cross_edges and cross not in cross_edges[
+                        (tail1sorted, tail2sorted)
+                    ]:
+                        cross_edges[(tail1sorted, tail2sorted)].append(cross)
                     else:
-                        cross_edges[(tail1, tail2)] = [cross]
+                        cross_edges[(tail1sorted, tail2sorted)] = [cross]
     return cross_edges
 
 

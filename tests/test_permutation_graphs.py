@@ -14,10 +14,10 @@ from helper_operations.permutation_graphs import (
     defect,
     generate_adj,
     get_num_of_inversions,
+    get_perm_signature,
     graph,
     multinomial,
     perm,
-    signature,
 )
 
 
@@ -80,39 +80,39 @@ class TestPermutationGraphs:
 
     def test_signature_empty(self):
         p = tuple()
-        result = signature(p)
+        result = get_perm_signature(p)
         assert not result
 
     def test_signature_1(self):
         p = (0,)
-        result = signature(p)
+        result = get_perm_signature(p)
         assert result == (1,)
 
     def test_signature_0_0_1(self):
         p = (2,)
-        result = signature(p)
+        result = get_perm_signature(p)
         assert result == (0, 0, 1)
 
     def test_signature_3_2_1(self):
         p = (2, 0, 1, 0, 1, 0)
-        result = signature(p)
+        result = get_perm_signature(p)
         assert result == (3, 2, 1)
 
     def test_signature_2_0_1(self):
         p = (2, 0, 0)
-        result = signature(p)
+        result = get_perm_signature(p)
         assert result == (2, 0, 1)
 
     def test_signature_2_3_1(self):
         p = (1, 0, 1, 2, 0, 1)
-        result = signature(p)
+        result = get_perm_signature(p)
         assert result == (2, 3, 1)
 
     def check_permutations(self, s: tuple[int], ps: list[list[int]]):
         """Check that all permutations in ps differ, none are missing, and all have signature s"""
         assert len(ps) == len(set(tuple(p) for p in ps))  # no duplicates
         assert len(ps) == multinomial(s)  # no missing
-        assert all(signature(p) == s for p in ps)  # all have signature s
+        assert all(get_perm_signature(p) == s for p in ps)  # all have signature s
 
     def test_perm_empty(self):
         """Empty signature"""
