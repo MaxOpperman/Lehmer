@@ -17,7 +17,9 @@ from helper_operations.path_operations import (
 from helper_operations.permutation_graphs import (
     extend_cycle_cover,
     get_perm_signature,
+    multinomial,
     selectByTail,
+    stutterPermutations,
     swapPair,
 )
 from stachowiak import lemma11
@@ -56,21 +58,16 @@ def merge_even_signatures(
     # The cycles are split on the last elements
     end_tuple_order = generate_end_tuple_order(subsig)
     # while the depth of the list is more than 2, we need to connect the previous cycles
-    print(f"cycle cover segments: {cycle_cover_segments}, subsig: {subsig}")
     single_cycle_cover = connect_recursive_cycles(cycle_cover_segments, subsig)
-    print(f"")
     cross_edges = find_cross_edges(subsig, single_cycle_cover)
-    print(
-        f"Cross edges sig {subsig}: {{\n"
-        + "\n\n".join("{!r}: {!r},".format(k, v) for k, v in cross_edges.items())
-        + "\n }"
-    )
-    print(f"End tuple order: {end_tuple_order} for signature {subsig}")
     # The first cycle is a cycle
     # Ensure that the first cycle has start and end nodes that have the suffix _100
     tail = end_tuple_order[0]
     single_list = get_single_list(single_cycle_cover)
-    start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
+    start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
+        single_list, tail, cross_edges
+    )
+    # start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
     print(f"signature {subsig}")
     print(f"cut nodes 0: {start_cycles[-1]}, {end_cycles[0]}")
     for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
@@ -80,7 +77,11 @@ def merge_even_signatures(
             swapPair(end_cycles[0], -(tail_length + 1)),
         )
         new_tail = end_tuple_order[i]
-        cycle_split = split_sub_cycle_for_next(cut_cycle, new_tail)
+        # cycle_split = split_sub_cycle_for_next(cut_cycle, new_tail)
+        cycle_split = split_sub_cycle_for_next_cross_edge(
+            cut_cycle, new_tail, cross_edges
+        )
+        print(f"cut nodes {i}: {cycle_split[0][-1]}, {cycle_split[1][0]}")
         start_cycles += cycle_split[0]
         end_cycles = cycle_split[1] + end_cycles
 
@@ -115,7 +116,6 @@ def connect_cycle_cover(
     # If there are multiple colors that occur an odd number of times
     if sum(n % 2 for n in subsig) > 1:
         # Use Stachowiak Lemma 11
-        print(f"cycle cover: {cycle_cover}, subsig: {subsig}")
         return []
     # If there is one color that occurs an odd number of times
     elif any(n % 2 == 1 for n in subsig):
@@ -169,9 +169,6 @@ def connect_recursive_cycles(
             sorted_subsig, subsig_transformer = get_transformer(subsig, lambda x: x[0])
 
             # if the sorted subsig is not the same as the subsig, we will just transform it into a sorted case and transform it back after
-            print(
-                f"transformer: {subsig_transformer} for subsig {subsig} case {1 if sorted_subsig != subsig else 2}"
-            )
             shortened_cycle = None
             if sorted_subsig != subsig:
                 shortened_cycle = generate_cycle_cover(sorted_subsig)
@@ -347,6 +344,48 @@ def split_sub_cycle_for_next(
     return splitPathIn2(cycle_to_cut, tail_nodes[tail_idx])
 
 
+def split_sub_cycle_for_next_cross_edge(
+    cycle_to_cut: list[tuple[int, ...]],
+    tail: tuple[int, ...],
+    cross_edges: dict[
+        list[
+            tuple[tuple[int, ...], tuple[int, ...]],
+            tuple[tuple[int, ...], tuple[int, ...]],
+        ]
+    ],
+) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
+    """
+    Cuts the subcycle cover at nodes that end with `tail` and opens them such that the next cycle can be connected to the current cycle.
+    The tail is the part of the permutation that should be at the end of the nodes.
+    The cut is made based on a dictionary of cross edges that are used to connect the cycles.
+
+    Args:
+        cycle_to_cut (list[tuple[int, ...]]): The cycle to cut open at nodes with the provided tail. Both the node before and after the cut should end with `tail`.
+        tail (tuple[int, ...]): The exact elements as a tuple of integers that the nodes should end with.
+        cross_edges (dict[list[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]): The cross edges that connect the cycles.
+
+    Returns:
+        tuple[list[tuple[int, ...]], list[tuple[int, ...]]]: The cycle cover cut open between the two nodes with the provided tail.
+
+    Raises:
+        ValueError: If the cross edge is not found in the cross edges dictionary.
+    """
+    next_tail = swapPair(tail, 0)
+    cross_edge = cross_edges.get((tail, next_tail))[0][0]
+    if cross_edge is None:
+        raise ValueError(
+            f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
+        )
+    print(f"Tail {tail} gave cross nodes {cross_edge}")
+    print(
+        f"index of cross edge: {cycle_to_cut.index(cross_edge[0])}, {cycle_to_cut.index(cross_edge[1])}"
+    )
+    if cycle_to_cut.index(cross_edge[0]) < cycle_to_cut.index(cross_edge[1]):
+        return splitPathIn2(cycle_to_cut, cross_edge[0])
+    else:
+        return splitPathIn2(cycle_to_cut, cross_edge[1])
+
+
 def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Computes the a cycle on the non-stutter permutations for a given signature.
@@ -440,7 +479,6 @@ def find_parallel_edges_in_cycle_cover(
         return []
     tails = generate_end_tuple_order(sig)
     # generate the start tuples by swapping the first two elements of the tails
-    print(f"tails: {tails}")
     start_tails = [swapPair(tail, 0) for tail in tails]
     if len(cycle_cover) == 1:
         return {
@@ -507,6 +545,9 @@ def find_cross_edges(
     cross_edges = {}
     for tail1, parallel_edges1 in parallel_edges.items():
         tail2 = swapPair(tail1, 0)
+        if (tail1, tail2) in cross_edges or (tail2, tail1) in cross_edges:
+            continue
+        print(f"tail1: {tail1}, tail2: {tail2}")
         parallel_edges2 = parallel_edges[tail2]
         for edge1 in parallel_edges1:
             for edge2 in parallel_edges2:
@@ -518,19 +559,12 @@ def find_cross_edges(
                 elif adjacent(edge1[1], edge2[0]) and adjacent(edge1[0], edge2[1]):
                     cross = (edge1[::-1], edge2)
                 if cross is not None:
-                    # set tail1 and tail2 to be in lexographical order
-                    tail1sorted, tail2sorted = sorted([tail1, tail2])
-                    if tail1sorted != tail1 or tail2sorted != tail2:
-                        cross = ((cross[1][1], cross[1][0]), (cross[0][1], cross[0][0]))
-                    if (
-                        tail1sorted,
-                        tail2sorted,
-                    ) in cross_edges and cross not in cross_edges[
-                        (tail1sorted, tail2sorted)
-                    ]:
-                        cross_edges[(tail1sorted, tail2sorted)].append(cross)
+                    if (tail1, tail2) in cross_edges:
+                        cross_edges[(tail1, tail2)].append(cross)
                     else:
-                        cross_edges[(tail1sorted, tail2sorted)] = [cross]
+                        cross_edges[(tail1, tail2)] = [cross]
+            if (tail1, tail2) in cross_edges and len(cross_edges[(tail1, tail2)]) >= 10:
+                break
     return cross_edges
 
 
@@ -548,10 +582,12 @@ if __name__ == "__main__":
         "-v", "--verbose", action="store_true", help="Enable verbose mode"
     )
     args = parser.parse_args()
-    sig = [int(x) for x in args.signature.split(",")]
+    sig = tuple([int(x) for x in args.signature.split(",")])
     connected_cycle_cover = get_connected_cycle_cover(sig)
     if args.verbose:
         print(f"Connected cycle cover: {connected_cycle_cover}")
+    stut_count = len(stutterPermutations(sig))
     print(
-        f"Cycle cover is a cycle {cycleQ(connected_cycle_cover)} and a path {pathQ(connected_cycle_cover)}"
+        f"Cycle cover is a cycle {cycleQ(connected_cycle_cover)} and a path {pathQ(connected_cycle_cover)} "
+        f"with {len(connected_cycle_cover)}/{multinomial(sig)} (incl {stut_count} stutters is {stut_count+len(connected_cycle_cover)}) permutations."
     )
