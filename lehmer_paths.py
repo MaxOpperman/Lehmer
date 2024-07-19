@@ -57,6 +57,11 @@ def incorporate_stutters(sig: tuple[int]) -> list[tuple[int, ...]]:
     elif pathQ(path):
         # the \033[94m makes the text blue
         non_stutter_cycle = "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m"
+    else:
+        raise ValueError(
+            "The connected cycle cover does not result in a Hamiltonian path."
+        )
+    print(f"The non-stutter permutations gave:{non_stutter_cycle}.")
     stutters = stutterPermutations(sig)
     if not stutters:
         return path
