@@ -1,4 +1,5 @@
 import argparse
+from fractions import Fraction
 
 from cycle_cover import generate_cycle_cover
 from helper_operations.path_operations import (
@@ -563,8 +564,17 @@ def find_cross_edges(
                         cross_edges[(tail1, tail2)].append(cross)
                     else:
                         cross_edges[(tail1, tail2)] = [cross]
-            if (tail1, tail2) in cross_edges and len(cross_edges[(tail1, tail2)]) >= 10:
-                break
+    print(f"Signature {sig}:")
+    for tail_pair, cross_edges_for_tail in cross_edges.items():
+        for tail in tail_pair:
+            cross_edge_sig = get_perm_signature(
+                cross_edges_for_tail[0][0][0][: -len(tail) + 1]
+            )
+            total_edges = multinomial(cross_edge_sig)
+            print(
+                f"Cross edge {tail} has a ratio of {len(cross_edges_for_tail)}/{total_edges} = "
+                f"{Fraction(len(cross_edges_for_tail), total_edges).numerator}/{Fraction(len(cross_edges_for_tail), total_edges).denominator}"
+            )
     return cross_edges
 
 
