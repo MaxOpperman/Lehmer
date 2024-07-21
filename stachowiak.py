@@ -94,7 +94,7 @@ def _generate_all_di(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     Returns:
         list[tuple[int, ...]]:
             All possible `d_i` chains. Each `d_i` chain is represented as a list of tuples of integers:
-            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`.
+            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`.
             This is for every `0 <= i <= p`.
     """
     q = (0, 1)
@@ -121,7 +121,7 @@ def _generate_all_di_prime(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     Returns:
         list[tuple[int, ...]]:
             All possible `d_i'` chains. Each `d_i'` chain is represented as a list of tuples of integers:
-            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`.
+            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`.
             This is for every `0 <= i <= p`.
     """
     q = (0, 1)
@@ -200,8 +200,8 @@ def lemma2_extended_path(
     Returns:
         list[tuple[int, ...]]:
             The cycle of all `d_i` or `d_i'` paths extended with the two nodes that are left out if the length of `chain_p` is even.\n
-            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`
-            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`
+            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`
+            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`
     """
     cycle = lemma2_cycle(chain_p, case_2_1)
     if len(chain_p) % 2 == 0:
