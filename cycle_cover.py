@@ -391,7 +391,7 @@ def generate_cycle_cover(sig: tuple[int]) -> list[list[tuple[int, ...]]]:
         return [lemma11((k, 1, 1))]
     # even-2-1 case
     elif len(list(sig)) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
-        # a cycle from 1 0 1 0^(k-1) 2 to 1 0^k 1 2
+        # a cycle from 1 0^(k-1) 1 0 2 to 1 0^k 1 2
         p2 = extend(HpathNS(k, 2), (2,))[::-1]
 
         # p0 and p1 are combined into a cycle
