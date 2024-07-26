@@ -197,7 +197,7 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
     Generates the order of the end tuples of the cycles in the cycle cover.
     The end tuples are the tails of the cycles that are the nodes that connect them.
     They are cycles are ordered by their end tuples:\n
-    - **All-even**: _00, _01/_10, _11, _12/_21, _22, _02/_20, _23/_32, _33, _03/_30, _31/_13, _34/_43, _44, _04/_40, _41/_14, _42/_24, ...
+    - **All-even**: _00, _01/_10, _11, _12/_21, _22, , ...
     - **All-but-one-even**: _0, _1, _2, _3, _4, _5, ...
 
     Args:
@@ -207,11 +207,11 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         list[tuple[int, ...]]:
             The order of the end tuples of the cycles in the cycle.
             These orders are as follows:\n
-            - **All-even**: _100, _101, _211, _212, _022, _302, _323, _033, _103, _413, _443, _44, _404, _414, _424, ...\n
+            - **All-even**: _100, _101, _211, _212,  ...\n
             The last tuple is of length 2. That is, the number of colors in the signature followed by the number of colors in the signature - 1.\n
             The first element is the change in the end tuple compared to the previous end tuple.\n
-            - **All-but-one-even**: _10, _21, _32, _43, _54, _65, ...
-            The last tuple is of length 1. That is, the number of colors in the signature.\n
+            - **All-but-one-even**: _10, _21, _32, _43, _54, _65, ...,  0S\n
+            The last tuple starts with 0 and then S; the number of colors in the signature.\n
             The first element is the change in the end tuple compared to the previous end tuple.
 
     Raises:
@@ -230,22 +230,23 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         return end_tuple_order
     elif all(n % 2 == 0 for n in sig):
         # All-even signature
-        for i in range(len(sorted_sig)):
-            if i == 0:
-                end_tuple_order.append((1, 0, 0))
-            elif i == 1:
-                end_tuple_order.append((1, 0, 1))
-                end_tuple_order.append((2, 1, 1))
-            else:
-                end_tuple_order.append((i, i - 1, i))
-                end_tuple_order.append((0, i, i))
-                for j in range(i - 1):
-                    if j == i - 2 and i == len(sorted_sig) - 1:
-                        end_tuple_order.append((0, i, j))
-                    elif j == i - 2:
-                        end_tuple_order.append((i + 1, j, i))
-                    else:
-                        end_tuple_order.append((j + 1, j, i))
+        end_tuple_order = [(1, 0, 0), (1, 0, 1), (2, 1, 1)]
+        for i in range(2, len(sorted_sig)-1):
+            end_tuple_order.append((i, i - 1, i))
+            end_tuple_order.append((0, i, i))
+            for j in range(i - 2):
+                # if j == i - 2:
+                #     end_tuple_order.append((i + 1, j, i))
+                # else:
+                end_tuple_order.append((j + 1, j, i))
+            end_tuple_order.append((i + 1, i - 2, i))
+        # The last row is reversed, from length-2 to 0
+        end_tuple_order.append((len(sorted_sig) - 1, len(sorted_sig) - 2, len(sorted_sig) - 1))
+        end_tuple_order.append((len(sorted_sig) - 3, len(sorted_sig) - 1, len(sorted_sig) - 1))
+        for j in reversed(range(len(sorted_sig) - 3)):
+            end_tuple_order.append((j, j + 1, len(sorted_sig) - 1))
+        end_tuple_order.append((0, len(sorted_sig) - 1, 0))
+        print(f"end tuple order: {end_tuple_order}")
         transformed_end_tuple_order = transform(end_tuple_order, transformer)
         return transformed_end_tuple_order
     else:
