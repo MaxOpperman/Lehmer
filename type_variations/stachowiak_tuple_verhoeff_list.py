@@ -6,7 +6,7 @@ from steinhaus_johnson_trotter import SteinhausJohnsonTrotter
 from type_variations.verhoeff_list import HpathNS
 
 
-def lemma10(sig: list[int]) -> list[tuple[int, ...]]:
+def lemma10(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Computes Lemma 10 by Stachowiak:
     If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
@@ -31,7 +31,7 @@ def lemma10(sig: list[int]) -> list[tuple[int, ...]]:
     return cycle
 
 
-def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
+def lemma11(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
@@ -64,11 +64,11 @@ def lemma11(sig: list[int]) -> list[tuple[int, ...]]:
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)
     """
-    if len(sig) == 0:
+    if len(list(sig)) == 0:
         raise ValueError("Signature must have at least one element")
-    elif len(sig) == 1:
+    elif len(list(sig)) == 1:
         return [(0,) * sig[0]]
-    elif len(sig) == 2 and sig[0] == sig[1] == 1:
+    elif len(list(sig)) == 2 and sig[0] == sig[1] == 1:
         return [(0, 1), (1, 0)]
     elif sum(1 for n in sig if n % 2 == 1) < 2:
         raise ValueError("At least two odd numbers are required for Lemma 11")

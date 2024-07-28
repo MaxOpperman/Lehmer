@@ -118,22 +118,22 @@ def time_tests(args: Namespace):
             break
         print(f"Performing time tests for {signature_type}")
 
-        def wrapper_list(kernel, input):
-            return kernel(input)
+        def wrapper_tuple(kernel, input):
+            return kernel(tuple(input))
 
         def wrapper_numpy(kernel, input):
             return kernel(np.array(input))
 
         def get_kernels():
             kernels = [
-                lambda input: wrapper_list(
+                lambda input: wrapper_tuple(
                     type_variations.stachowiak_list.lemma11, input
                 ),
-                lambda input: wrapper_list(stachowiak.lemma11, input),
-                lambda input: wrapper_list(
+                lambda input: wrapper_tuple(stachowiak.lemma11, input),
+                lambda input: wrapper_tuple(
                     type_variations.stachowiak_tuple_verhoeff_list.lemma11, input
                 ),
-                lambda input: wrapper_list(
+                lambda input: wrapper_tuple(
                     type_variations.stachowiak_list_verhoeff_tuple.lemma11, input
                 ),
             ]
@@ -147,17 +147,19 @@ def time_tests(args: Namespace):
                 return kernels
 
         # Save the graph
+        bench_labels = [
+            "Stachowiak & Verhoeff lists",
+            "Stachowiak & Verhoeff tuples",
+            "Stachowiak tuples, Verhoeff lists",
+            "Stachowiak lists, Verhoeff tuples",
+        ]
+        if args.numpy:
+            bench_labels.append("Stachowiak & Verhoeff numpy")
         results = perfplot.bench(
             setup=TimeTests.setup,
             n_range=[i for i in range(len(TimeTests.signatures))],
             kernels=get_kernels(),
-            labels=[
-                "Stachowiak & Verhoeff lists",
-                "Stachowiak & Verhoeff tuples",
-                "Stachowiak tuples, Verhoeff lists",
-                "Stachowiak lists, Verhoeff tuples",
-                # "Stachowiak & Verhoeff numpy",
-            ],
+            labels=bench_labels,
             xlabel=re.sub(
                 "(.{80})",
                 "\\1\n",
