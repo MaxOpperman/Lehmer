@@ -64,7 +64,7 @@ def incorporate_stutters(sig: tuple[int]) -> list[tuple[int, ...]]:
     print(f"The non-stutter permutations gave:{non_stutter_cycle}.")
     stutters = stutterPermutations(sig)
     if not stutters:
-        return path
+        return path, non_stutter_cycle
     path = order_path_to_stutter_start(path, stutters)
     result = []
     for i, perm in enumerate(path):
