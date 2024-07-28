@@ -16,6 +16,7 @@ from helper_operations.path_operations import (
 from helper_operations.permutation_graphs import (
     extend,
     extend_cycle_cover,
+    get_perm_signature,
     multinomial,
     rotate,
     stutterPermutations,
@@ -481,10 +482,20 @@ def generate_cycle_cover(sig: tuple[int]) -> list[list[tuple[int, ...]]]:
                     # this gives all the non-stutter permutations
                     sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
                     all_sub_cycles.append(sub_cycles)
-                    while len(between_cycles) > 0 and idx == max(
-                        get_first_element(between_cycles)[-2:]
-                    ):
-                        all_sub_cycles.append(between_cycles.pop(0))
+                    if len(sub_sig) == idx + 1:
+                        # add the between cycles in reversed order
+                        while len(between_cycles) > 0 and idx == max(
+                            get_first_element(between_cycles)[-2:]
+                        ) and max(get_first_element(between_cycles, -1)[-2:]) == idx:
+                            print(f"REVERSE adding between cycles {len(sub_sig)} {get_perm_signature(get_first_element(between_cycles))} {get_first_element(between_cycles)[-2:]}")
+                            all_sub_cycles.append(between_cycles.pop(-1))
+                    else:
+                        # add the between cycles in normal order
+                        while len(between_cycles) > 0 and idx == max(
+                            get_first_element(between_cycles)[-2:]
+                        ):
+                            print(f"adding between cycles {len(sub_sig)} {get_perm_signature(get_first_element(between_cycles))} {get_first_element(between_cycles)[-2:]}")
+                            all_sub_cycles.append(between_cycles.pop(0))
         if len(between_cycles) > 0:
             all_sub_cycles.append(between_cycles.pop(0))
         return all_sub_cycles

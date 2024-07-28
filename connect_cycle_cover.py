@@ -235,9 +235,6 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
             end_tuple_order.append((i, i - 1, i))
             end_tuple_order.append((0, i, i))
             for j in range(i - 2):
-                # if j == i - 2:
-                #     end_tuple_order.append((i + 1, j, i))
-                # else:
                 end_tuple_order.append((j + 1, j, i))
             end_tuple_order.append((i + 1, i - 2, i))
         # The last row is reversed, from length-2 to 0

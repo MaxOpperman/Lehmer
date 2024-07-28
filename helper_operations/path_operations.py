@@ -468,18 +468,19 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     return total_length
 
 
-def get_first_element(nested_list: list) -> tuple[int, ...]:
+def get_first_element(nested_list: list, element = 0) -> tuple[int, ...]:
     """
     Recursively retrieves the first element of a nested list.
 
     Args:
         nested_list (list): The nested list. Ultimately a tuple of integers (the permutations).
+        element (int, optional): The element to retrieve. Defaults to 0.
 
     Returns:
         tuple[int, ...]: The first element of the nested list.
     """
     if isinstance(nested_list, list):
-        return get_first_element(nested_list[0])
+        return get_first_element(nested_list[element])
     else:
         return nested_list
 

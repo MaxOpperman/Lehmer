@@ -2,7 +2,7 @@ import pytest
 
 from connect_cycle_cover import generate_end_tuple_order, get_connected_cycle_cover
 from cycle_cover import generate_cycle_cover
-from helper_operations.path_operations import cycleQ, pathQ
+from helper_operations.path_operations import cycleQ, get_first_element, pathQ
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
 
 
@@ -314,6 +314,96 @@ class Test_TailsOrdering:
             (10, 9),
             (0, 10),
         ]
+
+
+class Test_CycleCoverTailsOrdering:
+    """
+    Test whether the ordering of the tails of the cycle cover is the same as the tails ordering
+    """
+
+    def test_cycle_cover_2_2_2(self):
+        sig = (2, 2, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+
+    def test_cycle_cover_four_2s(self):
+        sig = (2, 2, 2, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+
+    def test_cycle_cover_five_2s(self):
+        sig = (2, 2, 2, 2, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+
+    def test_cycle_cover_unsorted_all_even_small(self):
+        sig = (0, 2, 0, 4, 2, 0, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+    
+    @pytest.mark.slow
+    def test_cycle_cover_unsorted_all_even_large(self):
+        sig = (2, 4, 6, 0, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+
+    @pytest.mark.slow
+    def test_cycle_cover_six_2s(self):
+        sig = (2, 2, 2, 2, 2, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-2:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+    
+    def test_cycle_cover_3_2_2(self):
+        sig = (3, 2, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-1:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-1:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+    
+    def test_cycle_cover_unsorted_2_2_3_2(self):
+        sig = (2, 2, 3, 2)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-1:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            print(f"tail: {tail}, end_tuple_order[i][-1:]: {end_tuple_order[i][-1:]}")
+            assert set(tail) == set(end_tuple_order[i][-1:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
+    
+    def test_cycle_cover_unsorted_2_4_2_3(self):
+        sig = (2, 4, 2, 3)
+        cycle_cover = generate_cycle_cover(sig)
+        end_tuple_order = generate_end_tuple_order(sig)
+        cycle_cover_tails = [get_first_element(cycle)[-1:] for cycle in cycle_cover]
+        for i, tail in enumerate(cycle_cover_tails):
+            assert set(tail) == set(end_tuple_order[i][-1:])
+        assert len(cycle_cover_tails) == len(end_tuple_order)
 
 
 class Test_ConnectCycleCover:
