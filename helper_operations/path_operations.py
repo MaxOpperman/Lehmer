@@ -375,6 +375,67 @@ def transform(perms: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ..
     return l
 
 
+def transform_cross_edges(
+    cross_edges: list[
+        tuple[
+            tuple[tuple[int, ...], tuple[int, ...]],
+            tuple[tuple[int, ...], tuple[int, ...]],
+        ]
+    ],
+    tr: list[int],
+) -> list[
+    tuple[
+        tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]
+    ]
+]:
+    """
+    Transforms a list of cross edges according to the given renaming.
+    The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
+
+    Args:
+        cross_edges (list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]]):
+            List of cross edges
+        tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
+
+    Returns:
+        list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]]: List of tuples of integers. The transformed permutations.
+
+    Raises:
+        ValueError: If the index of an element in the permutation is larger than the length of the transformation list.
+    """
+    transformed = []
+    for cross_edge in cross_edges:
+        c0 = transform((cross_edge[0][0], cross_edge[0][1]), tr)
+        c1 = transform((cross_edge[1][0], cross_edge[1][1]), tr)
+        transformed.append(((c0[0], c0[1]), (c1[0], c1[1])))
+    return transformed
+
+
+def transform_parallel_edges(
+    parallel_edges: list[tuple[tuple[int, ...], tuple[int, ...]]],
+    tr: list[int],
+) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
+    """
+    Transforms a list of parallel edges according to the given renaming.
+    The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
+
+    Args:
+        parallel_edges (list[tuple[tuple[int, ...], tuple[int, ...]]]): List of parallel edges
+        tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
+
+    Returns:
+        list[tuple[tuple[int, ...], tuple[int, ...]]]: List of tuples of integers. The transformed permutations.
+
+    Raises:
+        ValueError: If the index of an element in the permutation is larger than the length of the transformation list.
+    """
+    transformed = []
+    for parallel_edge in parallel_edges:
+        c0 = transform((parallel_edge[0][0], parallel_edge[0][1]), tr)
+        transformed.append((c0[0], c0[1]))
+    return transformed
+
+
 def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
     """
     Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
