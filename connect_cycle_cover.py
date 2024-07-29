@@ -15,6 +15,7 @@ from helper_operations.path_operations import (
     shorten_cycle_cover,
     splitPathIn2,
     transform,
+    transform_cross_edges,
     transform_cycle_cover,
 )
 from helper_operations.permutation_graphs import (
@@ -31,7 +32,6 @@ from visualization import is_stutter_permutation
 
 
 def merge_even_signatures(
-    cycle_cover_segments: list[list[tuple[int, ...]]],
     subsig: tuple[int, ...],
 ) -> list[tuple[int, ...]]:
     """
@@ -49,6 +49,7 @@ def merge_even_signatures(
     Returns:
         list[tuple[int, ...]]: The merged cycle cover
     """
+    cycle_cover_segments = generate_cycle_cover(subsig)
     tail_length = (
         2
         if all(n % 2 == 0 for n in subsig)
@@ -74,6 +75,25 @@ def merge_even_signatures(
     print(f"signature {subsig}")
     print(f"cut nodes 0: {start_cycles[-1]}, {end_cycles[0]}")
     for i, cycle_list in enumerate(single_cycle_cover[1:-1], start=1):
+        temp_tail = swapPair(start_cycles[-1], -(tail_length + 1))[-(tail_length + 1) :]
+        if temp_tail == (0, 1, 0):
+            print(
+                f"Loop All cross edges for {temp_tail}: {cross_edges.get((swapPair(temp_tail, 0), temp_tail))}"
+            )
+            tail122010 = selectByTail(cycle_list[0], (1, 2, 2) + temp_tail)
+            tail212010 = selectByTail(cycle_list[0], (2, 1, 2) + temp_tail)
+            print(
+                f"cycle to cut tails {(1, 2, 2) + temp_tail}: {len(tail122010)} first: {tail122010[0]} index {cycle_list[0].index(tail122010[0])}"
+            )
+            print(
+                f"subsequent nodes around this are: {cycle_list[0][cycle_list[0].index(tail122010[0]) - 1]}-{tail122010[0]}-{cycle_list[0][cycle_list[0].index(tail122010[0]) + 1]}"
+            )
+            print(
+                f"cycle to cut tails {(2, 1, 2) + temp_tail}: {len(tail212010)} first: {tail212010[0]} index {cycle_list[0].index(tail212010[0])}"
+            )
+            print(
+                f"subsequent nodes around this are: {cycle_list[0][cycle_list[0].index(tail212010[0]) - 1]}-{tail212010[0]}-{cycle_list[0][cycle_list[0].index(tail212010[0]) + 1]}"
+            )
         cut_cycle = cut_sub_cycle_to_past(
             cycle_list[0],
             swapPair(start_cycles[-1], -(tail_length + 1)),
@@ -123,10 +143,10 @@ def connect_cycle_cover(
     # If there is one color that occurs an odd number of times
     elif any(n % 2 == 1 for n in subsig):
         # Loop over the cycles in the cover and connect the cycle at index `i` ends with an element of color `i`
-        return merge_even_signatures(cycle_cover, subsig)
+        return merge_even_signatures(subsig)
     elif all(n % 2 == 0 for n in subsig):
         # The cycles are split on the last two elements
-        return merge_even_signatures(cycle_cover, subsig)
+        return merge_even_signatures(subsig)
     else:
         print(f"Not sure why this would happen, but happened for {subsig}")
 
@@ -192,6 +212,7 @@ def connect_recursive_cycles(
     return single_cycle_cover
 
 
+@cache
 def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Generates the order of the end tuples of the cycles in the cycle cover.
@@ -263,8 +284,8 @@ def cut_sub_cycle_to_past(
 
     Args:
         cycle_to_cut (list[tuple[int, ...]]): The cycle to cut.
-        start (tuple[int, ...]): The start nodes of the cycle.
-        end (tuple[int, ...]): The end nodes of the cycle.
+        start (tuple[int, ...]): The start node of the cycle.
+        end (tuple[int, ...]): The end node of the cycle.
 
     Returns:
         list[tuple[int, ...]]: The cut cycle.
@@ -378,6 +399,22 @@ def split_sub_cycle_for_next_cross_edge(
             f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
         )
     print(f"Tail {tail} gave cross nodes {cross_edge}")
+    if tail == (1, 0, 0):
+        print(f"All cross edges for {tail}: {cross_edges.get((tail, next_tail))}")
+        tail122100 = selectByTail(cycle_to_cut, (1, 2, 2) + tail)
+        tail212100 = selectByTail(cycle_to_cut, (2, 1, 2) + tail)
+        print(
+            f"cycle to cut tails {(1, 2, 2) + tail}: {len(tail122100)} first: {tail122100[0]} index {cycle_to_cut.index(tail122100[0])}"
+        )
+        print(
+            f"subsequent nodes around this are: {cycle_to_cut[cycle_to_cut.index(tail122100[0]) - 1]}-{tail122100[0]}-{cycle_to_cut[(cycle_to_cut.index(tail122100[0]) + 1) % len(cycle_to_cut)]}"
+        )
+        print(
+            f"cycle to cut tails {(2, 1, 2) + tail}: {len(tail212100)} first: {tail212100[0]} index {cycle_to_cut.index(tail212100[0])}"
+        )
+        print(
+            f"subsequent nodes around this are: {cycle_to_cut[cycle_to_cut.index(tail212100[0]) - 1]}-{tail212100[0]}-{cycle_to_cut[(cycle_to_cut.index(tail212100[0]) + 1) % len(cycle_to_cut)]}"
+        )
     print(
         f"index of cross edge: {cycle_to_cut.index(cross_edge[0])}, {cycle_to_cut.index(cross_edge[1])}"
     )
@@ -544,6 +581,9 @@ def find_cross_edges(
             ]
         }
     cross_edges = {}
+    common_cross_edges_to_equal = []
+    common_cross_edges_from_equal = []
+    common_cross_edges_different = []
     for tail1, parallel_edges1 in parallel_edges.items():
         tail2 = swapPair(tail1, 0)
         if (tail1, tail2) in cross_edges or (tail2, tail1) in cross_edges:
@@ -574,6 +614,98 @@ def find_cross_edges(
                 f"Cross edge {(tail1, tail2)} has a ratio of {len(cross_edges[(tail1, tail2)])}/{total_edges} = "
                 f"{Fraction(len(cross_edges[(tail1, tail2)]), total_edges).numerator}/{Fraction(len(cross_edges[(tail1, tail2)]), total_edges).denominator}"
             )
+            if len(tail1) == 3:
+                if tail1 == (1, 0, 0):
+                    common_cross_edges_from_equal = cross_edges[(tail1, tail2)]
+                elif tail2 == (0, 1, 1):
+                    common_cross_edges_to_equal = cross_edges[(tail1, tail2)]
+                elif (tail1, tail2) == ((3, 0, 2), (0, 3, 2)):
+                    common_cross_edges_different = cross_edges[(tail1, tail2)]
+                elif tail1[1] != tail1[2] and tail2[1] != tail2[2]:
+                    transformer = []
+                    for i in range(len(sig)):
+                        if i == tail1[0]:
+                            transformer.append(3)
+                        elif i == tail1[1]:
+                            transformer.append(0)
+                        elif i == tail1[2]:
+                            transformer.append(2)
+                        else:
+                            transformer.append(i)
+                    changed_indices = [
+                        t if t != i else -1 for i, t in enumerate(transformer)
+                    ]
+                    for ind, changed_index in enumerate(changed_indices):
+                        if changed_index != -1 and changed_indices[changed_index] == -1:
+                            transformer[changed_index] = ind
+                    transformed_cross_edges = transform_cross_edges(
+                        cross_edges[(tail1, tail2)], transformer
+                    )
+                    for common in common_cross_edges_different:
+                        if common not in transformed_cross_edges:
+                            common_cross_edges_different.remove(common)
+                elif tail1[1] == tail1[2]:
+                    # create transformer list; going from 0 to n-1 but if i is 0 then it should be tail1[1] and vice versa
+                    transformer = []
+                    for i in range(len(sig)):
+                        if i == tail1[0]:
+                            transformer.append(1)
+                        elif i == tail1[1]:
+                            transformer.append(0)
+                        elif i == 0 and tail1[1] == 1:
+                            transformer.append(tail1[0])
+                        elif i == 0:
+                            transformer.append(tail1[1])
+                        elif i == 1 and tail1[0] == 0:
+                            transformer.append(tail1[1])
+                        elif i == 1:
+                            transformer.append(tail1[0])
+                        else:
+                            transformer.append(i)
+                    transformed_cross_edges = transform_cross_edges(
+                        cross_edges[(tail1, tail2)], transformer
+                    )
+                    for common in common_cross_edges_from_equal:
+                        if common not in transformed_cross_edges:
+                            common_cross_edges_from_equal.remove(common)
+                elif tail2[1] == tail2[2]:
+                    transformer = []
+                    for i in range(len(sig)):
+                        if i == tail2[1]:
+                            transformer.append(1)
+                        elif i == tail2[0]:
+                            transformer.append(0)
+                        elif i == 0 and tail2[1] == 1:
+                            transformer.append(tail2[0])
+                        elif i == 0:
+                            transformer.append(tail2[1])
+                        elif i == 1 and tail2[0] == 0:
+                            transformer.append(tail2[1])
+                        elif i == 1:
+                            transformer.append(tail2[0])
+                        else:
+                            transformer.append(i)
+                    transformed_cross_edges = transform_cross_edges(
+                        cross_edges[(tail1, tail2)], transformer
+                    )
+                    for common in common_cross_edges_to_equal:
+                        if common not in transformed_cross_edges:
+                            common_cross_edges_to_equal.remove(common)
+    # reverse common cross edges to equal
+    print(f"common cross edges to equal: {common_cross_edges_to_equal}")
+    common_cross_edges_to_equal = [edge[::-1] for edge in common_cross_edges_to_equal]
+    equalize_transformer = [
+        0 if i == 1 else 1 if i == 0 else i for i in range(len(sig))
+    ]
+    from_to_equal = transform_cross_edges(
+        common_cross_edges_to_equal, equalize_transformer
+    )
+    for common in from_to_equal:
+        if common not in common_cross_edges_from_equal:
+            from_to_equal.remove(common)
+    print(f"common cross edges from equal: {common_cross_edges_from_equal}")
+    print(f"common cross edges from_to_equal {sig}: {from_to_equal}")
+    print(f"common cross edges different {sig}: {common_cross_edges_different}")
     return cross_edges
 
 
