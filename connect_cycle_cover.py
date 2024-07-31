@@ -9,12 +9,10 @@ from helper_operations.cycle_cover_connections import (
     split_sub_cycle_for_next_cross_edge,
 )
 from helper_operations.path_operations import (
-    adjacent,
     cycleQ,
     get_first_element,
     get_transformer,
     pathQ,
-    splitPathIn2,
     transform,
     transform_cycle_cover,
 )
@@ -22,121 +20,11 @@ from helper_operations.permutation_graphs import (
     extend_cycle_cover,
     get_perm_signature,
     multinomial,
-    selectByTail,
     stutterPermutations,
     swapPair,
 )
 from stachowiak import lemma11
 from verhoeff import HpathNS
-from visualization import is_stutter_permutation
-
-
-def connect_recursive_cycles(
-    cycle_cover: list[list[tuple[int, ...]]], sig: tuple[int, ...]
-) -> list[list[tuple[int, ...]]]:
-    """
-    Recursively connects the cycles in the cycle cover to form a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
-    The cycles are connected by looking at the suffix of the cycles and connecting them to the next cycle.
-    The suffix is the last `tail_length` elements of the cycle:\n
-    - 1 for all-but-one-even permutations
-    - 2 for all-even permutations
-    This is the inductive step of the connection of the cycles.
-
-    Args:
-        cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to connect.
-        sig (tuple[int, ...]): The permutation signature, number of occurrences of each element.
-
-    Returns:
-        list[list[tuple[int, ...]]]: The connected cycle cover.
-    """
-    tail_length = get_tail_length(sig)
-    single_cycle_cover = []
-    for nested_cycle in cycle_cover:
-        if (
-            isinstance(nested_cycle, list)
-            and isinstance(nested_cycle[0], list)
-            and isinstance(nested_cycle[0][0], list)
-        ):
-            # we need to remove the last element from every list in the nested cycle to connect them
-            first_cycle_element = get_first_element(nested_cycle)
-
-            # Get the new signature
-            subsig = get_perm_signature(first_cycle_element[:-tail_length])
-            sorted_subsig, subsig_transformer = get_transformer(subsig, lambda x: x[0])
-
-            connected_shortened = get_connected_cycle_cover(sorted_subsig)
-            # Now we need to add the last element back to the connected shortened cycle
-            if isinstance(connected_shortened[0], tuple):
-                connected_shortened = [connected_shortened]
-            # now transform the connected shortened subsig back to the original values
-            transformed_short = transform_cycle_cover(
-                connected_shortened, subsig_transformer
-            )
-            connected = extend_cycle_cover(
-                transformed_short, first_cycle_element[-tail_length:]
-            )
-            single_cycle_cover.append(connected)
-        else:
-            single_cycle_cover.append(nested_cycle)
-    return single_cycle_cover
-
-
-def _split_sub_cycle_for_next(
-    cycle_to_cut: list[tuple[int, ...]], tail: tuple[int, ...]
-) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
-    """
-    Unused\n
-    Cuts the subcycle cover at nodes that end with `tail` and opens them such that the next cycle can be connected to the current cycle.
-    The tail is the part of the permutation that should be at the end of the nodes.
-    The first two nodes of the tail are swapped to ensure they are not forming stutter permutations.
-
-    Args:
-        cycle_to_cut (list[tuple[int, ...]]): The cycle to cut open at nodes with the provided tail. Both the node before and after the cut should end with `tail`.
-        tail (tuple[int, ...]): The exact elements as a tuple of integers that the nodes should end with.
-
-    Returns:
-        tuple[list[tuple[int, ...]], list[tuple[int, ...]]]: The cycle cover cut open between the two nodes with the provided tail.
-
-    Raises:
-        ValueError: If not enough tail nodes are found in the first cycle (i.e. less than 2).
-        ValueError: If no valid tail nodes are found.
-    """
-    tail_nodes = selectByTail(cycle_to_cut, tail)
-    if len(tail_nodes) < 2:
-        print(f"Cycle to cut: {cycle_to_cut}, tail: {tail}")
-        raise ValueError(
-            f"Not enough tail nodes found in the first cycle: {tail_nodes}. The tail was {tail}."
-        )
-    tail_idx = 0
-    # Now check if swapping the first two elements of the tail nodes gives a stutter permutation
-    # Also check whether the nodes are adjacent within the cycle
-    while (
-        is_stutter_permutation(swapPair(tail_nodes[tail_idx], -len(tail)))
-        or is_stutter_permutation(swapPair(tail_nodes[tail_idx + 1], -len(tail)))
-        or not adjacent(tail_nodes[tail_idx], tail_nodes[tail_idx + 1])
-        or not abs(
-            cycle_to_cut.index(tail_nodes[tail_idx])
-            - cycle_to_cut.index(tail_nodes[tail_idx + 1])
-        )
-        == 1
-    ):
-        tail_idx += 1
-        if tail_idx == len(tail_nodes) - 1:
-            # manually check the last-first combination
-            if (
-                is_stutter_permutation(swapPair(tail_nodes[-1], -len(tail)))
-                or is_stutter_permutation(swapPair(tail_nodes[0], -len(tail)))
-                or not adjacent(tail_nodes[-1], tail_nodes[0])
-                or not abs(
-                    cycle_to_cut.index(tail_nodes[-1])
-                    - cycle_to_cut.index(tail_nodes[0])
-                )
-                == 1
-            ):
-                raise ValueError(f"No valid tail nodes found: {tail_nodes}")
-            else:
-                break
-    return splitPathIn2(cycle_to_cut, tail_nodes[tail_idx])
 
 
 def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
@@ -181,7 +69,37 @@ def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
         # The cycles are split on the last elements
         end_tuple_order = generate_end_tuple_order(sig)
         # while the depth of the list is more than 2, we need to connect the previous cycles
-        single_cycle_cover = connect_recursive_cycles(cover, sig)
+        single_cycle_cover = []
+        single_cycle_cover = []
+        for nested_cycle in cover:
+            if (
+                isinstance(nested_cycle, list)
+                and isinstance(nested_cycle[0], list)
+                and isinstance(nested_cycle[0][0], list)
+            ):
+                # we need to remove tails from every list in the nested cycle to connect them
+                first_cycle_element = get_first_element(nested_cycle)
+
+                # Get the new signature
+                subsig = get_perm_signature(first_cycle_element[:-tail_length])
+                sorted_subsig, subsig_transformer = get_transformer(
+                    subsig, lambda x: x[0]
+                )
+
+                connected_shortened = get_connected_cycle_cover(sorted_subsig)
+                # Now we need to add the last element back to the connected shortened cycle
+                if isinstance(connected_shortened[0], tuple):
+                    connected_shortened = [connected_shortened]
+                # now transform the connected shortened subsig back to the original values
+                transformed_short = transform_cycle_cover(
+                    connected_shortened, subsig_transformer
+                )
+                connected = extend_cycle_cover(
+                    transformed_short, first_cycle_element[-tail_length:]
+                )
+                single_cycle_cover.append(connected)
+            else:
+                single_cycle_cover.append(nested_cycle)
         cross_edges = find_cross_edges(sig, single_cycle_cover)
 
         start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
@@ -198,7 +116,9 @@ def get_connected_cycle_cover(sig: tuple[int]) -> list[tuple[int, ...]]:
                 new_tail = end_tuple_order[i]
                 # cycle_split = split_sub_cycle_for_next(cut_cycle, new_tail)
                 cycle_split = split_sub_cycle_for_next_cross_edge(
-                    cut_cycle, new_tail, cross_edges
+                    cut_cycle,
+                    new_tail,
+                    cross_edges,
                 )
                 start_cycles += cycle_split[0]
                 end_cycles = cycle_split[1] + end_cycles
