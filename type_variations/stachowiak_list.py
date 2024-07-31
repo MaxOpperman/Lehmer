@@ -173,7 +173,7 @@ def _lemma8_helper(
 
     Args:
         sig_occ (list[tuple[int, int]]):
-            The signature of the neighbor-swap graph; `[1, 1, q, p]`.
+            The signature of the neighbor-swap graph; `(1, 1, q, p)`.
             It has the form `[(int, 1), (int, 1), (int, q), (int, p)]`.
             The first two integers are of different colors and occur once.
             The last two integers are of different colors and can occur any number of times >= 0.
@@ -239,7 +239,7 @@ def _lemma7_constructor(sig: tuple[int]) -> tuple[list[list[int]], list[list[int
 
     Parameters:
         sig (list[int]):
-            The signature of the graph in the form `[1, 1, q, p]`.
+            The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
             Colors 0 and 1 occur once, colors 2 and 3 occur q and p times respectively.
             The first two elements are of different colors and the last two elements are of different colors than each other.
@@ -259,7 +259,7 @@ def lemma7(sig: tuple[int]) -> list[list[int]]:
 
     Args:
         sig (list[int]):
-            The signature of the graph in the form `[1, 1, q, p]`.
+            The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
 
     Returns:
@@ -376,7 +376,7 @@ def _lemma8_g_i_sub_graphs(
                 )
             # j == (p-i)/2
             elif j == (len(l_p) - i) / 2:
-                l7_subgraph = lemma7([1, 1, len(k_q), i])
+                l7_subgraph = lemma7((1, 1, len(k_q), i))
                 for item in l7_subgraph:
                     g_ij.append(l_p[: len(l_p) - i] + item)
                 x_ij = l_p[: len(l_p) - i] + [0, 1] + l_p[:i] + k_q
@@ -524,7 +524,7 @@ def lemma9(sig: tuple[int]) -> list[list[int]]:
 
     Args:
         sig (list[int]):
-            The signature of the neighbor-swap graph; [1, 1, r, s, p]. We assume:\n
+            The signature of the neighbor-swap graph; (1, 1, r, s, p). We assume:\n
             - The first two elements are of colors 0 and 1 respectively and occur once.
             - The second two elements are of color 2 and occur r and s times respectively.
             - The fourth element is of color 3 and occurs p times.
@@ -680,7 +680,7 @@ def _lemma10_helper(K: list[list[int]], p: int, new_color: int) -> list[list[int
                 s = len(K[2 * i]) - r - 2
                 break
         # G_i is isomorphic to GE( (k^r (0|1) k^s) | l^p )
-        g = lemma9([1, 1, r, s, p])
+        g = lemma9((1, 1, r, s, p))
 
         g_modified = []
         remove_color = 3

@@ -356,7 +356,7 @@ class Test_CycleCoverTailsOrdering:
         for i, tail in enumerate(cycle_cover_tails):
             assert set(tail) == set(end_tuple_order[i][-2:])
         assert len(cycle_cover_tails) == len(end_tuple_order)
-    
+
     @pytest.mark.slow
     def test_cycle_cover_unsorted_all_even_large(self):
         sig = (2, 4, 6, 0, 2)
@@ -376,7 +376,7 @@ class Test_CycleCoverTailsOrdering:
         for i, tail in enumerate(cycle_cover_tails):
             assert set(tail) == set(end_tuple_order[i][-2:])
         assert len(cycle_cover_tails) == len(end_tuple_order)
-    
+
     def test_cycle_cover_3_2_2(self):
         sig = (3, 2, 2)
         cycle_cover = generate_cycle_cover(sig)
@@ -385,7 +385,7 @@ class Test_CycleCoverTailsOrdering:
         for i, tail in enumerate(cycle_cover_tails):
             assert set(tail) == set(end_tuple_order[i][-1:])
         assert len(cycle_cover_tails) == len(end_tuple_order)
-    
+
     def test_cycle_cover_unsorted_2_2_3_2(self):
         sig = (2, 2, 3, 2)
         cycle_cover = generate_cycle_cover(sig)
@@ -395,7 +395,7 @@ class Test_CycleCoverTailsOrdering:
             print(f"tail: {tail}, end_tuple_order[i][-1:]: {end_tuple_order[i][-1:]}")
             assert set(tail) == set(end_tuple_order[i][-1:])
         assert len(cycle_cover_tails) == len(end_tuple_order)
-    
+
     def test_cycle_cover_unsorted_2_4_2_3(self):
         sig = (2, 4, 2, 3)
         cycle_cover = generate_cycle_cover(sig)

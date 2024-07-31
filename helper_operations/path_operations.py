@@ -12,7 +12,7 @@ def adjacent(s: tuple[int, ...], t: tuple[int, ...]) -> bool:
     Returns:
         bool: True if the tuples are adjacent, False otherwise.
     """
-    if len(s) != len(t):
+    if len(s) != len(t) or len(s) < 2:
         return False
     if isinstance(s, np.ndarray):
         diff = np.where(s != t)[0]
@@ -22,13 +22,15 @@ def adjacent(s: tuple[int, ...], t: tuple[int, ...]) -> bool:
             and s[diff[0]] == t[diff[1]]
             and s[diff[1]] == t[diff[0]]
         )
-    diff = [i for i, (a, b) in enumerate(zip(s, t)) if a != b]
-    return (
-        len(diff) == 2
-        and diff[0] + 1 == diff[1]
-        and s[diff[0]] == t[diff[1]]
-        and s[diff[1]] == t[diff[0]]
-    )
+    for i in range(len(s) - 1):
+        if s[i] != t[i]:
+            return (
+                s[i] == t[i + 1]
+                and s[i + 1] == t[i]
+                and s[:i] == t[:i]
+                and s[i + 2 :] == t[i + 2 :]
+            )
+    return False
 
 
 def pathQ(p: list[tuple[int, ...]], verbose=True) -> bool:
@@ -385,7 +387,8 @@ def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
         perms3d (list[list[tuple[int, ...]]]):
             List of lists of permutations. Does not have a fixed depth. The depth is determined by the cycle cover function.
             If the depth is 2 (list of lists of permutations, where permutations are tuples), the function will transform the permutations.
-        tr (list[int]): Transformation list, int at index `i` is the new name for `i`.
+        tr (list[int]):
+            Transformation list, int at index `i` is the new name for `i`.
 
     Returns:
         list[list[tuple[int, ...]]]: The same structure of lists as the input, but with the permutations transformed.
@@ -408,13 +411,16 @@ def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[li
     The elements are removed from the permutations in the lists of tuples. Also checks whether all tuples end with the given elements.
 
     Args:
-        lis3d (list[list[tuple[int, ...]]]):
+        lis3d (list[list]):
             List of lists of permutations. Does not have a fixed depth. The depth is determined by the cycle cover function.
             If the depth is 2 (list of lists of permutations, where permutations are tuples), the function will shorten the permutations.
-        elements (tuple[int, ...]): Tuple of integers to remove from the permutations.
+        elements (tuple[int, ...]):
+            Tuple of integers to remove from the permutations.
 
     Returns:
-        list[list[tuple[int, ...]]]: The same structure of lists as the input, but with the permutations shortend by `elements`.
+        list[list[tuple[int, ...]]]:
+            The same structure of lists as the input, but with the permutations shortened by `elements`.
+
     Raises:
         AssertionError: If the input list does not have a length greater than 0.
         AssertionError: If a permutation does not end with the given elements.
@@ -468,7 +474,7 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     return total_length
 
 
-def get_first_element(nested_list: list, element = 0) -> tuple[int, ...]:
+def get_first_element(nested_list: list, element=0) -> tuple[int, ...]:
     """
     Recursively retrieves the first element of a nested list.
 

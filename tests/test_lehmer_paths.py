@@ -87,16 +87,40 @@ class TestLehmerPathVsCycleCondition:
 
 class TestLehmerPaths:
     def test_incorporate_stutters_no_stutters(self):
-        assert incorporate_stutters((1, 1)) == (get_connected_cycle_cover((1, 1)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
-        assert incorporate_stutters((3, 3)) == (get_connected_cycle_cover((3, 3)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
-        assert incorporate_stutters((3, 2, 1)) == (get_connected_cycle_cover((3, 2, 1)), "\033[1m\033[92m A valid Hamiltonian cycle\033[0m\033[0m")
-        assert incorporate_stutters((3, 3, 2)) == (get_connected_cycle_cover((3, 3, 2)), "\033[1m\033[92m A valid Hamiltonian cycle\033[0m\033[0m")
-        assert incorporate_stutters((7, 1)) == (get_connected_cycle_cover((7, 1)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
-        assert incorporate_stutters((5, 5)) == (get_connected_cycle_cover((5, 5)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
+        assert incorporate_stutters((1, 1)) == (
+            get_connected_cycle_cover((1, 1)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
+        assert incorporate_stutters((3, 3)) == (
+            get_connected_cycle_cover((3, 3)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
+        assert incorporate_stutters((3, 2, 1)) == (
+            get_connected_cycle_cover((3, 2, 1)),
+            "\033[1m\033[92m A valid Hamiltonian cycle\033[0m\033[0m",
+        )
+        assert incorporate_stutters((3, 3, 2)) == (
+            get_connected_cycle_cover((3, 3, 2)),
+            "\033[1m\033[92m A valid Hamiltonian cycle\033[0m\033[0m",
+        )
+        assert incorporate_stutters((7, 1)) == (
+            get_connected_cycle_cover((7, 1)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
+        assert incorporate_stutters((5, 5)) == (
+            get_connected_cycle_cover((5, 5)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
 
     def test_incorporate_stutters_one_element(self):
-        assert incorporate_stutters((1,)) == (get_connected_cycle_cover((1,)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
-        assert incorporate_stutters((3,)) == (get_connected_cycle_cover((3,)), "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
+        assert incorporate_stutters((1,)) == (
+            get_connected_cycle_cover((1,)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
+        assert incorporate_stutters((3,)) == (
+            get_connected_cycle_cover((3,)),
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
 
     def test_incorporate_stutters_2_1(self):
         sig = (1, 2)
@@ -104,7 +128,10 @@ class TestLehmerPaths:
         expected_result = [(1, 1, 0), (1, 0, 1), (0, 1, 1)]
         assert result[0] == expected_result
         assert result[1] == "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m"
-        assert incorporate_stutters((2, 1)) == ([(0, 0, 1), (0, 1, 0), (1, 0, 0)], "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m")
+        assert incorporate_stutters((2, 1)) == (
+            [(0, 0, 1), (0, 1, 0), (1, 0, 0)],
+            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        )
 
     def test_incorporate_stutters_1_4(self):
         sig = (1, 4)

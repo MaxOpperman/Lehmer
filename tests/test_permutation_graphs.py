@@ -70,13 +70,13 @@ class TestPermutationGraphs:
 
     def test_multinomial_negative(self):
         with pytest.raises(AssertionError):
-            multinomial([-1])
+            multinomial((-1,))
         with pytest.raises(AssertionError):
-            multinomial([1, -1])
+            multinomial((1, -1))
         with pytest.raises(AssertionError):
-            multinomial([1, 1, -1])
+            multinomial((1, 1, -1))
         with pytest.raises(AssertionError):
-            multinomial([1, 1, -2, -1])
+            multinomial((1, 1, -2, -1))
 
     def test_signature_empty(self):
         p = tuple()

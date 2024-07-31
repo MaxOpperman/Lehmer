@@ -182,7 +182,7 @@ class Test_Lemma2:
     def test_lemma2_ext_path_5_different_int(self):
         chain_p = (8, 8, 8, 8, 8)
         result = lemma2_extended_path(chain_p)
-        assert len(result) == multinomial([1, 1, len(chain_p)])
+        assert len(result) == multinomial((1, 1, len(chain_p)))
         assert cycleQ(result)
         assert result == [
             (1, 0, 8, 8, 8, 8, 8),
