@@ -22,7 +22,7 @@ from helper_operations.permutation_graphs import (
     stutterPermutations,
     swapPair,
 )
-from stachowiak import lemma2_cycle, lemma2_extended_path, lemma11
+from stachowiak import lemma2_extended_path, lemma11
 from verhoeff import HpathNS
 
 
@@ -326,6 +326,81 @@ def add_cycle_in_order(
     return cycle_cover
 
 
+def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
+    """
+    Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
+    **Theorem:** *When the arity is at least 3 and at most one k i is odd, the neighbor-swap graph
+    of non-stutter permutations admits a disjoint cycle cover, that is, a set of vertex-disjoint
+    cycles that visit all permutations exactly once.*\n
+    This handles the case where all elements are even. This is done by fixing the trailing two elements and then generating the cycle cover for the remaining signature.
+
+    Args:
+        sig (tuple[int]): The signature of the permutations. Must have at least one element.
+
+    Returns:
+        list[list[tuple[int, ...]]]:
+            The cycle cover for the given signature `sig`.\n
+            Every list of tuples is a cycle in the cycle cover. The tuples are permutations.
+            The lists do not have a defined depth since they can consist of cycle covers themselves. But the depth is at least 2.
+    """
+    all_sub_cycles = []
+    between_cycles = []
+    for idx, color in enumerate(sig):
+        temp_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
+        for idx2, second_color in enumerate(temp_sig[idx:], start=idx):
+            sub_sig = temp_sig[:idx2] + (second_color - 1,) + temp_sig[idx2 + 1 :]
+            # check if this results an even-1-1 case
+            sorted_sub_sig, transformer2 = get_transformer(sub_sig, lambda x: x[0])
+            # for the even-1-1 case we need a specific path that has parallel edges
+            if (
+                sorted_sub_sig[0] % 2 == 0
+                and sorted_sub_sig[1] == 1
+                and sorted_sub_sig[2] == 1
+            ):
+                cycle_cover = [
+                    transform(
+                        Hpath_even_1_1(sorted_sub_sig[0]),
+                        transformer2,
+                    )
+                ]
+            else:
+                cycle_cover = generate_cycle_cover(sub_sig)
+            if idx != idx2:
+                # this gives two parallel paths which we need to combine into a cycle
+                sub_cycles = []
+                for cyc in cycle_cover:
+                    sub_cycles.append(
+                        extend(cyc, (idx2, idx))[::-1] + extend(cyc, (idx, idx2))
+                    )
+                if idx2 - idx <= 1:
+                    all_sub_cycles.append(sub_cycles)
+                else:
+                    between_cycles = add_cycle_in_order(
+                        between_cycles, sub_cycles, (idx, idx2)
+                    )
+            else:
+                # this gives all the non-stutter permutations
+                sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
+                all_sub_cycles.append(sub_cycles)
+                if len(sub_sig) == idx + 1:
+                    # add the between cycles in reversed order
+                    while (
+                        len(between_cycles) > 0
+                        and idx == max(get_first_element(between_cycles)[-2:])
+                        and max(get_first_element(between_cycles, -1)[-2:]) == idx
+                    ):
+                        all_sub_cycles.append(between_cycles.pop(-1))
+                else:
+                    # add the between cycles in normal order
+                    while len(between_cycles) > 0 and idx == max(
+                        get_first_element(between_cycles)[-2:]
+                    ):
+                        all_sub_cycles.append(between_cycles.pop(0))
+    if len(between_cycles) > 0:
+        all_sub_cycles.append(between_cycles.pop(0))
+    return all_sub_cycles
+
+
 def generate_cycle_cover(sig: tuple[int]) -> list[list[tuple[int, ...]]]:
     """
     Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
@@ -443,61 +518,7 @@ def generate_cycle_cover(sig: tuple[int]) -> list[list[tuple[int, ...]]]:
         return all_sub_cycles
     # all-even case
     else:
-        all_sub_cycles = []
-        between_cycles = []
-        for idx, color in enumerate(sig):
-            temp_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
-            for idx2, second_color in enumerate(temp_sig[idx:], start=idx):
-                sub_sig = temp_sig[:idx2] + (second_color - 1,) + temp_sig[idx2 + 1 :]
-                # check if this results an even-1-1 case
-                sorted_sub_sig, transformer2 = get_transformer(sub_sig, lambda x: x[0])
-                # for the even-1-1 case we need a specific path that has parallel edges
-                if (
-                    sorted_sub_sig[0] % 2 == 0
-                    and sorted_sub_sig[1] == 1
-                    and sorted_sub_sig[2] == 1
-                ):
-                    cycle_cover = [
-                        transform(
-                            Hpath_even_1_1(sorted_sub_sig[0]),
-                            transformer2,
-                        )
-                    ]
-                else:
-                    cycle_cover = generate_cycle_cover(sub_sig)
-                if idx != idx2:
-                    # this gives two parallel paths which we need to combine into a cycle
-                    sub_cycles = []
-                    for cyc in cycle_cover:
-                        sub_cycles.append(
-                            extend(cyc, (idx2, idx))[::-1] + extend(cyc, (idx, idx2))
-                        )
-                    if idx2 - idx <= 1:
-                        all_sub_cycles.append(sub_cycles)
-                    else:
-                        between_cycles = add_cycle_in_order(
-                            between_cycles, sub_cycles, (idx, idx2)
-                        )
-                else:
-                    # this gives all the non-stutter permutations
-                    sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
-                    all_sub_cycles.append(sub_cycles)
-                    if len(sub_sig) == idx + 1:
-                        # add the between cycles in reversed order
-                        while len(between_cycles) > 0 and idx == max(
-                            get_first_element(between_cycles)[-2:]
-                        ) and max(get_first_element(between_cycles, -1)[-2:]) == idx:
-                            print(f"REVERSE adding between cycles {len(sub_sig)} {get_perm_signature(get_first_element(between_cycles))} {get_first_element(between_cycles)[-2:]}")
-                            all_sub_cycles.append(between_cycles.pop(-1))
-                    else:
-                        # add the between cycles in normal order
-                        while len(between_cycles) > 0 and idx == max(
-                            get_first_element(between_cycles)[-2:]
-                        ):
-                            print(f"adding between cycles {len(sub_sig)} {get_perm_signature(get_first_element(between_cycles))} {get_first_element(between_cycles)[-2:]}")
-                            all_sub_cycles.append(between_cycles.pop(0))
-        if len(between_cycles) > 0:
-            all_sub_cycles.append(between_cycles.pop(0))
+        all_sub_cycles = generate_all_even_cycle_cover(sig)
         return all_sub_cycles
 
 

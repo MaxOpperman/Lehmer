@@ -341,6 +341,29 @@ def get_transformer(s: tuple[int], func: callable) -> tuple[tuple[int], list[int
     ]
 
 
+def transformer_to_sorted(
+    unsorted_signature: tuple[int, ...], func=lambda x: x[0]
+) -> list[int]:
+    """
+    Get the transformer to go from unsorted to sorted signature.
+    Works using a separate function to get 0's in the signature as well.
+
+    Args:
+        unsorted_signature (tuple[int, ...]): The unsorted signature.
+        func (callable, optional): The lambda function of tuples of form (value, index) to sort the signature. Defaults to lambda x: x[0].
+
+    Returns:
+        list[int]: The transformer to go from unsorted to sorted signature.
+    """
+    # get the transformer (has to be done separately to get 0's in signature as well)
+    indexed_sig = [(value, idx) for idx, value in enumerate(unsorted_signature)]
+    indexed_sig.sort(reverse=True, key=func)
+    transformer_list = [x[1] for x in indexed_sig]
+    # get the transformer to go from unsorted to sorted -> reverse transformer
+    temp_dict = {i: s for s, i in enumerate(transformer_list)}
+    return [temp_dict[k] for k in sorted(temp_dict.keys())]
+
+
 def transform(perms: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ...]]:
     """
     Transforms a list of permutations as tuples according to the given renaming.
@@ -489,34 +512,6 @@ def get_first_element(nested_list: list, element=0) -> tuple[int, ...]:
         return get_first_element(nested_list[element])
     else:
         return nested_list
-
-
-def get_single_list(nested_list: list) -> list[tuple[int, ...]]:
-    """
-    Recursively retrieves the first singular list of a nested list of tuples.
-
-    Args:
-        nested_list (list): The nested list. Ultimately a tuple of integers (the permutations).
-
-    Returns:
-        list[tuple[int, ...]]: A list of tuples that in the first position of the nested list.
-    """
-    if (
-        isinstance(nested_list, list)
-        and len(nested_list) > 0
-        and isinstance(nested_list[0], tuple)
-    ):
-        return nested_list
-    elif (
-        isinstance(nested_list, list)
-        and len(nested_list) > 0
-        and isinstance(nested_list[0], list)
-    ):
-        return get_single_list(nested_list[0])
-    else:
-        raise ValueError(
-            f"The input {nested_list} is not a nested list of permutations."
-        )
 
 
 def non_stutter_cycleQ(sig: tuple[int]) -> bool:
