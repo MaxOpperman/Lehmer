@@ -417,12 +417,13 @@ class Test_ConnectCycleCover:
         assert get_connected_cycle_cover(tuple()) == []
 
     def test_connect_cycle_cover_one_element(self):
+        # these are stutter permutations
         assert get_connected_cycle_cover((0,)) == []
-        assert get_connected_cycle_cover((1,)) == [(0,)]
-        assert get_connected_cycle_cover((2,)) == [(0, 0)]
-        assert get_connected_cycle_cover((5,)) == [(0, 0, 0, 0, 0)]
-        assert get_connected_cycle_cover((0, 2)) == [(1, 1)]
-        assert get_connected_cycle_cover((0, 0, 0, 0, 2)) == [(4, 4)]
+        assert get_connected_cycle_cover((1,)) == []
+        assert get_connected_cycle_cover((2,)) == []
+        assert get_connected_cycle_cover((5,)) == []
+        assert get_connected_cycle_cover((0, 2)) == []
+        assert get_connected_cycle_cover((0, 0, 0, 0, 2)) == []
 
     def test_connect_cycle_cover_binary(self):
         assert get_connected_cycle_cover((1, 1)) == [(0, 1), (1, 0)]

@@ -1,3 +1,5 @@
+import pytest
+
 from connect_cycle_cover import get_connected_cycle_cover
 from helper_operations.path_operations import (
     adjacent,
@@ -112,14 +114,18 @@ class TestLehmerPaths:
             "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
         )
 
+    def test_incorporate_stutters_empty(self):
+        with pytest.raises(ValueError):
+            incorporate_stutters((0,))
+
     def test_incorporate_stutters_one_element(self):
         assert incorporate_stutters((1,)) == (
-            get_connected_cycle_cover((1,)),
-            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+            [(0,)],
+            "\033[1m\033[91m Only stutter permutations were found\033[0m\033[0m",
         )
-        assert incorporate_stutters((3,)) == (
-            get_connected_cycle_cover((3,)),
-            "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m",
+        assert incorporate_stutters((0, 0, 3)) == (
+            [(2, 2, 2)],
+            "\033[1m\033[91m Only stutter permutations were found\033[0m\033[0m",
         )
 
     def test_incorporate_stutters_2_1(self):

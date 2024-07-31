@@ -862,7 +862,8 @@ def lemma11(sig: tuple[int]) -> list[tuple[int, ...]]:
     if len(list(sig)) == 0:
         raise ValueError("Signature must have at least one element")
     elif len(list(sig)) == 1:
-        return [(0,) * sig[0]]
+        # this is a stutter permutation
+        return []
     elif len(list(sig)) == 2 and sig[0] == sig[1] == 1:
         return [(0, 1), (1, 0)]
     elif sum(1 for n in sig if n % 2 == 1) < 2:

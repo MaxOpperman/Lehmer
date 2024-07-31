@@ -2,7 +2,12 @@ import argparse
 
 from connect_cycle_cover import get_connected_cycle_cover
 from helper_operations.path_operations import adjacent, cycleQ, pathQ
-from helper_operations.permutation_graphs import multinomial, stutterPermutations
+from helper_operations.permutation_graphs import (
+    HcycleQ,
+    HpathQ,
+    multinomial,
+    stutterPermutations,
+)
 
 
 def order_path_to_stutter_start(
@@ -51,18 +56,24 @@ def incorporate_stutters(sig: tuple[int]) -> list[tuple[int, ...]]:
     path = get_connected_cycle_cover(sig)
     # the \033[1m makes the text bold and the \033[91m makes the text red
     non_stutter_cycle = "\033[1m\033[91m Neither a valid Hamiltonian cycle nor Hamiltonian path\033[0m\033[0m"
-    if cycleQ(path):
+    if HcycleQ(path, sig):
         # the \033[92m makes the text green
         non_stutter_cycle = "\033[1m\033[92m A valid Hamiltonian cycle\033[0m\033[0m"
-    elif pathQ(path):
+    elif HpathQ(path, sig):
         # the \033[94m makes the text blue
         non_stutter_cycle = "\033[1m\033[94m A valid Hamiltonian path\033[0m\033[0m"
+    elif len(path) == 0 and len(stutterPermutations(sig)) > 0:
+        return (
+            stutterPermutations(sig),
+            "\033[1m\033[91m Only stutter permutations were found\033[0m\033[0m",
+        )
     else:
         raise ValueError(
             "The connected cycle cover does not result in a Hamiltonian path."
         )
     print(f"The non-stutter permutations gave:{non_stutter_cycle}.")
     stutters = stutterPermutations(sig)
+    print(f"There were {len(stutters)} stutters. {stutters} with signature {sig}.")
     if not stutters:
         return path, non_stutter_cycle
     path = order_path_to_stutter_start(path, stutters)

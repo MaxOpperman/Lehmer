@@ -1,4 +1,5 @@
 from bisect import bisect, insort
+from collections import Counter
 from heapq import heappop, heappush
 from itertools import permutations as itertoolspermutations
 
@@ -380,7 +381,9 @@ def stutterPermutations(sig: tuple[int]) -> list[tuple[int, ...]]:
     If the signature is empty or contains only a single 0, an empty list is returned.
 
     Args:
-        sig (tuple[int]): Signature of the permutations as a tuple of integers.
+        sig (tuple[int]):
+            Signature of the permutations as a tuple of integers.
+            Or an empty list if there are no stutter permutations.
 
     Returns:
         list[tuple[int, ...]]: Stutter permutations as a list of tuples of integers.
@@ -458,7 +461,7 @@ def HpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
         bool: `True` if the path is a Hamiltonian path on the non-stutter permutations of the given signature, `False` otherwise.
     """
     if pathQ(per):
-        return set(per) == set(nonStutterPermutations(sig))
+        return Counter(per) == Counter(nonStutterPermutations(sig))
     return False
 
 

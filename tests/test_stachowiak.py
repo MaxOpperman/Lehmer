@@ -602,12 +602,13 @@ class Test_Lemma10_and_11:
             lemma11(tuple())
 
     def test_lemma11_2(self):
+        # only one element -> stutter permutation
         result = lemma11((2,))
-        assert result == [(0, 0)]
+        assert result == []
 
     def test_lemma11_5(self):
         result = lemma11((5,))
-        assert result == [(0, 0, 0, 0, 0)]
+        assert result == []
 
     def test_lemma11_1_1(self):
         result = lemma11((1, 1))

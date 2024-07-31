@@ -37,6 +37,26 @@ class TestPathOperations:
         t = (2, 3, 4)
         assert adjacent(s, t) == False
 
+    def test_adjacent_mistake_after_swap(self):
+        s = (0, 1, 2, 3, 5)
+        t = (0, 2, 1, 4, 5)
+        assert adjacent(s, t) == False
+
+    def test_adjacent_too_many_different(self):
+        s = (0, 1, 2, 3, 5)
+        t = (0, 2, 1, 5, 3)
+        assert adjacent(s, t) == False
+
+    def test_adjacent_one_swap(self):
+        s = (0, 1, 2, 3, 5)
+        t = (0, 1, 2, 5, 3)
+        assert adjacent(s, t)
+
+    def test_adjacent_last_first(self):
+        s = (0, 1, 2, 3, 4)
+        t = (4, 1, 2, 3, 0)
+        assert adjacent(s, t) == False
+
     def test_adjacent_empty(self):
         s = tuple()
         t = tuple()
