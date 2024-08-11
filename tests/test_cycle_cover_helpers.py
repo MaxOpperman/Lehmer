@@ -1,9 +1,9 @@
 import pytest
 
-from cycle_cover import (
+from helper_operations.cycle_cover_generation import (
     Hpath_even_1_1,
     Hpath_odd_2_1,
-    incorporated_odd_2_1,
+    incorporated_odd_2_1_path_a_b,
     parallel_sub_cycle_odd_2_1,
 )
 from helper_operations.path_operations import cycleQ, pathQ
@@ -128,42 +128,42 @@ class Test_ParallelSubCycleOdd_2_1:
 
 class Test_IncorporatedOdd_2_1:
     def test_Hpath1_2_1(self):
-        assert HpathQ(incorporated_odd_2_1(1), [1, 2, 1])
+        assert HpathQ(incorporated_odd_2_1_path_a_b(1), [1, 2, 1])
 
     def test_incorporated3_2_1(self):
         odd_k = 3
-        path = incorporated_odd_2_1(odd_k)
+        path = incorporated_odd_2_1_path_a_b(odd_k)
         assert pathQ(path)
         assert len(path) == len(set(path))
-        assert len(path) == len(Hpath_odd_2_1(odd_k)) + 2 * multinomial([odd_k - 1, 2])
+        assert len(path) == multinomial([odd_k, 2, 1])
 
     def test_incorporated5_2_1(self):
         odd_k = 5
-        path = incorporated_odd_2_1(odd_k)
+        path = incorporated_odd_2_1_path_a_b(odd_k)
         assert pathQ(path)
         assert len(path) == len(set(path))
-        assert len(path) == len(Hpath_odd_2_1(odd_k)) + 2 * multinomial([odd_k - 1, 2])
+        assert len(path) == multinomial([odd_k, 2, 1])
 
     def test_incorporated7_2_1(self):
         odd_k = 7
-        path = incorporated_odd_2_1(odd_k)
+        path = incorporated_odd_2_1_path_a_b(odd_k)
         assert pathQ(path)
         assert len(path) == len(set(path))
-        assert len(path) == len(Hpath_odd_2_1(odd_k)) + 2 * multinomial([odd_k - 1, 2])
+        assert len(path) == multinomial([odd_k, 2, 1])
 
     def test_incorporated9_2_1(self):
         odd_k = 9
-        path = incorporated_odd_2_1(odd_k)
+        path = incorporated_odd_2_1_path_a_b(odd_k)
         assert pathQ(path)
         assert len(path) == len(set(path))
-        assert len(path) == len(Hpath_odd_2_1(odd_k)) + 2 * multinomial([odd_k - 1, 2])
+        assert len(path) == multinomial([odd_k, 2, 1])
 
     def test_incorporated11_2_1(self):
         odd_k = 11
-        path = incorporated_odd_2_1(odd_k)
+        path = incorporated_odd_2_1_path_a_b(odd_k)
         assert pathQ(path)
         assert len(path) == len(set(path))
-        assert len(path) == len(Hpath_odd_2_1(odd_k)) + 2 * multinomial([odd_k - 1, 2])
+        assert len(path) == multinomial([odd_k, 2, 1])
 
 
 class Test_HpathEven_1_1:

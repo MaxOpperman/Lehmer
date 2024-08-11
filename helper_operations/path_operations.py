@@ -119,7 +119,8 @@ def splitPathIn2(
         AssertionError: If the list `p` does not represent a path.
     """
     assert len(p) > 1
-    assert a in p
+    if not a in p:
+        raise AssertionError(f"Vertex {a} not in path {p}")
     assert pathQ(p)
     A = p.index(a)
     return p[: A + 1], p[A + 1 :]
@@ -252,6 +253,7 @@ def incorporateSpurInZigZag(
     """
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
+    print(f"Spur base index: {i} for {vertex_pair[0]}-{vertex_pair[1]}")
     return path[: i + 1] + list(vertex_pair) + path[i + 1 :]
 
 
@@ -567,3 +569,55 @@ def stutterPermutationQ(perm: tuple[int, ...]) -> bool:
     if len(perm) < 2:
         return True
     return all(perm[i] == perm[i + 1] for i in range(0, len(perm) - 1, 2))
+
+
+def glue(
+    cycle1: list[tuple[int, ...]],
+    cycle2: list[tuple[int, ...]],
+    vertex_pair_c1: tuple[tuple[int, ...], tuple[int, ...]],
+    vertex_pair_c2: tuple[tuple[int, ...], tuple[int, ...]],
+) -> list[tuple[int, ...]]:
+    """
+    Glue two cycles together by using the cross edges instead of the parallel edges
+    The cycles must contain the vertices and the vertices must be adjacent (in the cycle)
+
+    Args:
+        cycle1 (list[tuple[int, ...]]): The first cycle.
+        cycle2 (list[tuple[int, ...]]): The second cycle.
+        vertex_pair_c1 (tuple[tuple[int, ...], tuple[int, ...]]): The pair of vertices in the first cycle.
+        vertex_pair_c2 (tuple[tuple[int, ...], tuple[int, ...]]): The pair of vertices in the second cycle.
+
+    Returns:
+        list[tuple[int, ...]]: The glued cycles.
+    """
+    # rotate the first cycle to start with the first vertex
+    cycle1 = cutCycle(cycle1, vertex_pair_c1[0])
+    # make sure it ends with the second vertex
+    if cycle1[-1] != vertex_pair_c1[1]:
+        cycle1 = cycle1[:1] + cycle1[1:][::-1]
+    if not cycle1[-1] == vertex_pair_c1[1]:
+        v2index = cycle1.index(vertex_pair_c1[1])
+        raise ValueError(
+            f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle {cycle1[v2index-2:v2index+3]}."
+        )
+    # rotate the second cycle to start with the first vertex
+    cycle2 = cutCycle(cycle2, vertex_pair_c2[0])
+    # make sure it ends with the second vertex
+    if cycle2[-1] != vertex_pair_c2[1]:
+        cycle2 = cycle2[:1] + cycle2[1:][::-1]
+    if not cycle2[-1] == vertex_pair_c2[1]:
+        raise ValueError(
+            f"In the second cycle, the vertices {vertex_pair_c2} are not adjacent in cycle {cycle2}."
+        )
+    # glue the cycles together
+    if adjacent(vertex_pair_c1[0], vertex_pair_c2[0]) and adjacent(
+        vertex_pair_c1[1], vertex_pair_c2[1]
+    ):
+        return cycle1 + cycle2[::-1]
+    elif adjacent(vertex_pair_c1[0], vertex_pair_c2[1]) and adjacent(
+        vertex_pair_c1[1], vertex_pair_c2[0]
+    ):
+        return cycle1 + cycle2
+    raise ValueError(
+        f"The vertices {vertex_pair_c1} and {vertex_pair_c2} are not adjacent."
+    )

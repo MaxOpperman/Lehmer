@@ -461,7 +461,12 @@ def HpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
         bool: `True` if the path is a Hamiltonian path on the non-stutter permutations of the given signature, `False` otherwise.
     """
     if pathQ(per):
-        return Counter(per) == Counter(nonStutterPermutations(sig))
+        all_non_stutters = Counter(per) == Counter(nonStutterPermutations(sig))
+        if not all_non_stutters:
+            # find the missing nodes
+            missing = set(nonStutterPermutations(sig)) - set(per)
+            print(f"Missing nodes: {missing}")
+        return all_non_stutters
     return False
 
 

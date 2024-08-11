@@ -1,7 +1,8 @@
 import pytest
 
 from cycle_cover import generate_cycle_cover
-from helper_operations.path_operations import pathQ, recursive_cycle_check
+from helper_operations.cycle_cover_generation import incorporated_odd_2_1_path_a_b
+from helper_operations.path_operations import cycleQ, pathQ, recursive_cycle_check
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
 from verhoeff import HpathNS
 
@@ -137,7 +138,71 @@ class Test_HpathCycleCover_Odd_1_1:
         assert len(cycle[0]) == multinomial(signature)
 
 
-class TestHpathCycleCover_Odd_2_1:
+class TestHpathCycleCover_Odd_2_1_Path:
+    def test_HpathCycleCover_1_2_1(self):
+        signature = (1, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(1)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 1)
+        assert path[-1] == (0, 2, 1, 1)
+
+    def test_HpathCycleCover_3_2_1(self):
+        signature = (3, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(3)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 0, 0, 1)
+        assert path[-1] == (0, 2, 1, 0, 0, 1)
+
+    def test_HpathCycleCover_5_2_1(self):
+        signature = (5, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(5)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 0, 0, 0, 0, 1)
+        assert path[-1] == (0, 2, 1, 0, 0, 0, 0, 1)
+
+    def test_HpathCycleCover_7_2_1(self):
+        signature = (7, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(7)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 1)
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_9_2_1(self):
+        signature = (9, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(9)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_13_2_1(self):
+        signature = (13, 2, 1)
+        path = incorporated_odd_2_1_path_a_b(13)
+        assert pathQ(path)
+        assert len(path) == len(set(path))
+        assert len(path) == multinomial(signature)
+        # test whether the path starts with a and ends with b
+        assert path[0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+        assert path[-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
+
+
+class TestHpathCycleCover_Odd_2_1_Cycle:
     def test_HpathCycleCover_1_2_1(self):
         signature = (1, 2, 1)
         path = generate_cycle_cover(signature)
@@ -145,66 +210,46 @@ class TestHpathCycleCover_Odd_2_1:
         assert pathQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 1)
 
     def test_HpathCycleCover_3_2_1(self):
         signature = (3, 2, 1)
         path = generate_cycle_cover(signature)
         assert len(path) == 1
-        assert pathQ(path[0])
+        assert cycleQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 0, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 0, 0, 1)
 
     def test_HpathCycleCover_5_2_1(self):
         signature = (5, 2, 1)
         path = generate_cycle_cover(signature)
         assert len(path) == 1
-        assert pathQ(path[0])
+        assert cycleQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 1)
 
     def test_HpathCycleCover_7_2_1(self):
         signature = (7, 2, 1)
         path = generate_cycle_cover(signature)
         assert len(path) == 1
-        assert pathQ(path[0])
+        assert cycleQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 1)
 
-    @pytest.mark.slow
     def test_HpathCycleCover_9_2_1(self):
         signature = (9, 2, 1)
         path = generate_cycle_cover(signature)
         assert len(path) == 1
-        assert pathQ(path[0])
+        assert cycleQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 
-    @pytest.mark.slow
     def test_HpathCycleCover_13_2_1(self):
         signature = (13, 2, 1)
         path = generate_cycle_cover(signature)
         assert len(path) == 1
-        assert pathQ(path[0])
+        assert cycleQ(path[0])
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
-        # test whether the path starts with a and ends with b
-        assert path[0][0] == (1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
-        assert path[0][-1] == (0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)
 
 
 class Test_HpathCycleCover_Even_2_1:
@@ -355,3 +400,109 @@ class Test_HpathCycleCover_All_Even:
         assert total_length == multinomial(signature) - len(
             stutterPermutations(signature)
         )
+
+
+class Test_HpathCycleCover_Even_Odd_1:
+    def test_HpathCycleCover_4_3_1(self):
+        signature = (4, 3, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    def test_HpathCycleCover_6_3_1(self):
+        signature = (6, 3, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    def test_HpathCycleCover_4_7_1(self):
+        signature = (4, 7, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    def test_HpathCycleCover_6_5_1(self):
+        signature = (6, 5, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    def test_HpathCycleCover_8_3_1(self):
+        signature = (8, 3, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    def test_HpathCycleCover_4_9_1(self):
+        signature = (4, 9, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_8_7_1(self):
+        signature = (8, 7, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_10_9_1(self):
+        signature = (10, 9, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == 1
+        assert len(cycles[0]) == multinomial(signature)
+        assert cycleQ(cycles[0])
+
+
+class Test_HpathCycleCover_Odd_Odd_1:
+    def test_HpathCycleCover_3_3_1(self):
+        signature = (3, 3, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    def test_HpathCycleCover_3_5_1(self):
+        signature = (3, 5, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    def test_HpathCycleCover_5_5_1(self):
+        signature = (5, 5, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    def test_HpathCycleCover_7_5_1(self):
+        signature = (7, 5, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    def test_HpathCycleCover_3_9_1(self):
+        signature = (3, 9, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_7_7_1(self):
+        signature = (7, 7, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)
+
+    @pytest.mark.slow
+    def test_HpathCycleCover_5_9_1(self):
+        signature = (5, 9, 1)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        assert recursive_cycle_check(cycles) == multinomial(signature)

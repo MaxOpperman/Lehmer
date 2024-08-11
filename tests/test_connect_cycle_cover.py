@@ -1,21 +1,21 @@
 import pytest
 
-from connect_cycle_cover import generate_end_tuple_order, get_connected_cycle_cover
-from cycle_cover import generate_cycle_cover
+from cycle_cover import generate_cycle_cover, get_connected_cycle_cover
+from helper_operations.cycle_cover_connections import generate_end_tuple_order
 from helper_operations.path_operations import cycleQ, get_first_element, pathQ
 from helper_operations.permutation_graphs import multinomial, stutterPermutations
 
 
 class Test_TailsOrdering:
-    def test_end_tuple_order_two_or_more_odd_not_possible(self):
-        with pytest.raises(ValueError):
-            generate_end_tuple_order((3, 3, 2))
-        with pytest.raises(ValueError):
-            generate_end_tuple_order((3, 3, 3, 2))
-        with pytest.raises(ValueError):
-            generate_end_tuple_order((3, 2, 3, 2))
-        with pytest.raises(ValueError):
-            generate_end_tuple_order((2, 5, 2, 5))
+    # def test_end_tuple_order_two_or_more_odd_not_possible(self):
+    #     with pytest.raises(ValueError):
+    #         generate_end_tuple_order((3, 3, 2))
+    #     with pytest.raises(ValueError):
+    #         generate_end_tuple_order((3, 3, 3, 2))
+    #     with pytest.raises(ValueError):
+    #         generate_end_tuple_order((3, 2, 3, 2))
+    #     with pytest.raises(ValueError):
+    #         generate_end_tuple_order((2, 5, 2, 5))
 
     def test_end_tuple_order_one_element(self):
         sig = (2,)
@@ -406,7 +406,7 @@ class Test_CycleCoverTailsOrdering:
         assert len(cycle_cover_tails) == len(end_tuple_order)
 
 
-class Test_ConnectCycleCover:
+class Test_ConnectCycleCoverEdgeCases:
     def test_connect_cycle_cover_negative(self):
         with pytest.raises(ValueError):
             get_connected_cycle_cover((-1,))
@@ -493,39 +493,14 @@ class Test_ConnectCycleCover:
         assert len(result_sjt_6) == len(set(result_sjt_6))
         assert cycleQ(result_sjt_6)
 
-    def test_connect_cycle_cover_stachowiak(self):
-        stachowiak_3_5_2 = (3, 5, 2)
-        result_stachowiak_3_5_2 = get_connected_cycle_cover(stachowiak_3_5_2)
-        assert len(result_stachowiak_3_5_2) == multinomial(stachowiak_3_5_2)
-        assert len(result_stachowiak_3_5_2) == len(set(result_stachowiak_3_5_2))
-        assert cycleQ(result_stachowiak_3_5_2)
+        sjt_7 = (1, 1, 1, 1, 1, 1, 1)
+        result_sjt_7 = get_connected_cycle_cover(sjt_7)
+        assert len(result_sjt_7) == multinomial(sjt_7)
+        assert len(result_sjt_7) == len(set(result_sjt_7))
+        assert cycleQ(result_sjt_7)
 
-        stachowiak_4_3_3 = (4, 3, 3)
-        result_stachowiak_4_3_3 = get_connected_cycle_cover(stachowiak_4_3_3)
-        assert len(result_stachowiak_4_3_3) == multinomial(stachowiak_4_3_3)
-        assert len(result_stachowiak_4_3_3) == len(set(result_stachowiak_4_3_3))
-        assert cycleQ(result_stachowiak_4_3_3)
 
-        stachowiak_3_3_1_1 = (3, 3, 1, 1)
-        result_stachowiak_3_3_1_1 = get_connected_cycle_cover(stachowiak_3_3_1_1)
-        assert len(result_stachowiak_3_3_1_1) == multinomial(stachowiak_3_3_1_1)
-        assert len(result_stachowiak_3_3_1_1) == len(set(result_stachowiak_3_3_1_1))
-        assert cycleQ(result_stachowiak_3_3_1_1)
-
-    def test_connect_cycle_cover_odd_2_1(self):
-        # note that odd-2-1 is a path if odd equals 1
-        sig_3_2_1 = (3, 2, 1)
-        result_3_2_1 = get_connected_cycle_cover(sig_3_2_1)
-        assert len(result_3_2_1) == multinomial(sig_3_2_1)
-        assert len(result_3_2_1) == len(set(result_3_2_1))
-        assert cycleQ(result_3_2_1)
-
-        sig_5_1_2 = (5, 1, 2)
-        result_5_1_2 = get_connected_cycle_cover(sig_5_1_2)
-        assert len(result_5_1_2) == multinomial(sig_5_1_2)
-        assert len(result_5_1_2) == len(set(result_5_1_2))
-        assert cycleQ(result_5_1_2)
-
+class Test_ConnectCycleCoverEven11:
     def test_connect_cycle_cover_2_1_1(self):
         sig_2_1_1 = (2, 1, 1)
         result_2_1_1 = get_connected_cycle_cover(sig_2_1_1)
@@ -546,6 +521,76 @@ class Test_ConnectCycleCover:
         assert len(result_1_1_8) == multinomial(sig_1_1_8)
         assert len(result_1_1_8) == len(set(result_1_1_8))
         assert pathQ(result_1_1_8)
+
+
+class Test_ConnectCycleCoverEvenOdd1:
+    def test_connect_cycle_cover_4_3_1(self):
+        signature = (4, 3, 1)
+        cycles = get_connected_cycle_cover(signature)
+        assert len(cycles) == multinomial(signature)
+        assert cycleQ(cycles)
+
+    def test_connect_cycle_cover_3_6_1(self):
+        signature = (3, 6, 1)
+        cycles = get_connected_cycle_cover(signature)
+        assert len(cycles) == multinomial(signature)
+        assert cycleQ(cycles)
+
+    def test_connect_cycle_cover_1_5_6(self):
+        signature = (1, 5, 6)
+        cycles = get_connected_cycle_cover(signature)
+        assert len(cycles) == multinomial(signature)
+        assert cycleQ(cycles)
+
+    def test_connect_cycle_cover_4_1_7(self):
+        signature = (4, 1, 7)
+        cycles = get_connected_cycle_cover(signature)
+        assert len(cycles) == multinomial(signature)
+        assert cycleQ(cycles)
+
+    @pytest.mark.slow
+    def test_connect_cycle_cover_1_8_3(self):
+        signature = (1, 8, 3)
+        cycles = get_connected_cycle_cover(signature)
+        assert len(cycles) == multinomial(signature)
+        assert cycleQ(cycles)
+
+
+class Test_ConnectCycleCoverEquivStachowiak:
+    def test_connect_cycle_cover_stachowiak(self):
+        stachowiak_3_5_2 = (3, 5, 2)
+        result_stachowiak_3_5_2 = get_connected_cycle_cover(stachowiak_3_5_2)
+        assert len(result_stachowiak_3_5_2) == multinomial(stachowiak_3_5_2)
+        assert len(result_stachowiak_3_5_2) == len(set(result_stachowiak_3_5_2))
+        assert cycleQ(result_stachowiak_3_5_2)
+
+        stachowiak_4_3_3 = (4, 3, 3)
+        result_stachowiak_4_3_3 = get_connected_cycle_cover(stachowiak_4_3_3)
+        assert len(result_stachowiak_4_3_3) == multinomial(stachowiak_4_3_3)
+        assert len(result_stachowiak_4_3_3) == len(set(result_stachowiak_4_3_3))
+        assert cycleQ(result_stachowiak_4_3_3)
+
+        stachowiak_3_3_1_1 = (3, 3, 1, 1)
+        result_stachowiak_3_3_1_1 = get_connected_cycle_cover(stachowiak_3_3_1_1)
+        assert len(result_stachowiak_3_3_1_1) == multinomial(stachowiak_3_3_1_1)
+        assert len(result_stachowiak_3_3_1_1) == len(set(result_stachowiak_3_3_1_1))
+        assert cycleQ(result_stachowiak_3_3_1_1)
+
+
+class Test_ConnectCycleCoverEvenOrOdd21:
+    def test_connect_cycle_cover_odd_2_1(self):
+        # note that odd-2-1 is a path if odd equals 1
+        sig_3_2_1 = (3, 2, 1)
+        result_3_2_1 = get_connected_cycle_cover(sig_3_2_1)
+        assert len(result_3_2_1) == multinomial(sig_3_2_1)
+        assert len(result_3_2_1) == len(set(result_3_2_1))
+        assert cycleQ(result_3_2_1)
+
+        sig_5_1_2 = (5, 1, 2)
+        result_5_1_2 = get_connected_cycle_cover(sig_5_1_2)
+        assert len(result_5_1_2) == multinomial(sig_5_1_2)
+        assert len(result_5_1_2) == len(set(result_5_1_2))
+        assert cycleQ(result_5_1_2)
 
     def test_connect_cycle_cover_2_2_1(self):
         sig_2_2_1 = (2, 2, 1)
@@ -577,6 +622,8 @@ class Test_ConnectCycleCover:
         assert len(result_1_6_2) == len(set(result_1_6_2))
         assert cycleQ(result_1_6_2)
 
+
+class Test_ConnectCycleCoverAllEven:
     def test_connect_cycle_cover_2_2_2(self):
         sig_2_2_2 = (2, 2, 2)
         result_2_2_2 = get_connected_cycle_cover(sig_2_2_2)
@@ -586,6 +633,17 @@ class Test_ConnectCycleCover:
         assert len(result_2_2_2) == len(set(result_2_2_2))
         assert cycleQ(result_2_2_2)
 
+    def test_connect_cycle_cover_4_2_2(self):
+        sig_4_2_2 = (4, 2, 2)
+        result_4_2_2 = get_connected_cycle_cover(sig_4_2_2)
+        assert len(result_4_2_2) == multinomial(sig_4_2_2) - len(
+            stutterPermutations(sig_4_2_2)
+        )
+        assert len(result_4_2_2) == len(set(result_4_2_2))
+        assert cycleQ(result_4_2_2)
+
+
+class Test_ConnectCycleCoverAllButOneEven:
     def test_connect_cycle_cover_2_2_3(self):
         sig_2_2_3 = (2, 2, 3)
         result_2_2_3 = get_connected_cycle_cover(sig_2_2_3)
@@ -595,11 +653,11 @@ class Test_ConnectCycleCover:
         assert len(result_2_2_3) == len(set(result_2_2_3))
         assert cycleQ(result_2_2_3)
 
-    def test_connect_cycle_cover_4_2_2(self):
-        sig_4_2_2 = (4, 2, 2)
-        result_4_2_2 = get_connected_cycle_cover(sig_4_2_2)
-        assert len(result_4_2_2) == multinomial(sig_4_2_2) - len(
-            stutterPermutations(sig_4_2_2)
+    def test_connect_cycle_cover_4_3_2(self):
+        sig_4_3_2 = (4, 3, 2)
+        result_4_3_2 = get_connected_cycle_cover(sig_4_3_2)
+        assert len(result_4_3_2) == multinomial(sig_4_3_2) - len(
+            stutterPermutations(sig_4_3_2)
         )
-        assert len(result_4_2_2) == len(set(result_4_2_2))
-        assert cycleQ(result_4_2_2)
+        assert len(result_4_3_2) == len(set(result_4_3_2))
+        assert cycleQ(result_4_3_2)

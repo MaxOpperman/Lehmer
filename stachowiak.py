@@ -53,7 +53,7 @@ def main():
     )
 
     args = parser.parse_args()
-    s = [int(x) for x in args.signature.split(",")]
+    s = tuple([int(x) for x in args.signature.split(",")])
     if args.parities:
         defect_g = defect(s)
         print(f"Defect {defect_g} for n={sum(s)}")
