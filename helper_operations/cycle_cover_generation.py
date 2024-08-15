@@ -10,13 +10,17 @@ from helper_operations.path_operations import (
     pathQ,
     splitPathIn2,
     spurBaseIndex,
+    stutterPermutationQ,
+    transform,
 )
 from helper_operations.permutation_graphs import (
     extend,
+    get_perm_signature,
     rotate,
     stutterPermutations,
     swapPair,
 )
+from stachowiak import lemma2_extended_path
 from verhoeff import HpathNS
 
 
@@ -409,7 +413,7 @@ def incorporated_odd_2_1_path_a_b(k: int) -> list[tuple[int, ...]]:
 
 def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     """
-    Generates a path based on the number of 0's `k` from `a = 1 2 0^{k0} 1` to `b = 0 2 1 0^{k0-1} 1`.
+    Generates a path based on the number of 0's `k` from `e = 1 0 2 0^{k0-1} 1` to `f = 0 1 2 0^{k0-1} 1`.
     Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
     First generates the a_b_path, then the parallel cycles, and then splits the a_b_path in 2 at the parallel edge.
     The cross edges are:\n
@@ -422,8 +426,8 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     Returns:
         list[tuple[int, ...]]:
             The generated path from `a` to `b`\n
-            - `a = 1 2 0^{k0} 1`
-            - `b = 0 2 1 0^{k0-1} 1`
+            - `e = 1 0 2 0^{k0-1} 1`
+            - `f = 0 1 2 0^{k0-1} 1`
     """
     if k % 2 == 0 or k < 0:
         raise ValueError(f"k must be odd and positive, got {k}")
@@ -437,12 +441,8 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     # the cut_node is 0^2 1 0^{k-2} 1 2 and 0^3 1 0^{k-3} 1 2
     cut_node = (0,) * (k - 1) + (1, 0, 1, 2)
     parallel_cut_node = swapPair(cut_node, -3)
-    if k == 3:
-        swap_cut = swapPair(cut_node, k - 2)
-        swap_parallel_cut = swapPair(parallel_cut_node, k - 2)
-    else:
-        swap_cut = swapPair(cut_node, k - 2)
-        swap_parallel_cut = swapPair(parallel_cut_node, k - 2)
+    swap_cut = swapPair(cut_node, k - 2)
+    swap_parallel_cut = swapPair(parallel_cut_node, k - 2)
     print(f"ef_cycle {e_f_cylce}\n parallel {parallelCycles}")
     print(f"cut_node {cut_node} parallel_cut_node {parallel_cut_node}")
     print(
@@ -459,8 +459,8 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     p1_p12_p02_p20 = glue(
         e_f_cylce,
         parallelCycles,
-        [cut_node, swap_cut],
-        [parallel_cut_node, swap_parallel_cut],
+        (cut_node, swapPair(cut_node, k - 2)),
+        (parallel_cut_node, swapPair(parallel_cut_node, k - 2)),
     )
 
     # path from c'10=120^{k_0-1}10 to d'10=0210^{k_0-1}10 (_10)
@@ -475,8 +475,11 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     full = glue(
         p1_p12_p02_p20,
         cycle,
-        [(1, 2) + (0,) * k + (1,), (2, 1) + (0,) * k + (1,)],
-        [(1, 2) + (0,) * (k - 1) + (1, 0), (2, 1) + (0,) * (k - 1) + (1, 0)],
+        ((1, 2) + (0,) * k + (1,), swapPair((1, 2) + (0,) * k + (1,), 0)),
+        (
+            (1, 2) + (0,) * (k - 1) + (1, 0),
+            swapPair((1, 2) + (0,) * (k - 1) + (1, 0), 0),
+        ),
     )
     return full
 
@@ -486,7 +489,7 @@ def waveTopRowOddOddOne(
 ) -> list[tuple[int, ...]]:
     """
     Connects the even-odd-1 and odd-odd-xx cycles by incorporating the spurs in the zig-zag path.
-    This is the top figure of Figure 9 of the prep phase document TODO update figure;
+    This is the top figure of Figure 2.9 of the master thesis document (figure: VerhoeffOdd21);
 
     Args:
         even_odd_1 (list[tuple[int, ...]]): The even-odd-1 cycle.
@@ -497,13 +500,13 @@ def waveTopRowOddOddOne(
 
     Raises:
         AssertionError: If the cycle is not a cycle.
+        ValueError: If the adjacent nodes are not found in the even-odd-1 cycle.
     """
     # sort the nodes on the indices that the occur in the even_odd_1 cycle while remembering the index
     odd_odd_swapped_with_index = sorted(
         [(node, even_odd_1.index(swapPair(node, -2))) for node in odd_odd_two_equal],
         key=lambda x: -x[1],
     )
-    # print(f"sorted: {odd_odd_swapped_with_index}")
 
     # loop over the nodes in pairs
     for (node1, idx1), (node2, idx2) in zip(*[iter(odd_odd_swapped_with_index)] * 2):
@@ -518,5 +521,4 @@ def waveTopRowOddOddOne(
         )
         # insert the nodes
         even_odd_1 = even_odd_1[:idx1] + [node2, node1] + even_odd_1[idx1:]
-        print(f"inserted: {even_odd_1[idx1-2:idx2+5]}")
     return even_odd_1

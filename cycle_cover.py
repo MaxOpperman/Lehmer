@@ -26,6 +26,7 @@ from helper_operations.path_operations import (
     recursive_cycle_check,
     shorten_cycle_cover,
     splitPathIn2,
+    spurBaseIndex,
     transform,
     transform_cycle_cover,
 )
@@ -35,6 +36,7 @@ from helper_operations.permutation_graphs import (
     get_perm_signature,
     multinomial,
     rotate,
+    shorten,
     stutterPermutations,
     swapPair,
 )
@@ -284,12 +286,12 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
 
         # even, odd, 1 (appended with both even and odd, since both subtracted by 1; smaller case holds by induction)
-        even_odd_1 = extend_cycle_cover(
+        even_odd_x = extend_cycle_cover(
             generate_cycle_cover((sig[0] - 1, sig[1] - 1, 1)), (even_idx, odd_idx)
         )
 
         # odd-2, even, 1 (appended with odd, odd); so odd, even, 1 (but a smaller case)
-        odd_even_1 = extend_cycle_cover(
+        odd_even_y = extend_cycle_cover(
             generate_cycle_cover(
                 (sig[0] - (sig[0] % 2) * 2, sig[1] - (sig[1] % 2) * 2, 1)
             ),
@@ -306,13 +308,22 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
 
         # now we have the even-odd part which splits into odd-odd and even-even
-        even_even_c2odd_odd2 = createZigZagPath(
-            HpathNS(sig[0] - (sig[0] % 2), sig[1] - (sig[1] % 2)),
-            (2, odd_idx),
-            (odd_idx, 2),
-        )
+        even_even_cycle = HpathNS(sig[0] - (sig[0] % 2), sig[1] - (sig[1] % 2))
+
+        # rotate the path to a spur base index
         even_even_stutter_perms = stutterPermutations(
             (sig[0] - (sig[0] % 2), sig[1] - (sig[1] % 2))
+        )
+        # the spur base index - 1 rotates the path to the be one node before the spur base
+        even_even_cycle_rotated = rotate(
+            even_even_cycle,
+            spurBaseIndex(even_even_cycle, even_even_stutter_perms[0]) - 1,
+        )
+
+        even_even_c2odd_odd2 = createZigZagPath(
+            even_even_cycle_rotated,
+            (2, odd_idx),
+            (odd_idx, 2),
         )
         # odd-1, even (appended with odd, 2 and 2, odd) and stutters incorporated; so even, even
         incorporated_even_even = incorporateSpursInZigZag(
@@ -322,14 +333,19 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
 
         if sig[odd_idx] - 2 == 1:
-            odd_even_1_tip, odd_even_1 = odd_even_1[0][-2:], [odd_even_1[0][:-2]]
-            even_odd_cut = cutCycle(even_odd_1[0], swapPair(odd_even_1_tip[0], -3))
+            # for even-1-1 signature, we need to change the path to a cycle
+            odd_even_1_tip, odd_even_y = odd_even_y[0][-2:], [odd_even_y[0][:-2]]
+            # cut the cycle to a vertex adjacent to the tip
+            even_odd_cut = cutCycle(even_odd_x[0], swapPair(odd_even_1_tip[0], -3))
             if even_odd_cut[1] != swapPair(odd_even_1_tip[1], -3):
+                # make sure the second vertex is adjacent to the second vertex of the tip
                 even_odd_cut = even_odd_cut[:1] + even_odd_cut[1:][::-1]
-            even_odd_1 = [even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]]
+            # move the tip between the two adjacent vertices
+            even_odd_x = [even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]]
 
-        # assume odd is 0 and even is 1
-        # 0 2 1^{k1-1} 0^{k0-2} 1 0 and 0 2 1^{k1-1} 0^{k0-3} 1 00
+        # assume odd is 1 and even is 0
+        # 1 2 0^{k0-1} 1^{k1-2} 0 1 and 1 0 2 0^{k0-2} 1^{k1-2} 0 1
+        # 1 2 0^{k0-1} 1^{k1-3} 0 11 and 1 0 2 0^{k0-2} 1^{k1-3} 0 11
         cutnode_even_odd = (
             (odd_idx, 2)
             + (even_idx,) * (sig[even_idx] - 1)
@@ -338,8 +354,8 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
         cutnode_odd_even = swapPair(cutnode_even_odd, -3)
         even_odds_combined = glue(
-            even_odd_1[0],
-            odd_even_1[0],
+            even_odd_x[0],
+            odd_even_y[0],
             (cutnode_even_odd, swapPair(cutnode_even_odd, 1)),
             (cutnode_odd_even, swapPair(cutnode_odd_even, 1)),
         )
@@ -363,24 +379,29 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             + (even_idx,) * (sig[even_idx])
             + (2, odd_idx)
         )
-        cut_node2 = swapPair(cut_node1, sig[odd_idx] - 2)
+        cut_node2 = swapPair(cut_node1, -3)
         last_combined = glue(
-            odd_odd_combined,
             incorporated_even_even,
-            (swapPair(cut_node1, -3), swapPair(cut_node2, -3)),
-            (cut_node1, cut_node2),
+            odd_odd_combined,
+            (cut_node1, swapPair(cut_node1, sig[odd_idx] - 2)),
+            (cut_node2, swapPair(cut_node2, sig[odd_idx] - 2)),
         )
-        print(f"last combined {last_combined} {cycleQ(last_combined)}")
-        print(f"EVEN {even_idx} missing {set(lemma11(sig)) - set(last_combined)}")
-        print(
-            f"duplicates {[item for item, count in collections.Counter(last_combined).items() if count > 1]}"
-        )
+        try:
+            assert len(last_combined) == len(set(last_combined))
+            assert len(last_combined) == multinomial(sig)
+            assert cycleQ(last_combined)
+        except AssertionError:
+            print(f"EVEN {even_idx} missing {set(lemma11(sig)) - set(last_combined)}")
+            print(
+                f"duplicates {[item for item, count in collections.Counter(last_combined).items() if count > 1]}"
+            )
+            print(f"sig {sig} gives a cycle {cycleQ(last_combined)}")
         return [last_combined]
     # odd-odd-1 case
     elif len(list(sig)) == 3 and k % 2 == 1 and sig[1] % 2 == 1 and sig[2] == 1:
         # easy first; odd-even-1 and even-odd-1
-        even_odd_1 = extend(get_connected_cycle_cover((sig[0] - 1, sig[1], 1)), (0,))
-        odd_even_1 = extend(get_connected_cycle_cover((sig[0], sig[1] - 1, 1)), (1,))
+        even_odd_x = extend(get_connected_cycle_cover((sig[0] - 1, sig[1], 1)), (0,))
+        odd_even_y = extend(get_connected_cycle_cover((sig[0], sig[1] - 1, 1)), (1,))
 
         # now we have the odd-odd part which splits in a few parts with even-even
         even_even_cxy2 = HpathNS(sig[0] - 1, sig[1] - 1)
@@ -394,12 +415,36 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
         extended_odd_odd = [extend(odd_odd_cycle, (2,))]
         # now the XX and YY parts are still missing, by induction they also contain a cycle
-        odd_odd_xx = extend(HpathNS(sig[0] - 2, sig[1]), (0, 0, 2))
-        odd_odd_yy = extend(HpathNS(sig[0], sig[1] - 2), (1, 1, 2))
-        even_odd_cut = [waveTopRowOddOddOne(even_odd_1, odd_odd_xx)]
-        odd_even_cut = [waveTopRowOddOddOne(odd_even_1, odd_odd_yy)]
+        odd_odd_xx2 = extend(HpathNS(sig[0] - 2, sig[1]), (0, 0, 2))
+        odd_odd_yy2 = extend(HpathNS(sig[0], sig[1] - 2), (1, 1, 2))
+        even_odd_cut = waveTopRowOddOddOne(even_odd_x, odd_odd_xx2)
+        odd_even_cut = waveTopRowOddOddOne(odd_even_y, odd_odd_yy2)
 
-        return [even_odd_cut, odd_even_cut, extended_odd_odd]
+        # the cut nodes are 1 2 1^{k1-1} 0^{k0-2} 0 and 2 1 1^{k1-1} 0^{k0-2} 0
+        even_odd_cut_node = (1, 2) + (1,) * (sig[1] - 2) + (0,) * (sig[0] - 1) + (1, 0)
+        odd_even_cut_node = swapPair(even_odd_cut_node, -2)
+        even_odd_combined = glue(
+            even_odd_cut,
+            odd_even_cut,
+            (even_odd_cut_node, swapPair(even_odd_cut_node, 0)),
+            (odd_even_cut_node, swapPair(odd_even_cut_node, 0)),
+        )
+        assert cycleQ(even_odd_combined)
+        # the cut nodes are 0^{k0-1} 1^{k1} 2 0 and 0 ^{k0-2} 1 0 1^{k1-1} 2 0
+        extended_odd_odd_cut_node = (0,) * (sig[0] - 1) + (1,) * (sig[1]) + (0, 2)
+        combined_cut_node = swapPair(extended_odd_odd_cut_node, -2)
+
+        result = glue(
+            even_odd_combined,
+            extended_odd_odd[0],
+            (combined_cut_node, swapPair(combined_cut_node, sig[0] - 2)),
+            (
+                extended_odd_odd_cut_node,
+                swapPair(extended_odd_odd_cut_node, sig[0] - 2),
+            ),
+        )
+
+        return [result]
     # two-odds, rest even case
     elif sum(n % 2 for n in sig) == 2:
         # This is the case where there were stutters in the previous signatures but now there are none
