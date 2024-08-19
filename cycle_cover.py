@@ -1,5 +1,6 @@
 import argparse
 import collections
+from functools import cache
 
 from helper_operations.cycle_cover_connections import (
     connect_single_cycle_cover,
@@ -178,6 +179,7 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
     return all_sub_cycles
 
 
+@cache
 def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
     """
     Generates the disjoint cycle cover on the non-stutter permutations for the given signature `sig` according to the Theorem by Verhoeff.\n
@@ -713,6 +715,7 @@ def connect_cycles_recursive(
     return single_cycle_cover
 
 
+@cache
 def get_connected_cycle_cover(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Computes the a cycle on the non-stutter permutations for a given signature.

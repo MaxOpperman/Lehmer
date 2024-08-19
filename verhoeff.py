@@ -1,4 +1,5 @@
 import sys
+from functools import cache
 
 from helper_operations.path_operations import (
     createSquareTube,
@@ -15,6 +16,7 @@ from helper_operations.permutation_graphs import (
 )
 
 
+@cache
 def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
     """
     Computes a Hamiltonian path in the neighbor-swap graph on the non-stutter permutations for the given signature.

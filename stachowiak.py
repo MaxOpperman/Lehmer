@@ -1,6 +1,7 @@
 import argparse
 import itertools
 import math
+from functools import cache
 
 from helper_operations.path_operations import (
     adjacent,
@@ -179,6 +180,7 @@ def lemma2_cycle(chain_p: tuple[int, ...], case_2_1=True) -> list[tuple[int, ...
     return cycle
 
 
+@cache
 def lemma2_extended_path(
     chain_p: tuple[int, ...], case_2_1=True
 ) -> list[tuple[int, ...]]:
@@ -577,6 +579,7 @@ def lemma8(sig: tuple[int]) -> list[tuple[int, ...]]:
     return g_result_start
 
 
+@cache
 def lemma9(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
@@ -826,6 +829,7 @@ def lemma10(sig: tuple[int]) -> list[tuple[int, ...]]:
     return cycle
 
 
+@cache
 def lemma11(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
@@ -859,6 +863,8 @@ def lemma11(sig: tuple[int]) -> list[tuple[int, ...]]:
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017. (Used to find Hamiltonian cycles in binary neighbor-swap graphs.)
     """
+    print(f"\033[1m\033[92mSTACHOWIAK USED FOR SIGNATURE {sig}\033[0m\033[0m")
+    # quit()
     if len(list(sig)) == 0:
         raise ValueError("Signature must have at least one element")
     elif len(list(sig)) == 1:
