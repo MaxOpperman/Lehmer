@@ -42,9 +42,6 @@ class Test_HpathCycleCover_Even_1_1:
         assert len(path[0]) == len(set(path[0]))
         assert len(path[0]) == multinomial(signature)
         # test whether the path starts with c and ends with d
-        print(f"path {path[0]}")
-        print(f"path start, end = {path[0][0]}, {path[0][-1]}")
-        print(f"should be start, end = {(1, 2, 0, 0)}, {(0, 2, 1, 0)}")
         assert path[0][0] == (1, 2, 0, 0)
         assert path[0][-1] == (0, 2, 1, 0)
 

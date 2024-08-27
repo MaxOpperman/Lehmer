@@ -441,21 +441,6 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     # the cut_node is 0^2 1 0^{k-2} 1 2 and 0^3 1 0^{k-3} 1 2
     cut_node = (0,) * (k - 1) + (1, 0, 1, 2)
     parallel_cut_node = swapPair(cut_node, -3)
-    swap_cut = swapPair(cut_node, k - 2)
-    swap_parallel_cut = swapPair(parallel_cut_node, k - 2)
-    print(f"ef_cycle {e_f_cylce}\n parallel {parallelCycles}")
-    print(f"cut_node {cut_node} parallel_cut_node {parallel_cut_node}")
-    print(
-        f"swap at position k-2={k-2} {swapPair(cut_node, k-2)} and {swapPair(parallel_cut_node, k-2)}"
-    )
-    print(
-        f"indices ef_cycle {e_f_cylce.index(cut_node)} and {e_f_cylce.index(swapPair(cut_node, k-2))}"
-    )
-    print(
-        f"indices parallelCycle {parallelCycles.index(parallel_cut_node)} and {parallelCycles.index(swapPair(parallel_cut_node, k-2))}"
-    )
-    print(f"parallel {parallelCycles}")
-    print(f"swap_cut {swap_cut} swap_parallel_cut {swap_parallel_cut}")
     p1_p12_p02_p20 = glue(
         e_f_cylce,
         parallelCycles,
@@ -516,9 +501,6 @@ def waveTopRowOddOddOne(
             print(f"node1 {node1} at {idx1} and node2 {node2} at {idx2}")
             print(f"even_odd_1: {even_odd_1}")
             raise AssertionError("The nodes are not adjacent")
-        print(
-            f"adding between {even_odd_1[idx1]} - {node1} and {node2} - {even_odd_1[idx2]}; used indices {idx1} and {idx2}"
-        )
         # insert the nodes
         even_odd_1 = even_odd_1[:idx1] + [node2, node1] + even_odd_1[idx1:]
     return even_odd_1

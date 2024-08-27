@@ -253,7 +253,6 @@ def incorporateSpurInZigZag(
     """
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
-    print(f"Spur base index: {i} for {vertex_pair[0]}-{vertex_pair[1]}")
     return path[: i + 1] + list(vertex_pair) + path[i + 1 :]
 
 

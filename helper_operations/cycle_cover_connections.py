@@ -10,6 +10,7 @@ from tqdm import tqdm
 from helper_operations.path_operations import (
     adjacent,
     cutCycle,
+    get_first_element,
     get_transformer,
     splitPathIn2,
     transform,
@@ -106,12 +107,10 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         # now place one of the odd indices at the end and subtract 1 for every index after the odd indices
         ordered_tails = [(i,) for i, s in enumerate(sig) if s % 2 == 0]
         ordered_tails.append((next(i for i, s in enumerate(sig) if s % 2 == 1),))
-        print(f"ordered tails: {ordered_tails}")
         for i in range(len(ordered_tails)):
             end_tuple_order.append(
                 (ordered_tails[(i + 1) % len(ordered_tails)] + ordered_tails[i])
             )
-        print(f"TWO ODDS end tuple order: {end_tuple_order}; {sig}")
         return end_tuple_order
     else:
         raise ValueError(
@@ -177,9 +176,6 @@ def find_end_tuple_order(
         if len(adjacent_tails) > 1:
             # sort the tuples
             adjacent_tails = sorted(adjacent_tails)
-            print(
-                f"Found more than one adjacent tail for cycle {cycle1} and {cycle2} in cycle cover: {adjacent_tails}."
-            )
         connecting_tails.append(adjacent_tails[0])
     return connecting_tails
 
@@ -279,7 +275,6 @@ def find_parallel_edges_in_cycle_cover(
             ],
         }
     assert len(cycle_cover) == len(end_tuple_order)
-    print(f"lengths: {len(cycle_cover)}, {end_tuple_order}")
     parallel_edges = {}
     for i, cycle in enumerate(cycle_cover[:-1]):
         parallel_edges[end_tuple_order[i]] = filter_adjacent_edges_by_tail(
@@ -353,6 +348,7 @@ def find_cross_edges(
             f"Cross edges should be found in at least two cycles; found {len(parallel_edges)}."
         )
     cross_edges = {}
+    print(f"Looking for cross edges in signature {get_perm_signature(get_first_element(cycle_cover))}")
     for tail1, parallel_edges1 in parallel_edges.items():
         tail2 = swapPair(tail1, 0)
         if (tail1, tail2) in cross_edges or (tail2, tail1) in cross_edges:
@@ -565,11 +561,7 @@ def split_sub_cycle_for_next_cross_edge(
         raise ValueError(
             f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
         )
-    print(
-        f"index of cross edge: {cycle_to_cut.index(cross_edge[0])}, {cycle_to_cut.index(cross_edge[1])}"
-    )
     if cycle_to_cut.index(cross_edge[0]) < cycle_to_cut.index(cross_edge[1]):
-        print(f"cutting at {cross_edge[0]}")
         return splitPathIn2(cycle_to_cut, cross_edge[0])
     else:
         return splitPathIn2(cycle_to_cut, cross_edge[1])
@@ -595,9 +587,6 @@ def connect_single_cycle_cover(
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
     cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
-    print(f"end_tuple_order {end_tuple_order}")
-    # print(f"cross_edges {single_cycle_cover[1]}")
-    print(f"cross_edges {cross_edges}")
     start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
         single_cycle_cover[0][0], end_tuple_order[0], cross_edges
     )

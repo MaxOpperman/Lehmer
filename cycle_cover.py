@@ -136,12 +136,9 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
                 ]
             else:
                 cycle_cover = generate_cycle_cover(sub_sig)
-                if sub_sig == (1, 1, 2, 2):
-                    print(f"cycle cover {cycle_cover}")
             if idx != idx2:
                 # this gives a set of cycles that we just need to add in order
                 sub_cycles = []
-                print(f"cycle cover {cycle_cover}")
                 if len(cycle_cover) == 1:
                     sub_cycles.append(
                         extend(cycle_cover[0], (idx2, idx))[::-1]
@@ -567,7 +564,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
             print(f"\033[1m\033[91msubsig {sub_sig} \033[0m\033[0m")
             current_subcycle = []
-            # print(f"c {sub_sig}-{get_perm_signature(get_first_element(c))} {c}")
             if sum(n % 2 for n in sub_sig) == 1:
                 print(
                     f"\033[1m\033[94mfound one odd for subsig {sub_sig} \033[0m\033[0m"
@@ -584,12 +580,8 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     sub_sub_sig_extra = (
                         sub_sig[:idx] + (sub_sig[idx] - 1,) + sub_sig[idx + 1 :]
                     )
-                    print(f"subsubsig {sub_sub_sig_extra}")
                     subsubsig_sorted, _ = get_transformer(
                         sub_sub_sig_extra, lambda x: [x[0] % 2, x[0]]
-                    )
-                    print(
-                        f"subsubsig {sub_sub_sig_extra} {subsubsig_sorted} with two subtracted from {idx}"
                     )
                     assert not (
                         len(list(subsubsig_sorted)) == 3
@@ -597,7 +589,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                         and subsubsig_sorted[1] == 1
                         and subsubsig_sorted[2] % 2 == 0
                     )
-                    print(f"{get_connected_cycle_cover(sub_sub_sig_extra)}")
                     current_subcycle.append(
                         [
                             extend(
@@ -615,7 +606,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     sorted_two_odd, _ = get_transformer(
                         two_odd_subsubsig, lambda x: [x[0] % 2, x[0]]
                     )
-                    print(f"two odd subsubsig {two_odd_subsubsig} {sorted_two_odd}")
                     # if it is even-1-1, we need to remember the path for later
                     if (
                         len(list(sorted_two_odd)) == 3
@@ -623,11 +613,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                         and sorted_two_odd[1] == 1
                         and sorted_two_odd[2] % 2 == 0
                     ):
-                        print(
-                            f"\033[1m\033[94m EVEN ONE ONE {sorted_two_odd} \033[0m\033[0m"
-                        )
                         if len(even_one_one_cycle) == 0:
-                            print(f"even one one cycle {two_odd_subsubsig}")
                             even_one_one_cycle.extend(
                                 extend(
                                     get_connected_cycle_cover(two_odd_subsubsig),
@@ -642,14 +628,10 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                                     (i, idx),
                                 )
                             )
-                            print(f"even one one cycle {[even_one_one_cycle]}")
                             current_subcycle.append([even_one_one_cycle])
                             tails.append((i, idx))
                             even_one_one_done = True
                     else:
-                        print(
-                            f"two odd {two_odd_subsubsig} {get_connected_cycle_cover(two_odd_subsubsig)} {i} {idx}"
-                        )
                         current_subcycle.append(
                             [
                                 extend(
@@ -667,9 +649,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     )
                     tails.append((odd_idx, idx))
                     odds_stutter_permutations = stutterPermutations(even_subsig)
-                    print(
-                        f"Odd stutters {even_subsig} {odds_stutter_permutations} between zigzag {odds_non_stutter_cycle[0]} - {odds_non_stutter_cycle[-1]}"
-                    )
                     cycle_with_stutters = incorporateSpursInZigZag(
                         odds_non_stutter_cycle,
                         odds_stutter_permutations,
@@ -679,12 +658,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                 prepended_tails = []
                 for i, tail in enumerate(tails):
                     prepended_tails.append((tails[(i + 1) % len(tails)][0],) + tail)
-                print(f"sig {sub_sig}-{sig} prepended tails {prepended_tails}")
-                print(
-                    f"prepended tails {prepended_tails} and current subcycle {current_subcycle}"
-                )
                 if len(current_subcycle) > 1:
-                    print(f"current subcycle sig {sub_sig} tails {prepended_tails}")
                     connected_current = connect_single_cycle_cover(
                         current_subcycle, prepended_tails
                     )
@@ -697,12 +671,10 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                 c = get_connected_cycle_cover(sub_sig)
                 total_length += len(c)
                 all_sub_cycles.append([extend(c, (idx,))])
-                print(f"length {sub_sig} from {sig}: {len(c)}/{multinomial(sub_sig)}")
         odd_idx1, odd_idx2 = [i for i, v in enumerate(sig) if v % 2 == 1]
         first_even_idx = next(i for i, v in enumerate(sig) if v % 2 == 0)
         # the connecting tails are 201, 021 for signature (3, 3, 2)
         # since we cannot guarantee that there are more odd colors, we use an even color to swap to the tail
-        print(f"last odd cycle {last_odd_cycle}")
         connected_odds = connect_single_cycle_cover(
             last_odd_cycle,
             [
@@ -710,7 +682,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                 (odd_idx1, first_even_idx, odd_idx2),
             ],
         )
-        print(f"connected odds {connected_odds}")
         all_sub_cycles.append([connected_odds])
         total_length += len(connected_odds)
         return all_sub_cycles
@@ -734,29 +705,21 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         if not adjacent(cc_p1[1], p1_start[1]):
             cc_p1 = cc_p1[:1] + cc_p1[1:][::-1]
         cc_p1 = cc_p1[:1] + p1_start + cc_p1[1:]
-        print(f"pasted p1 {cc_p1[:4]}")
         # place the p2 start in the cycle
         cc_p2 = cutCycle(cc_p1, swapPair(p2_start[0], -2))
-        print(
-            f"checking adjacency {cc_p2[1], swapPair(p2_start[1], -2)} => {adjacent(cc_p2[1], swapPair(p2_start[1], -2))}"
-        )
         if not adjacent(cc_p2[1], p2_start[1]):
             cc_p2 = cc_p2[:1] + cc_p2[1:][::-1]
         cc_p2 = cc_p2[:1] + p2_start + cc_p2[1:]
-        print(f"pasted p2 {cc_p2[:4]} - {cc_p2[-2:]}")
         # place the p3 start in the cycle
         cc_p3 = cutCycle(cc_p2, swapPair(p3_start[0], -2))
         if not adjacent(cc_p3[1], p3_start[1]):
             cc_p3 = cc_p3[:1] + cc_p3[1:][::-1]
         cc_p3 = cc_p3[:1] + p3_start + cc_p3[1:]
         # add the p1, p2, p3 to the cycle cover
-        print(f"cycle cover {cc_p3}\n p1 {p1}")
         single_cover = [[cc_p3], [p1], [p2], [p3]]
-        print(f"single cover {single_cover}")
         single_cycle = connect_single_cycle_cover(
             single_cover, generate_end_tuple_order(sig)
         )
-        print(f"single cycle {single_cycle}")
         return [single_cycle]
     # three-or-more-odd case
     elif sum(n % 2 for n in sig) >= 3:
@@ -769,7 +732,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                 raise ValueError(f"Expected a cycle, got {c}")
             all_sub_cycles.append([extend(c, (idx,))])
         # connect the cycles
-        print(f"all sub cycles {all_sub_cycles}")
         single_cycle = connect_single_cycle_cover(
             all_sub_cycles, generate_end_tuple_order(sig)
         )
@@ -890,14 +852,8 @@ def get_connected_cycle_cover(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
             return cover
         # If there is less than two odd occurring colors, we can connect the cycles using the recursive connection method
         # Loop over the cycles in the cover and connect the cycle at index `i` ends with an element of color `i`
-        tail_length = get_tail_length(sig)
         # while the depth of the list is more than 2, we need to connect the previous cycles
         single_cycle_cover = connect_cycles_recursive(cover, sig)
-        for index, cycle in enumerate(single_cycle_cover):
-            print(
-                f"cycle {index} tail: {cycle[0][0][-tail_length:]} - {generate_end_tuple_order(sig)[index]}"
-            )
-        print(f"scc length {recursive_cycle_check(single_cycle_cover)}")
         connected_cover = connect_single_cycle_cover(
             single_cycle_cover, generate_end_tuple_order(sig)
         )
@@ -935,18 +891,6 @@ if __name__ == "__main__":
                 f"(incl {stut_count} stutters {stut_count+total_perms}) is a list of cycles."
             )
             non_stutters = nonStutterPermutations(s)
-            # if total_perms != len(non_stutters):
-            #     missing = []
-            #     doubles = []
-            #     for perms_list in perms[0]:
-            #         for perm in perms_list:
-            #             if perm in non_stutters:
-            #                 non_stutters.remove(perm)
-            #             elif perm not in non_stutters:
-            #                 doubles.append(perm)
-            #     print(f"Missing permutations: {list(set([p for p in non_stutters]))}")
-            #     print(f"Doubles: {list(set([p for p in doubles]))}")
-            #     print(f"Missing signatures: {list(set([get_perm_signature(p[:-1]) for p in non_stutters]))}")
         except AssertionError as e:
             print(f"List of cycles is not a valid cycle cover: {e}")
             print(

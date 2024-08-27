@@ -392,7 +392,6 @@ class Test_CycleCoverTailsOrdering:
         end_tuple_order = generate_end_tuple_order(sig)
         cycle_cover_tails = [get_first_element(cycle)[-1:] for cycle in cycle_cover]
         for i, tail in enumerate(cycle_cover_tails):
-            print(f"tail: {tail}, end_tuple_order[i][-1:]: {end_tuple_order[i][-1:]}")
             assert set(tail) == set(end_tuple_order[i][-1:])
         assert len(cycle_cover_tails) == len(end_tuple_order)
 
@@ -595,12 +594,10 @@ class Test_ConnectCycleCoverEvenOrOdd21:
     def test_connect_cycle_cover_2_2_1(self):
         sig_2_2_1 = (2, 2, 1)
         result_2_2_1 = get_connected_cycle_cover(sig_2_2_1)
-        print(result_2_2_1)
         assert len(result_2_2_1) == multinomial(sig_2_2_1) - len(
             stutterPermutations(sig_2_2_1)
         )
         assert len(result_2_2_1) == len(set(result_2_2_1))
-        print(f"resulted in {result_2_2_1}")
         assert cycleQ(result_2_2_1)
 
     def test_connect_cycle_cover_4_1_2(self):
@@ -610,7 +607,6 @@ class Test_ConnectCycleCoverEvenOrOdd21:
             stutterPermutations(sig_4_1_2)
         )
         assert len(result_4_1_2) == len(set(result_4_1_2))
-        print(f"result_4_1_2: {result_4_1_2}")
         assert cycleQ(result_4_1_2)
 
     def test_connect_cycle_cover_1_6_2(self):
