@@ -337,7 +337,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
 
         if sig[odd_idx] - 2 == 1:
             # for even-1-1 signature, we need to change the path to a cycle
-            odd_even_1_tip, odd_even_y = odd_even_y[0][-2:], [odd_even_y[0][:-2]]
+            odd_even_1_tip, odd_even_y = odd_even_y[0][:2], [odd_even_y[0][2:]]
             # cut the cycle to a vertex adjacent to the tip
             even_odd_cut = cutCycle(even_odd_x[0], swapPair(odd_even_1_tip[0], -3))
             if even_odd_cut[1] != swapPair(odd_even_1_tip[1], -3):
@@ -347,11 +347,11 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             even_odd_x = [even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]]
 
         # assume odd is 1 and even is 0
-        # 1 2 0^{k0-1} 1^{k1-2} 0 1 and 1 0 2 0^{k0-2} 1^{k1-2} 0 1
-        # 1 2 0^{k0-1} 1^{k1-3} 0 11 and 1 0 2 0^{k0-2} 1^{k1-3} 0 11
+        # 2 0 1 0^{k0-2} 1^{k1-2} 0 1 and 2 0^2 1 0^{k0-3} 1^{k1-2} 0 1
+        # 2 0 1 0^{k0-2} 1^{k1-3} 0 11 and 2 0^2 1 0^{k0-3} 1^{k1-3} 0 11
         cutnode_even_odd = (
-            (odd_idx, 2)
-            + (even_idx,) * (sig[even_idx] - 1)
+            (2, even_idx, odd_idx)
+            + (even_idx,) * (sig[even_idx] - 2)
             + (odd_idx,) * (sig[odd_idx] - 2)
             + (even_idx, odd_idx)
         )
@@ -359,15 +359,21 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         even_odds_combined = glue(
             even_odd_x[0],
             odd_even_y[0],
-            (cutnode_even_odd, swapPair(cutnode_even_odd, 1)),
-            (cutnode_odd_even, swapPair(cutnode_odd_even, 1)),
+            (cutnode_even_odd, swapPair(cutnode_even_odd, 2)),
+            (cutnode_odd_even, swapPair(cutnode_odd_even, 2)),
         )
 
         # combine the odd_odd_p2 path and the odd_odd_1 cycle
         odd_odd_cycle = waveTopRowOddOddOne(odd_odd_1, odd_odd_p2)
 
-        # 2 0 1^{k1-1} 0^{k0-2} 1 0 and 2 0 1^{k1-1} 0^{k0-1} 1
-        cutnode_even_odds = swapPair(cutnode_even_odd, 0)
+        # 1 2 0^{k0-1} 1 0 1 and 1 0 2 0^{k0-2} 1 0 1
+        # 1 2 0^{k0-1} 1 1 0 and 1 0 2 0^{k0-2} 1 1 0
+        cutnode_even_odds = (
+            (odd_idx, 2)
+            + (even_idx,) * (sig[even_idx] - 1)
+            + (odd_idx,) * (sig[odd_idx] - 2)
+            + (even_idx, odd_idx)
+        )
         cutnode_odd_odd = swapPair(cutnode_even_odds, -2)
         odd_odd_combined = glue(
             even_odds_combined,
@@ -448,7 +454,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
 
         return [result]
-    # 2-2-1-1 case
+    # 2-2-1-1 case (2, 2, 1, 1)
     elif len(list(sig)) == 4 and k == 2 and sig[1] == 2 and sig[2] == 1 and sig[3] == 1:
         # See master thesis for explanation
         three_odds_c0 = extend(get_connected_cycle_cover((1, 2, 1, 1)), (0,))
@@ -550,7 +556,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             [c2_c3],
         ]
         return all_sub_cycles
-    # two-odds, rest even case
+    # two-odds, rest even case (odd-odd-rest-even)
     elif sum(n % 2 for n in sig) == 2:
         # This is the case where there were stutters in the previous signatures but now there are none
         all_sub_cycles = []
@@ -686,7 +692,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         total_length += len(connected_odds)
         return all_sub_cycles
     # if there are three 1's and only one even number; even-1-1-1 case
-    elif sig[0] % 2 == 0 and all(n == 1 for n in sig[1:]) and len(sig) == 4:
+    elif len(sig) == 4 and sig[0] % 2 == 0 and all(n == 1 for n in sig[1:]):
         # in the odd-1-1-1 we must watch out we don't pick the cross edge xy 0^{k0-1} z 0 ~ yx 0^{k0-1} z 0
         # we use that edge to transform the paths to cycles in this case
         cycle_cover = extend(get_connected_cycle_cover((sig[0] - 1, 1, 1, 1)), (0,))
