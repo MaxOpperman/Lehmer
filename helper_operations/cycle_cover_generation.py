@@ -29,11 +29,11 @@ def Hpath_even_1_1(k: int) -> list[tuple[int, ...]]:
     Generates a path based on the number of 0's `k` from `1 2 0^k` to `0 2 1 0^(k-1)`
 
     Args:
-        k (int): The input value for the number of 0's. Must be odd!
+        k (int): The input value for the number of 0's. Must be even!
 
     Returns:
         list[tuple[int, ...]]:
-            The generated path from `c` to `d`\n
+            The generated path from `c` to `d`:
             - `c = 1 2 0^k`
             - `d = 0 2 1 0^(k-1)`
 

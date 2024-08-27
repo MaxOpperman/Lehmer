@@ -1,4 +1,9 @@
+import bisect
+import csv
+import os
+from ast import literal_eval
 from fractions import Fraction
+from functools import cache
 
 from tqdm import tqdm
 
@@ -39,6 +44,7 @@ def get_tail_length(sig: tuple[int]) -> int:
         )
 
 
+@cache
 def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
     """
     Generates the order of the end tuples of the cycles in the cycle cover.
@@ -94,7 +100,6 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         for j in reversed(range(len(sorted_sig) - 3)):
             end_tuple_order.append((j, j + 1, len(sorted_sig) - 1))
         end_tuple_order.append((0, len(sorted_sig) - 1, 0))
-        print(f"end tuple order: {end_tuple_order}")
         transformed_end_tuple_order = transform(end_tuple_order, transformer)
         return transformed_end_tuple_order
     elif sum(n % 2 for n in sig) == 2:
@@ -106,12 +111,77 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
             end_tuple_order.append(
                 (ordered_tails[(i + 1) % len(ordered_tails)] + ordered_tails[i])
             )
-        print(f"TWO ODDS end tuple order: {end_tuple_order}")
+        print(f"TWO ODDS end tuple order: {end_tuple_order}; {sig}")
         return end_tuple_order
     else:
         raise ValueError(
             f"Signature should contain at most one odd number. Got {sig} with {sum(n % 2 for n in sig)} odd numbers."
         )
+
+
+def find_end_tuple_order(
+    cycle_cover: list[list[tuple[int]]], force_three: bool = False
+) -> list[tuple[int, ...]]:
+    """
+    Find the connecting end tuples in the order of the cycle cover.
+    The end tuples are the tails of the cycles that are the nodes that connect them.
+    The length of the end tuples is at most 3 but they can vary between end tuples.
+
+    Args:
+        cycle_cover (list[list[tuple[int]]]): The cycle cover to find the end tuples for.
+        force_three (bool): If the end tuples should be of length 3.
+
+    Returns:
+        list[tuple[int, ...]]: The order of the end tuples of the cycles in the cycle cover.
+
+    Raises:
+        ValueError: If the cycle cover does not have connecting tails of length at most 3.
+        ValueError: If the cycle cover depth is more than 1.
+    """
+    try:
+        if not isinstance(cycle_cover[0][0][0], tuple):
+            raise ValueError(
+                f"Cycle cover should be a list of lists of tuples, got: {cycle_cover}"
+            )
+    except IndexError:
+        raise ValueError(
+            f"Cycle cover should contain at least one cycle, got: {cycle_cover}"
+        )
+    connecting_tails = []
+    for i, cycle1 in enumerate(cycle_cover):
+        cycle2 = cycle_cover[(i + 1) % len(cycle_cover)]
+        tails1_3 = list(set([tuple(t[-3:]) for t in cycle1[0]]))
+        tails2_3 = list(set([tuple(t[-3:]) for t in cycle2[0]]))
+        # get the last 2 elements instead of 3 in a seperate variable
+        tails1_2 = list(set([tuple(t[-2:]) for t in tails1_3]))
+        tails2_2 = list(set([tuple(t[-2:]) for t in tails2_3]))
+        # find the adjacent tails
+        adjacent_tails = []
+        if not force_three:
+            for tail1 in tails1_2:
+                for tail2 in tails2_2:
+                    if adjacent(tail1, tail2):
+                        adjacent_tails.append(tail1)
+        if len(adjacent_tails) == 0:
+            # try for length 3
+            for tail1 in tails1_3:
+                for tail2 in tails2_3:
+                    if adjacent(tail1, tail2):
+                        adjacent_tails.append(tail1)
+        if len(adjacent_tails) == 0:
+            print(f"tails1_3: {tails1_3}; tails2_3: {tails2_3}")
+            print(f"signature of cycle1: {get_perm_signature(cycle1[0][0])}")
+            raise ValueError(
+                f"Could not find adjacent tails for cycle {i} and {i + 1} in cycle cover."
+            )
+        if len(adjacent_tails) > 1:
+            # sort the tuples
+            adjacent_tails = sorted(adjacent_tails)
+            print(
+                f"Found more than one adjacent tail for cycle {cycle1} and {cycle2} in cycle cover: {adjacent_tails}."
+            )
+        connecting_tails.append(adjacent_tails[0])
+    return connecting_tails
 
 
 def cut_sub_cycle_to_past(
@@ -208,6 +278,8 @@ def find_parallel_edges_in_cycle_cover(
                 filter_adjacent_edges_by_tail(cycle_cover[0], start_tails[0])
             ],
         }
+    assert len(cycle_cover) == len(end_tuple_order)
+    print(f"lengths: {len(cycle_cover)}, {end_tuple_order}")
     parallel_edges = {}
     for i, cycle in enumerate(cycle_cover[:-1]):
         parallel_edges[end_tuple_order[i]] = filter_adjacent_edges_by_tail(
@@ -223,10 +295,13 @@ def find_parallel_edges_in_cycle_cover(
             print(
                 f"parallel_edges[{end_tuple_order[i]}]: {parallel_edges[end_tuple_order[i]]}"
             )
+            raise ValueError(f"Found no parallel edges for {end_tuple_order[i]}")
         if len(parallel_edges[start_tails[i]]) == 0:
+            print(f"cover: {cycle_cover}")
             print(f"start_tails[{i}]: {start_tails[i]}")
             print(f"cycle_cover[{i + 1}]: {cycle_cover[i + 1]}")
             print(f"parallel_edges[{start_tails[i]}]: {parallel_edges[start_tails[i]]}")
+            raise ValueError(f"Found no parallel edges for {start_tails[i]}")
     parallel_edges[end_tuple_order[-1]] = filter_adjacent_edges_by_tail(
         cycle_cover[-1][0],
         end_tuple_order[-1],
@@ -274,7 +349,9 @@ def find_cross_edges(
         raise ValueError("Cycle cover should contain at least one cycle.")
     parallel_edges = find_parallel_edges_in_cycle_cover(cycle_cover, end_tuple_order)
     if len(parallel_edges) < 2:
-        return []
+        raise ValueError(
+            f"Cross edges should be found in at least two cycles; found {len(parallel_edges)}."
+        )
     cross_edges = {}
     for tail1, parallel_edges1 in parallel_edges.items():
         tail2 = swapPair(tail1, 0)
@@ -301,15 +378,154 @@ def find_cross_edges(
             if cross is not None:
                 continue
         if (tail1, tail2) in cross_edges:
-            cross_edge_sig = get_perm_signature(
-                cross_edges[(tail1, tail2)][0][0][0][: -len(tail1) + 1]
-            )
-            total_edges = multinomial(cross_edge_sig)
-            print(
-                f"Cross edge {(tail1, tail2)} has a ratio of {len(cross_edges[(tail1, tail2)])}/{total_edges} = "
-                f"{Fraction(len(cross_edges[(tail1, tail2)]), total_edges).numerator}/{Fraction(len(cross_edges[(tail1, tail2)]), total_edges).denominator}"
-            )
+            write_cross_edge_ratio_to_file(cross_edges, tail1, tail2)
     return cross_edges
+
+
+def write_cross_edge_ratio_to_file(
+    cross_edges: dict[
+        tuple[int, ...],
+        list[
+            tuple[
+                tuple[tuple[int, ...], tuple[int, ...]],
+                tuple[tuple[int, ...], tuple[int, ...]],
+            ],
+        ],
+    ],
+    tail1: tuple[int, ...],
+    tail2: tuple[int, ...],
+) -> None:
+    """
+    Writes the cross edge ratio to a csv file; `./crossedges.csv`. If the file doesn't exist, it creates it.
+
+    Args:
+        cross_edges (dict[tuple[int, ...], list[tuple[tuple[int, ...], tuple[int, ...]]]]): The cross edges to write to the file.
+        tail1 (tuple[int, ...]): The first tail of the cross edge.
+        tail2 (tuple[int, ...]): The second tail of the cross edge.
+
+    Returns:
+        None
+
+    Raises:
+        ValueError: If the cross edge is not found in the cross edges dictionary.
+    """
+    subsig_from = get_perm_signature(
+        cross_edges[(tail1, tail2)][0][0][0][: -len(tail1) + 1]
+    )
+    total_edges_from = multinomial(subsig_from)
+    cross_edges_count = len(cross_edges[(tail1, tail2)])
+    fraction_ratio = f"{Fraction(len(cross_edges[(tail1, tail2)]), total_edges_from).numerator}/{Fraction(len(cross_edges[(tail1, tail2)]), total_edges_from).denominator}"
+    print(
+        f"Cross edge {(tail1, tail2)} has a ratio of {cross_edges_count}/{total_edges_from} = {fraction_ratio}"
+    )
+
+    assert len(cross_edges[(tail1, tail2)]) > 0
+    result_name = "./result.csv"
+    original_name = "./crossedges.csv"
+    # creat the file if it doesn't exist
+    if not os.path.exists(original_name):
+        with open(original_name, "w", newline=""):
+            pass
+    keep_old = False
+    with open(original_name, "r", newline="") as source, open(
+        result_name, "w", newline=""
+    ) as result:
+        reader = csv.reader(source, delimiter=";", quotechar='"', quoting=csv.QUOTE_ALL)
+        writer = csv.writer(
+            result, delimiter=";", quotechar='"', quoting=csv.QUOTE_NONE
+        )
+
+        # if the file is empty, make the header
+        if sum(1 for _ in reader) == 0:
+            header = [
+                "signature_length",
+                "signature",
+                "subsig_to",
+                "subsig_from",
+                "tail_to",
+                "tail_from",
+                "cross_edges_count",
+                "multinomial_to",
+                "multinomial_from",
+                "ratio",
+                "cross_edge",
+            ]
+            read_list = []
+            # get the header
+        else:
+            source.seek(0)
+            header = next(reader, None)
+            read_list = [
+                [
+                    int(line[0]),
+                    literal_eval(line[1]),
+                    literal_eval(line[2]),
+                    literal_eval(line[3]),
+                    literal_eval(line[4]),
+                    literal_eval(line[5]),
+                    int(line[6]),
+                    int(line[7]),
+                    int(line[8]),
+                    line[9],
+                    literal_eval(line[10]),
+                ]
+                for line in reader
+            ]
+        writer.writerow(header)
+
+        sig = get_perm_signature(cross_edges[(tail1, tail2)][0][0][0])
+        subsig_to = get_perm_signature(
+            cross_edges[(tail1, tail2)][0][1][0][: -len(tail1) + 1]
+        )
+        tail_to = cross_edges[(tail1, tail2)][0][1][0][-len(tail1) + 1 :]
+        total_edges_to = multinomial(subsig_to)
+        tail_from = cross_edges[(tail1, tail2)][0][0][0][-len(tail1) + 1 :]
+        chosen_edge = min(cross_edges.get((tail1, tail2)))[0]
+        new_line = [
+            len(sig),
+            sig,
+            subsig_to,
+            subsig_from,
+            tail_to,
+            tail_from,
+            cross_edges_count,
+            total_edges_to,
+            total_edges_from,
+            fraction_ratio,
+            chosen_edge,
+        ]
+        index = bisect.bisect_left(
+            read_list, new_line, key=lambda x: [x[0], x[1], x[2], x[3]]
+        )
+        # check if the new line is already in the file
+        if index == reader.line_num == 0:
+            writer.writerow(new_line)
+        else:
+            old_line = read_list[index - 1]
+            if (
+                old_line[0] == len(sig)
+                and old_line[1] == sig
+                and old_line[2] == subsig_to
+                and old_line[3] == subsig_from
+                and not old_line[6] == cross_edges_count
+            ):
+                raise ValueError(
+                    f"Cross edge {(tail1, tail2)} already in cross edges file; old line: {old_line}; new line: {new_line}"
+                )
+            elif (
+                old_line[0] == len(sig)
+                and old_line[1] == sig
+                and old_line[2] == subsig_to
+                and old_line[3] == subsig_from
+                and old_line[6] == cross_edges_count
+            ):
+                keep_old = True
+            else:
+                read_list.insert(index, new_line)
+                writer.writerows(read_list)
+    if not keep_old:
+        os.remove(original_name)
+        os.rename(result_name, original_name)
 
 
 def split_sub_cycle_for_next_cross_edge(
@@ -341,9 +557,10 @@ def split_sub_cycle_for_next_cross_edge(
     next_tail = swapPair(tail, 0)
     if cross_edges.get((tail, next_tail)) is None:
         raise ValueError(
-            f"Cross edge {(tail, next_tail)} not found in cross edges from signature {get_perm_signature(cycle_to_cut[0])}."
+            f"Cross edge {(tail, next_tail)} not found in cross edges from signature {get_perm_signature(cycle_to_cut[0])}. Cross edges keys: {cross_edges.keys()}."
         )
-    cross_edge = cross_edges.get((tail, next_tail))[0][0]
+    # take the lexicographically smallest cross edge
+    cross_edge = min(cross_edges.get((tail, next_tail)))[0]
     if cross_edge is None:
         raise ValueError(
             f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
@@ -352,6 +569,7 @@ def split_sub_cycle_for_next_cross_edge(
         f"index of cross edge: {cycle_to_cut.index(cross_edge[0])}, {cycle_to_cut.index(cross_edge[1])}"
     )
     if cycle_to_cut.index(cross_edge[0]) < cycle_to_cut.index(cross_edge[1]):
+        print(f"cutting at {cross_edge[0]}")
         return splitPathIn2(cycle_to_cut, cross_edge[0])
     else:
         return splitPathIn2(cycle_to_cut, cross_edge[1])
@@ -375,10 +593,11 @@ def connect_single_cycle_cover(
             The last element of the last tuple is the first element of the first tuple.
     """
     # The cycles are split on the last elements
-    tail_length = len(end_tuple_order[0]) - 1
+    tail_length = len(end_tuple_order[0])
     cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     print(f"end_tuple_order {end_tuple_order}")
-    print(f"cross_edges {single_cycle_cover[1]}")
+    # print(f"cross_edges {single_cycle_cover[1]}")
+    print(f"cross_edges {cross_edges}")
     start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
         single_cycle_cover[0][0], end_tuple_order[0], cross_edges
     )
@@ -386,8 +605,8 @@ def connect_single_cycle_cover(
     for i, cycle_list in enumerate(single_cycle_cover[1:], start=1):
         cut_cycle = cut_sub_cycle_to_past(
             cycle_list[0],
-            swapPair(start_cycles[-1], -(tail_length + 1)),
-            swapPair(end_cycles[0], -(tail_length + 1)),
+            swapPair(start_cycles[-1], -tail_length),
+            swapPair(end_cycles[0], -tail_length),
         )
         if i < len(single_cycle_cover) - 1:
             new_tail = end_tuple_order[i]

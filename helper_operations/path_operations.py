@@ -421,7 +421,14 @@ def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
         AssertionError: If the input list does not have a length greater than 0.
         ValueError: If the input is not a list.
     """
-    assert len(perms3d) > 0
+    try:
+        assert isinstance(perms3d, list) and len(perms3d) > 0
+        assert isinstance(perms3d[0], list) and len(perms3d[0]) > 0
+        assert (
+            isinstance(perms3d[0][0], list) or isinstance(perms3d[0][0], tuple)
+        ) and len(perms3d[0][0]) > 0
+    except AssertionError:
+        raise AssertionError(f"The input could not be parsed: {perms3d}")
     if isinstance(perms3d[0][0][0], int):
         return [transform(l, tr) for l in perms3d]
     elif not isinstance(perms3d, list):
