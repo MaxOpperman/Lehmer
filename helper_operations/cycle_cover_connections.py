@@ -348,7 +348,9 @@ def find_cross_edges(
             f"Cross edges should be found in at least two cycles; found {len(parallel_edges)}."
         )
     cross_edges = {}
-    print(f"Looking for cross edges in signature {get_perm_signature(get_first_element(cycle_cover))}")
+    print(
+        f"Looking for cross edges in signature {get_perm_signature(get_first_element(cycle_cover))}"
+    )
     for tail1, parallel_edges1 in parallel_edges.items():
         tail2 = swapPair(tail1, 0)
         if (tail1, tail2) in cross_edges or (tail2, tail1) in cross_edges:
