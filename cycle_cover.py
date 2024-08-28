@@ -366,8 +366,8 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         # combine the odd_odd_p2 path and the odd_odd_1 cycle
         odd_odd_cycle = waveTopRowOddOddOne(odd_odd_1, odd_odd_p2)
 
-        # 1 2 0^{k0-1} 1 0 1 and 1 0 2 0^{k0-2} 1 0 1
-        # 1 2 0^{k0-1} 1 1 0 and 1 0 2 0^{k0-2} 1 1 0
+        # 1 2 0^{k0-1} 1^{k1-2} 0 1 and 1 0 2 0^{k0-2} 1^{k1-2} 0 1
+        # 1 2 0^{k0-1} 1^{k1-1} 0 and 1 0 2 0^{k0-2} 1^{k1-1} 0
         cutnode_even_odds = (
             (odd_idx, 2)
             + (even_idx,) * (sig[even_idx] - 1)
@@ -382,12 +382,13 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             (cutnode_odd_odd, swapPair(cutnode_odd_odd, 1)),
         )
 
-        # 0^{k0-1} 1^{k1} 2 0 and 0 ^{k0-2} 1 0 1^{k1-1} 2 0
+        # 1^{k1-1} 0^{k0} 2 1 and 1^{k1-2} 01 0^{k0-1} 2 1
         cut_node1 = (
             (odd_idx,) * (sig[odd_idx] - 1)
             + (even_idx,) * (sig[even_idx])
             + (2, odd_idx)
         )
+        # 1^{k1-1} 0^{k0-1} 2 0 1 and 1^{k1-2} 01 0^{k0-2} 2 0 1
         cut_node2 = swapPair(cut_node1, -3)
         last_combined = glue(
             incorporated_even_even,
@@ -568,12 +569,8 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             even_one_one_cycle = []
             even_one_one_done = False
             sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
-            print(f"\033[1m\033[91msubsig {sub_sig} \033[0m\033[0m")
             current_subcycle = []
             if sum(n % 2 for n in sub_sig) == 1:
-                print(
-                    f"\033[1m\033[94mfound one odd for subsig {sub_sig} \033[0m\033[0m"
-                )
                 tails = []
                 # get the index of the odd element
                 odd_idx = next(i for i, v in enumerate(sub_sig) if v % 2 == 1)
@@ -706,6 +703,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         p1_start, p1 = p1[:2], p1[2:]
         p2_start, p2 = p2[:2], p2[2:]
         p3_start, p3 = p3[:2], p3[2:]
+        print(f"starts {p1_start} {p2_start} {p3_start}")
         # place the p1 start in the cycle
         cc_p1 = cutCycle(cycle_cover, swapPair(p1_start[0], -2))
         if not adjacent(cc_p1[1], p1_start[1]):
@@ -752,11 +750,20 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                 sub_sig, lambda x: [x[0] % 2, x[0]]
             )
             if (
-                sorted_sub_sig[0] % 2 == 1
+                len(sub_sig) == 3
+                and sorted_sub_sig[0] % 2 == 1
                 and sorted_sub_sig[1] == 1
                 and sorted_sub_sig[2] == 2
             ):
-                c = [transform(lemma11(sorted_sub_sig), transformer2)]
+                if sorted_sub_sig[0] == 1:
+                    transformer = [transformer2[2], transformer2[0], transformer2[1]]
+                else:
+                    transformer = [transformer2[0], transformer2[2], transformer2[1]]
+                c = [
+                    transform(
+                        incorporated_odd_2_1_cycle(sorted_sub_sig[0]), transformer
+                    )
+                ]
             else:
                 c = generate_cycle_cover(sub_sig)
             all_sub_cycles.append(extend_cycle_cover(c, (idx,)))

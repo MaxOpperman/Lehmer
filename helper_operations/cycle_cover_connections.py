@@ -18,6 +18,7 @@ from helper_operations.path_operations import (
 from helper_operations.permutation_graphs import (
     get_perm_signature,
     multinomial,
+    stutterPermutations,
     swapPair,
 )
 
@@ -392,6 +393,7 @@ def write_cross_edge_ratio_to_file(
     ],
     tail1: tuple[int, ...],
     tail2: tuple[int, ...],
+    prompt_keep_old_csv: bool = False,
 ) -> None:
     """
     Writes the cross edge ratio to a csv file; `./crossedges.csv`. If the file doesn't exist, it creates it.
@@ -410,7 +412,7 @@ def write_cross_edge_ratio_to_file(
     subsig_from = get_perm_signature(
         cross_edges[(tail1, tail2)][0][0][0][: -len(tail1) + 1]
     )
-    total_edges_from = multinomial(subsig_from)
+    total_edges_from = multinomial(subsig_from) - len(stutterPermutations(subsig_from))
     cross_edges_count = len(cross_edges[(tail1, tail2)])
     fraction_ratio = f"{Fraction(len(cross_edges[(tail1, tail2)]), total_edges_from).numerator}/{Fraction(len(cross_edges[(tail1, tail2)]), total_edges_from).denominator}"
     print(
@@ -476,7 +478,7 @@ def write_cross_edge_ratio_to_file(
             cross_edges[(tail1, tail2)][0][1][0][: -len(tail1) + 1]
         )
         tail_to = cross_edges[(tail1, tail2)][0][1][0][-len(tail1) + 1 :]
-        total_edges_to = multinomial(subsig_to)
+        total_edges_to = multinomial(subsig_to) - len(stutterPermutations(subsig_to))
         tail_from = cross_edges[(tail1, tail2)][0][0][0][-len(tail1) + 1 :]
         chosen_edge = min(cross_edges.get((tail1, tail2)))[0]
         new_line = [
@@ -507,9 +509,19 @@ def write_cross_edge_ratio_to_file(
                 and old_line[3] == subsig_from
                 and not old_line[6] == cross_edges_count
             ):
-                raise ValueError(
-                    f"Cross edge {(tail1, tail2)} already in cross edges file; old line: {old_line}; new line: {new_line}"
+                print(
+                    f"\033[1m\033[91mCross edge {(tail1, tail2)} already in cross edges file;\n old line: {old_line};\n new line: {new_line} \033[0m\033[0m"
                 )
+                if prompt_keep_old_csv:
+                    keep_old_value = input("Do you want to keep the old line? (y/n)")
+                    if keep_old_value.lower() == "no" or keep_old_value.lower() == "n":
+                        read_list.insert(index, new_line)
+                        writer.writerows(read_list)
+                    else:
+                        keep_old = True
+                else:
+                    read_list.insert(index, new_line)
+                    writer.writerows(read_list)
             elif (
                 old_line[0] == len(sig)
                 and old_line[1] == sig
