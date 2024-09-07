@@ -605,7 +605,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     )
                     tails.append((i,))
                 prepended_tails = []
-                for i, tail in enumerate(tails):
+                for i, tail in enumerate(tails[:-1]):
                     prepended_tails.append((tails[(i + 1) % len(tails)][0],) + tail)
                     temp_tail = tail
                     if len(temp_tail) < len(sub_sig):
@@ -648,7 +648,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         temp = [
             (odd_idx2, first_even_idx, odd_idx1),
             (first_even_idx, odd_idx1, odd_idx2),
-            (odd_idx1, first_even_idx, odd_idx2),
         ]
         print(
             f"connecting for tails: {temp} (first even {first_even_idx}, odd1 {odd_idx1}, odd2 {odd_idx2})"

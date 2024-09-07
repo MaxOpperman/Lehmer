@@ -81,7 +81,7 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         # All-but-one-even signature
         for i, t in enumerate(transformer[:-1]):
             end_tuple_order.append((transformer[i + 1], t))
-        end_tuple_order.append((transformer[0], transformer[-1]))
+        # end_tuple_order.append((transformer[0], transformer[-1]))
         return end_tuple_order
     elif all(n % 2 == 0 for n in sig):
         # All-even signature
@@ -101,14 +101,14 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
         )
         for j in reversed(range(len(sorted_sig) - 3)):
             end_tuple_order.append((j, j + 1, len(sorted_sig) - 1))
-        end_tuple_order.append((0, len(sorted_sig) - 1, 0))
+        # end_tuple_order.append((0, len(sorted_sig) - 1, 0))
         transformed_end_tuple_order = transform(end_tuple_order, transformer)
         return transformed_end_tuple_order
     elif sum(n % 2 for n in sig) == 2:
         # now place one of the odd indices at the end and subtract 1 for every index after the odd indices
         ordered_tails = [(i,) for i, s in enumerate(sig) if s % 2 == 0]
         ordered_tails.append((next(i for i, s in enumerate(sig) if s % 2 == 1),))
-        for i in range(len(ordered_tails)):
+        for i in range(len(ordered_tails) - 1):
             end_tuple_order.append(
                 (ordered_tails[(i + 1) % len(ordered_tails)] + ordered_tails[i])
             )
@@ -280,7 +280,7 @@ def find_parallel_edges_in_cycle_cover(
                 filter_adjacent_edges_by_tail(cycle_cover[0], start_tails[0])
             ],
         }
-    assert len(cycle_cover) == len(end_tuple_order)
+    assert len(cycle_cover) == len(end_tuple_order) + 1
     parallel_edges = {}
     for i, cycle in enumerate(cycle_cover[:-1]):
         parallel_edges[end_tuple_order[i]] = filter_adjacent_edges_by_tail(
@@ -303,14 +303,6 @@ def find_parallel_edges_in_cycle_cover(
             print(f"cycle_cover[{i + 1}]: {cycle_cover[i + 1]}")
             print(f"parallel_edges[{start_tails[i]}]: {parallel_edges[start_tails[i]]}")
             raise ValueError(f"Found no parallel edges for {start_tails[i]}")
-    # parallel_edges[end_tuple_order[-1]] = filter_adjacent_edges_by_tail(
-    #     cycle_cover[-1][0],
-    #     end_tuple_order[-1],
-    # )
-    # parallel_edges[start_tails[-1]] = filter_adjacent_edges_by_tail(
-    #     cycle_cover[0][0],
-    #     start_tails[-1],
-    # )
     return parallel_edges
 
 
@@ -637,7 +629,7 @@ def connect_single_cycle_cover(
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
     cross_edges = {}
-    # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     sig = get_perm_signature(get_first_element(single_cycle_cover))
     if sum(n % 2 for n in sig) == 1:
         print(f"Signature {sig} has one odd number.")
