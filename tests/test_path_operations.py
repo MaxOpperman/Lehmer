@@ -8,7 +8,6 @@ from helper_operations.path_operations import (
     cycleQ,
     get_transformer,
     incorporateSpurInZigZag,
-    incorporateSpursInZigZag,
     mul,
     pathEdges,
     pathQ,
@@ -228,6 +227,11 @@ class TestPathOperations:
         with pytest.raises(ValueError):
             spurBaseIndex(path, (0, 0, 0, 0))
 
+    def test_stutterLastSwappedIndex(self):
+        path = [(0, 1, 0, 1), (0, 1, 1, 0), (1, 0, 1, 0), (1, 0, 0, 1)]
+        with pytest.raises(ValueError):
+            spurBaseIndex(path, (0, 0, 0, 0))
+
     def test_mul_empty(self):
         assert mul([], 1) == [(1,)]
 
@@ -341,58 +345,6 @@ class TestPathOperations:
         v = (1, 0)
         with pytest.raises(AssertionError):
             createZigZagPath(c, u, v)
-
-    def test_incorporateSpursInZigZag_path(self):
-        path = [
-            (0, 1, 0, 1, 0, 1),
-            (0, 1, 0, 1, 1, 0),
-            (0, 1, 1, 0, 1, 0),
-            (0, 1, 1, 0, 0, 1),
-            (1, 0, 1, 0, 0, 1),
-            (1, 0, 1, 0, 1, 0),
-            (1, 0, 0, 1, 1, 0),
-            (1, 0, 0, 1, 0, 1),
-        ]
-        vertices = [(0, 0, 1, 1), (1, 1, 0, 0)]
-        spur_suffixes = [(0, 1), (1, 0)]
-        result = incorporateSpursInZigZag(path, vertices, spur_suffixes)
-        expected_result = [
-            (0, 1, 0, 1, 0, 1),
-            vertices[0] + spur_suffixes[0],
-            vertices[0] + spur_suffixes[1],
-            (0, 1, 0, 1, 1, 0),
-            (0, 1, 1, 0, 1, 0),
-            (0, 1, 1, 0, 0, 1),
-            (1, 0, 1, 0, 0, 1),
-            vertices[1] + spur_suffixes[0],
-            vertices[1] + spur_suffixes[1],
-            (1, 0, 1, 0, 1, 0),
-            (1, 0, 0, 1, 1, 0),
-            (1, 0, 0, 1, 0, 1),
-        ]
-        assert result == expected_result
-
-    def test_incorporateSpursInZigZag_empty(self):
-        vertices = [(0, 0, 1, 1), (1, 1, 0, 0)]
-        spur_suffixes = [(0, 1), (1, 0)]
-        with pytest.raises(ValueError):
-            incorporateSpursInZigZag([], vertices, spur_suffixes)
-
-    def test_incorporateSpursInZigZag_no_neighbor(self):
-        path = [
-            (0, 1, 0, 1, 0, 1),
-            (0, 1, 0, 1, 1, 0),
-            (0, 1, 1, 0, 1, 0),
-            (0, 1, 1, 0, 0, 1),
-            (1, 0, 1, 0, 0, 1),
-            (1, 0, 1, 0, 1, 0),
-            (1, 0, 0, 1, 1, 0),
-            (1, 0, 0, 1, 0, 1),
-        ]
-        vertices = [(1, 0, 1, 1), (0, 1, 0, 0)]
-        spur_suffixes = [(0, 1), (1, 0)]
-        with pytest.raises(ValueError):
-            incorporateSpursInZigZag(path, vertices, spur_suffixes)
 
     def test_createSquarTube_path(self):
         path = [(0, 0, 0, 1), (0, 0, 1, 0), (0, 1, 0, 0), (1, 0, 0, 0)]

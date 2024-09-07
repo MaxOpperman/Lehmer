@@ -4,6 +4,7 @@ from functools import cache
 
 from helper_operations.cycle_cover_connections import (
     connect_single_cycle_cover,
+    find_cross_edges,
     find_end_tuple_order,
     generate_end_tuple_order,
     get_tail_length,
@@ -24,7 +25,6 @@ from helper_operations.path_operations import (
     get_transformer,
     glue,
     incorporateSpurInZigZag,
-    incorporateSpursInZigZag,
     pathQ,
     recursive_cycle_check,
     shorten_cycle_cover,
@@ -37,6 +37,7 @@ from helper_operations.permutation_graphs import (
     extend,
     extend_cycle_cover,
     get_perm_signature,
+    incorporateSpursInZigZag,
     multinomial,
     nonStutterPermutations,
     rotate,
@@ -566,8 +567,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         last_odd_cycle = []
         total_length = 0
         for idx, color in enumerate(sig):
-            even_one_one_cycle = []
-            even_one_one_done = False
             sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
             current_subcycle = []
             if sum(n % 2 for n in sub_sig) == 1:
@@ -583,68 +582,48 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     sub_sub_sig_extra = (
                         sub_sig[:idx] + (sub_sig[idx] - 1,) + sub_sig[idx + 1 :]
                     )
-                    subsubsig_sorted, _ = get_transformer(
-                        sub_sub_sig_extra, lambda x: [x[0] % 2, x[0]]
-                    )
-                    assert not (
-                        len(list(subsubsig_sorted)) == 3
-                        and subsubsig_sorted[0] == 1
-                        and subsubsig_sorted[1] == 1
-                        and subsubsig_sorted[2] % 2 == 0
-                    )
                     current_subcycle.append(
                         [
                             extend(
                                 get_connected_cycle_cover(sub_sub_sig_extra),
-                                (idx, idx),
+                                (idx,),
                             )
                         ]
                     )
-                    tails.append((idx, idx))
+                    tails.append((idx,))
                 for i in even_indices:
                     two_odd_subsubsig = (
                         sub_sig[:i] + (sub_sig[i] - 1,) + sub_sig[i + 1 :]
                     )
-                    # one of the tails is even but now it is the first element in the tail
-                    sorted_two_odd, _ = get_transformer(
-                        two_odd_subsubsig, lambda x: [x[0] % 2, x[0]]
+                    current_subcycle.append(
+                        [
+                            extend(
+                                get_connected_cycle_cover(two_odd_subsubsig),
+                                (i,),
+                            )
+                        ]
                     )
-                    # if it is even-1-1, we need to remember the path for later
-                    if (
-                        len(list(sorted_two_odd)) == 3
-                        and sorted_two_odd[0] == 1
-                        and sorted_two_odd[1] == 1
-                        and sorted_two_odd[2] % 2 == 0
-                    ):
-                        if len(even_one_one_cycle) == 0:
-                            even_one_one_cycle.extend(
-                                extend(
-                                    get_connected_cycle_cover(two_odd_subsubsig),
-                                    (i, idx),
-                                )
-                            )
-                        else:
-                            assert not even_one_one_done
-                            even_one_one_cycle.extend(
-                                extend(
-                                    get_connected_cycle_cover(two_odd_subsubsig),
-                                    (i, idx),
-                                )
-                            )
-                            current_subcycle.append([even_one_one_cycle])
-                            tails.append((i, idx))
-                            even_one_one_done = True
-                    else:
-                        current_subcycle.append(
-                            [
-                                extend(
-                                    get_connected_cycle_cover(two_odd_subsubsig),
-                                    (i, idx),
-                                )
-                            ]
-                        )
-                        tails.append((i, idx))
+                    tails.append((i,))
+                prepended_tails = []
+                for i, tail in enumerate(tails):
+                    prepended_tails.append((tails[(i + 1) % len(tails)][0],) + tail)
+                    temp_tail = tail
+                    if len(temp_tail) < len(sub_sig):
+                        temp_tail += (0,) * (len(sub_sig) - len(temp_tail))
+                    sig_min_tail = tuple(
+                        [n - temp_tail[i] for i, n in enumerate(sub_sig)]
+                    )
+                    print(f"I THINK THIS ONE {sig_min_tail}")
+                if len(current_subcycle) > 1:
+                    print(f"connecting for prepended tails: {prepended_tails}")
+                    connected_current = connect_single_cycle_cover(
+                        current_subcycle, prepended_tails
+                    )
+                else:
+                    connected_current = current_subcycle[0][0]
+                last_odd_cycle.append([extend(connected_current, (idx,))])
                 if even_subsig not in two_odd_subsigs:
+                    print(f"even sub sig {even_subsig}")
                     two_odd_subsigs.append(even_subsig)
                     cycle_without_stutters = get_connected_cycle_cover(even_subsig)
                     odds_non_stutter_cycle = createZigZagPath(
@@ -657,19 +636,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                         odds_stutter_permutations,
                         [(odd_idx, idx), (idx, odd_idx)],
                     )
-                    current_subcycle.append([cycle_with_stutters])
-                prepended_tails = []
-                for i, tail in enumerate(tails):
-                    prepended_tails.append((tails[(i + 1) % len(tails)][0],) + tail)
-                if len(current_subcycle) > 1:
-                    connected_current = connect_single_cycle_cover(
-                        current_subcycle, prepended_tails
-                    )
-                else:
-                    connected_current = current_subcycle[0][0]
-
-                last_odd_cycle.append([connected_current])
-                # add the other parts of the since they are not in the zig-zag path
+                    last_odd_cycle.append([cycle_with_stutters])
             else:
                 c = get_connected_cycle_cover(sub_sig)
                 total_length += len(c)
@@ -678,15 +645,86 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         first_even_idx = next(i for i, v in enumerate(sig) if v % 2 == 0)
         # the connecting tails are 201, 021 for signature (3, 3, 2)
         # since we cannot guarantee that there are more odd colors, we use an even color to swap to the tail
-        connected_odds = connect_single_cycle_cover(
-            last_odd_cycle,
-            [
-                (first_even_idx, odd_idx1, odd_idx2),
-                (odd_idx1, first_even_idx, odd_idx2),
-            ],
+        temp = [
+            (odd_idx2, first_even_idx, odd_idx1),
+            (first_even_idx, odd_idx1, odd_idx2),
+            (odd_idx1, first_even_idx, odd_idx2),
+        ]
+        print(
+            f"connecting for tails: {temp} (first even {first_even_idx}, odd1 {odd_idx1}, odd2 {odd_idx2})"
         )
-        all_sub_cycles.append([connected_odds])
-        total_length += len(connected_odds)
+        for i, c in enumerate(last_odd_cycle):
+            print(
+                f"last odd cycle unique tails {list(set([tuple(t[-3:]) for t in c[0]]))}"
+            )
+        # first odd indices then the even indices;
+        tail1_sig = list(get_perm_signature(temp[0])) + [0] * (
+            len(list(sig)) - len(get_perm_signature(tail))
+        )
+        unsorted_newsig = [(i, n - tail1_sig[i]) for i, n in enumerate(sig)]
+        newsig = sorted(unsorted_newsig, key=lambda x: x[1] % 2 == 0)
+        print(f"new sig {newsig}")
+        odd_elements = [
+            [i, n - tail1_sig[i]]
+            for i, n in enumerate(sig)
+            if (n - tail1_sig[i]) % 2 == 1
+        ]
+        even_elements = [
+            [i, n - tail1_sig[i]]
+            for i, n in enumerate(sig)
+            if (n - tail1_sig[i]) % 2 == 0
+        ]
+        if len(even_elements) == 2 and even_elements[1][1] == 2:
+            # here the subgraphs
+            pass
+        # node1 is a tuple of; the odd elements then the even elements in pairs of 2
+        print(f"odd elements {odd_elements} and even elements {even_elements}")
+        # if sum([n[1] for n in odd_elements]) == 1 and even_elements[0][1] == 2 and even_elements[1][1] == 2 and len(even_elements) == 2:
+        # this is an even-2-1 case
+        node1 = (odd_idx2,) * unsorted_newsig[odd_idx2][1] + (
+            odd_idx1,
+        ) * unsorted_newsig[odd_idx1][1]
+        for even_el, even_occ in even_elements:
+            if even_el != odd_idx1 and even_el != odd_idx2:
+                node1 += tuple([even_el] * even_occ)
+        for odd_el, odd_occ in odd_elements:
+            if odd_el != odd_idx1 and odd_el != odd_idx2:
+                node1 += tuple([odd_el] * odd_occ)
+        node1_first = node1 + temp[0]
+        node1_second = node1 + swapPair(temp[0], 0)
+        swapindex1 = unsorted_newsig[odd_idx1][1] + unsorted_newsig[odd_idx2][1] - 1
+        node2 = (odd_idx1,) * unsorted_newsig[odd_idx1][1] + (
+            odd_idx2,
+        ) * unsorted_newsig[odd_idx2][1]
+        for even_el, even_occ in even_elements:
+            if even_el != odd_idx1 and even_el != odd_idx2:
+                node2 += tuple([even_el] * even_occ)
+        for odd_el, odd_occ in odd_elements:
+            if odd_el != odd_idx1 and odd_el != odd_idx2:
+                node2 += tuple([odd_el] * odd_occ)
+        node2_first = node2 + temp[1]
+        node2_second = node2 + swapPair(temp[1], 0)
+        swapindex2 = swapindex1
+        # cross_edges = find_cross_edges(last_odd_cycle, temp)
+        print(
+            f"\033[1m\033[92mChosen cross edges:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
+        )
+
+        connected_odds1 = glue(
+            last_odd_cycle[0][0],
+            last_odd_cycle[1][0],
+            (node1_first, swapPair(node1_first, swapindex1)),
+            (node1_second, swapPair(node1_second, swapindex1)),
+        )
+        connected_odds2 = glue(
+            connected_odds1,
+            last_odd_cycle[2][0],
+            (node2_first, swapPair(node2_first, swapindex2)),
+            (node2_second, swapPair(node2_second, swapindex2)),
+        )
+        print(f"connected odds 2 is a cycle {cycleQ(connected_odds2)}")
+        all_sub_cycles.append([connected_odds2])
+        total_length += len(connected_odds2)
         return all_sub_cycles
     # if there are three 1's and only one even number; even-1-1-1 case
     elif len(sig) == 4 and sig[0] % 2 == 0 and all(n == 1 for n in sig[1:]):
@@ -848,7 +886,7 @@ def get_connected_cycle_cover(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     if len(list(sig)) <= 1:
         # if there is one element, it is a stutter permutation by definition
         return []
-    sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2, x[0]])
+    sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
     if sig != sorted_sig:
         return transform(get_connected_cycle_cover(sorted_sig), transformer)
     elif len(list(sig)) == 2 and any(c % 2 == 0 for c in sig):

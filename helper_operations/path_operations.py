@@ -182,6 +182,29 @@ def spurBaseIndex(path: list[tuple[int, ...]], vertex: tuple[int, ...]) -> int:
     raise ValueError(f"No vertex adjacent to {vertex} in the path: {path}")
 
 
+def find_last_distinct_adjacent_index(perm: tuple[int, ...]) -> int:
+    """
+    Find the last pair of distinct adjacent elements in a permutaiton (tuple).
+
+    Args:
+        perm (tuple[int, ...]): Permutation as a tuple of integers.
+
+    Returns:
+        int: The index of the first element in the last pair of distinct adjacent
+
+    Raises:
+        ValueError: If no distinct adjacent elements are found in the permutation.
+    """
+    # Loop through the tuple from the second last element to the first
+    for i in range(len(perm) - 2, -1, -1):
+        # Check if adjacent elements are distinct
+        if perm[i] != perm[i + 1]:
+            # Return the index of the first element in the distinct pair
+            return i
+    # Return None if no distinct adjacent elements are found
+    raise ValueError(f"No distinct adjacent elements found in the permutation: {perm}")
+
+
 def mul(sez: list[tuple[int, ...]], e: int) -> list[tuple[int, ...]]:
     """
     Adds 'e' to all elements (tuples) in the list `sez`.
@@ -254,28 +277,6 @@ def incorporateSpurInZigZag(
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
     return path[: i + 1] + list(vertex_pair) + path[i + 1 :]
-
-
-def incorporateSpursInZigZag(
-    path: list[tuple[int, ...]],
-    vertices: list[tuple[int, ...]],
-    spur_suffixes: list[tuple[int, ...]],
-) -> list[tuple[int, ...]]:
-    """
-    Incorporates a list of spurs in a zigzag path. See ``incorporateSpurInZigZag`` for more details.
-
-    Args:
-        path (list[tuple[int, ...]]): List of vertices, a zigzag path.
-        vertices (list[tuple[int, ...]]): List of vertices to incorporate. These should be stutters.
-        spur_suffixes (list[tuple[int, ...]]): List of spur suffixes (suffixes for the vertices variable).
-
-    Returns:
-        list[tuple[int, ...]]: List of vertices, the zigzag path with the spurs incorporated.
-    """
-    C = [stut + suff for stut in vertices for suff in spur_suffixes]
-    for vertex_index in range(0, len(C), 2):
-        path = incorporateSpurInZigZag(path, (C[vertex_index], C[vertex_index + 1]))
-    return path
 
 
 def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, ...]]:
@@ -431,7 +432,7 @@ def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
     if isinstance(perms3d[0][0][0], int):
         return [transform(l, tr) for l in perms3d]
     elif not isinstance(perms3d, list):
-        raise ValueError("The input is not a list")
+        raise ValueError(f"The input is not a list: {perms3d}")
     else:
         return [transform_cycle_cover(l, tr) for l in perms3d]
 
@@ -604,7 +605,7 @@ def glue(
     if not cycle1[-1] == vertex_pair_c1[1]:
         v2index = cycle1.index(vertex_pair_c1[1])
         raise ValueError(
-            f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle {cycle1[v2index-2:v2index+3]}."
+            f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle:\n{[cycle1[-1]] + cycle1[:2]} and {cycle1[v2index-1:v2index+2]}."
         )
     # rotate the second cycle to start with the first vertex
     cycle2 = cutCycle(cycle2, vertex_pair_c2[0])
@@ -612,8 +613,9 @@ def glue(
     if cycle2[-1] != vertex_pair_c2[1]:
         cycle2 = cycle2[:1] + cycle2[1:][::-1]
     if not cycle2[-1] == vertex_pair_c2[1]:
+        v2index = cycle2.index(vertex_pair_c2[1])
         raise ValueError(
-            f"In the second cycle, the vertices {vertex_pair_c2} are not adjacent in cycle {cycle2}."
+            f"In the second cycle, the vertices {vertex_pair_c2} are not adjacent in cycle:\n{[cycle2[-1]] + cycle2[:2]} and {cycle2[v2index-1:v2index+2]}."
         )
     # glue the cycles together
     if adjacent(vertex_pair_c1[0], vertex_pair_c2[0]) and adjacent(

@@ -203,7 +203,12 @@ def cut_sub_cycle_to_past(
         ValueError: If the start and end nodes are not adjacent in the cycle.
     """
     cut_cycle = cutCycle(cycle_to_cut, start)
-    assert end in cut_cycle
+    try:
+        assert end in cut_cycle
+    except AssertionError:
+        raise AssertionError(
+            f"Cycle from {cut_cycle[0]}-{cut_cycle[1]} to {cut_cycle[-1]} does not contain end node {end}."
+        )
     if cut_cycle[-1] == end:
         return cut_cycle
     elif cut_cycle[1] == end:
@@ -298,15 +303,30 @@ def find_parallel_edges_in_cycle_cover(
             print(f"cycle_cover[{i + 1}]: {cycle_cover[i + 1]}")
             print(f"parallel_edges[{start_tails[i]}]: {parallel_edges[start_tails[i]]}")
             raise ValueError(f"Found no parallel edges for {start_tails[i]}")
-    parallel_edges[end_tuple_order[-1]] = filter_adjacent_edges_by_tail(
-        cycle_cover[-1][0],
-        end_tuple_order[-1],
-    )
-    parallel_edges[start_tails[-1]] = filter_adjacent_edges_by_tail(
-        cycle_cover[0][0],
-        start_tails[-1],
-    )
+    # parallel_edges[end_tuple_order[-1]] = filter_adjacent_edges_by_tail(
+    #     cycle_cover[-1][0],
+    #     end_tuple_order[-1],
+    # )
+    # parallel_edges[start_tails[-1]] = filter_adjacent_edges_by_tail(
+    #     cycle_cover[0][0],
+    #     start_tails[-1],
+    # )
     return parallel_edges
+
+
+def get_transformer_tail_to_eto(end_tuple_start, tail, sig):
+    transformer = [i for i in range(len(sig))]
+    transformer[tail[0]] = end_tuple_start[0]
+    transformer[tail[1]] = end_tuple_start[1]
+    if end_tuple_start[0] not in tail:
+        transformer[end_tuple_start[0]] = tail[0]
+        if tail[0] == end_tuple_start[1]:
+            transformer[end_tuple_start[0]] = tail[1]
+    if end_tuple_start[1] not in tail:
+        transformer[end_tuple_start[1]] = tail[1]
+        if tail[1] == end_tuple_start[0]:
+            transformer[end_tuple_start[1]] = tail[0]
+    return transformer
 
 
 def find_cross_edges(
@@ -378,6 +398,10 @@ def find_cross_edges(
                 continue
         if (tail1, tail2) in cross_edges:
             write_cross_edge_ratio_to_file(cross_edges, tail1, tail2)
+    for tail1, tail2 in cross_edges.keys():
+        print(f"cross edges {(tail1, tail2)}: {sorted(cross_edges[(tail1, tail2)])}")
+        # if get_perm_signature(get_first_element(cycle_cover)) == (5, 3, 3):
+        #     quit()
     return cross_edges
 
 
@@ -575,7 +599,19 @@ def split_sub_cycle_for_next_cross_edge(
         raise ValueError(
             f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
         )
-    if cycle_to_cut.index(cross_edge[0]) < cycle_to_cut.index(cross_edge[1]):
+    print(
+        f"cycle_to_cut tails unique tails: {list(set([tuple(t[-2:]) for t in cycle_to_cut]))}"
+    )
+    ce0_idx = cycle_to_cut.index(cross_edge[0])
+    ce1_idx = cycle_to_cut.index(cross_edge[1])
+    try:
+        assert abs(ce0_idx - ce1_idx) == 1
+    except AssertionError:
+        raise AssertionError(
+            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} is not adjacent in the cycle:\n{cycle_to_cut[ce0_idx-1:ce0_idx+2]} and {cycle_to_cut[ce1_idx-1:ce1_idx+2]}."
+        )
+    if ce0_idx < ce1_idx:
+        splitPathIn2(cycle_to_cut, cross_edge[0])
         return splitPathIn2(cycle_to_cut, cross_edge[0])
     else:
         return splitPathIn2(cycle_to_cut, cross_edge[1])
@@ -600,12 +636,140 @@ def connect_single_cycle_cover(
     """
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
-    cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    cross_edges = {}
+    # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    sig = get_perm_signature(get_first_element(single_cycle_cover))
+    if sum(n % 2 for n in sig) == 1:
+        print(f"Signature {sig} has one odd number.")
+        for tail in end_tuple_order[:-1]:
+            tail_sig = list(get_perm_signature(tail)) + [0] * (
+                len(list(sig)) - len(get_perm_signature(tail))
+            )
+            newsig = [n - tail_sig[i] for i, n in enumerate(sig)]
+            # the cut node is the
+            cut_node_sig = sorted(
+                [(i, n - tail_sig[i]) for i, n in enumerate(sig)],
+                key=lambda x: [x[1] % 2 == 0, -x[1]],
+            )
+            print(f"cutnodesig: {cut_node_sig}")
+            node1 = tuple(
+                [
+                    cut_node_sig[i][0]
+                    for i in range(len(cut_node_sig))
+                    for _ in range(cut_node_sig[i][1])
+                ]
+            )
+            print(f"node1 before tail: {node1}")
+            node2 = node1 + swapPair(tail, 0)
+            node1 = node1 + tail
+            print(f"newsig: {newsig} and tail {tail}")
+            print(f"node1: {node1} node2: {node2}")
+            cross_edges[(tail, swapPair(tail, 0))] = [
+                (
+                    (node1, swapPair(node1, -(tail_length + cut_node_sig[-1][1] + 1))),
+                    (node2, swapPair(node2, -(tail_length + cut_node_sig[-1][1] + 1))),
+                )
+            ]
+        print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
+    elif sum(n % 2 for n in sig) == 2:
+        print(f"Signature {sig} has two odd numbers.")
+        for i, c in enumerate(single_cycle_cover):
+            print(
+                f"unique tails in cycle {i}: {list(set([tuple(t[-3:]) for t in c[0]]))}"
+            )
+        print(f"end tuples in cycle cover:")
+        for tail in end_tuple_order[:-1]:
+            tail_sig = list(get_perm_signature(tail)) + [0] * (
+                len(list(sig)) - len(get_perm_signature(tail))
+            )
+            newsig = [n - tail_sig[i] for i, n in enumerate(sig)]
+            # first all even indices (reversed); then the odd indices; then the rest
+            even_tuples = [(i,) * el for i, el in enumerate(newsig) if el % 2 == 0]
+            node1 = tuple()
+            for el in even_tuples:
+                node1 += el
+            odd_tuples = sorted(
+                [(i,) * el for i, el in enumerate(newsig) if el % 2 == 1], reverse=True
+            )
+            for el in odd_tuples:
+                node1 += el
+            node2 = node1 + swapPair(tail, 0)
+            node1 = node1 + tail
+            print(f"newsig: {newsig} and tail {tail}")
+            print(f"node1: {node1} node2: {node2}")
+            cross_edges[(tail, swapPair(tail, 0))] = [
+                (
+                    (node1, swapPair(node1, sum(len(i) for i in even_tuples) - 1)),
+                    (node2, swapPair(node2, sum(len(i) for i in even_tuples) - 1)),
+                )
+            ]
+        print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
+    elif sum(n % 2 for n in sig) >= 3:
+        print(f"Signature {sig} has three or more odd numbers.")
+        for tail in end_tuple_order[:-1]:
+            tail_sig = list(get_perm_signature(tail)) + [0] * (
+                len(list(sig)) - len(get_perm_signature(tail))
+            )
+            # newsig is sorted
+            unsorted_newsig = [(i, n - tail_sig[i]) for i, n in enumerate(sig)]
+            newsig = sorted(
+                unsorted_newsig, key=lambda x: [x[1] % 2 == 1, -x[1]], reverse=True
+            )
+            node1 = tuple()
+            for i, el in newsig:
+                node1 += (i,) * el
+            node2 = node1 + swapPair(tail, 0)
+            node1 = node1 + tail
+            print(
+                f"newsig: {newsig} from {[n for n in newsig if n != 0]} and tail {tail} swapidx {newsig[0][1]+newsig[1][1]-1}"
+            )
+            print(f"node1: {node1} node2: {node2}")
+            cross_edges[(tail, swapPair(tail, 0))] = [
+                (
+                    (node1, swapPair(node1, newsig[0][1] + newsig[1][1] - 1)),
+                    (node2, swapPair(node2, newsig[0][1] + newsig[1][1] - 1)),
+                )
+            ]
+        print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
+    elif all(n % 2 == 0 for n in sig):
+        print(f"Signature {sig} has all even numbers.")
+        for tail in end_tuple_order[:-1]:
+            tail_sig = list(get_perm_signature(tail)) + [0] * (
+                len(list(sig)) - len(get_perm_signature(tail))
+            )
+            newsig = [n - tail_sig[i] for i, n in enumerate(sig)]
+            odd_el = [(i, n) for i, n in enumerate(newsig) if n % 2 == 1]
+            # odd_el^{k_{odd_el}}} 0^{k_0} 1^{k_1} 2^{k_2} ... tail - odd_el^{k_{odd_el}} 0 odd_el 0^{k_0-1} 1^{k_1} 2^{k_2-1} ... tail
+            # odd_el^{k_{odd_el}}} 0^{k_0} 1^{k_1} 2^{k_2} ... swapTail - odd_el^{k_{odd_el}} 0 odd_el 0^{k_0-1} 1^{k_1} 2^{k_2-1} ... swapTail
+            node1 = tuple()
+            for i, n in odd_el:
+                node1 += (i,) * n
+            even_elements = [i for i, n in enumerate(newsig) if n % 2 == 0]
+            for i, el in enumerate(newsig):
+                if i in even_elements:
+                    node1 += (i,) * el
+            node2 = node1 + swapPair(tail, 0)
+            node1 = node1 + tail
+            print(f"newsig: {newsig} el {odd_el} tail {tail}")
+            print(f"node1: {node1} node2: {node2}")
+            cross_edges[(tail, swapPair(tail, 0))] = [
+                (
+                    (node1, swapPair(node1, odd_el[0][1] - 1)),
+                    (node2, swapPair(node2, odd_el[0][1] - 1)),
+                )
+            ]
+        print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
+    else:
+        raise ValueError(f"Signature {sig} has an unexpected number of odd numbers.")
     start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
         single_cycle_cover[0][0], end_tuple_order[0], cross_edges
     )
+    print(
+        f"used cross edges: {cross_edges[(end_tuple_order[0], swapPair(end_tuple_order[0], 0))]}"
+    )
     # start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
     for i, cycle_list in enumerate(single_cycle_cover[1:], start=1):
+        print(f"cut nodes start: {start_cycles[-1]} end: {end_cycles[0]}")
         cut_cycle = cut_sub_cycle_to_past(
             cycle_list[0],
             swapPair(start_cycles[-1], -tail_length),

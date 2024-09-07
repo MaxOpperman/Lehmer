@@ -5,11 +5,11 @@ from helper_operations.path_operations import (
     createSquareTube,
     createZigZagPath,
     cutCycle,
-    incorporateSpursInZigZag,
 )
 from helper_operations.permutation_graphs import (
     HpathQ,
     extend,
+    incorporateSpursInZigZag,
     rotate,
     stutterPermutations,
     swapPair,
@@ -106,14 +106,14 @@ def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
         else:
             ext_path = extend(cutCycle(p1101, p0101[0][:-1] + (0,)), (1, 1))
             p11xy = rotate(createZigZagPath(ext_path, (1, 0), (0, 1)), 1)
-            c11xy = incorporateSpursInZigZag(p11xy, sp11, [(0, 1), (1, 0)])
+            c11xy = incorporateSpursInZigZag(p11xy, sp11, [(0, 1), (1, 0)], 2)
 
         if len(p0001) == 0:
             c00xy = [stut + suff for suff in [(1, 0), (0, 1)] for stut in sp00]
         else:
             ext_path = extend(cutCycle(p0001, p0101[-1][:-1] + (1,)), (0, 0))
             p00xy = rotate(createZigZagPath(ext_path, (0, 1), (1, 0)), 1)
-            c00xy = incorporateSpursInZigZag(p00xy, sp00, [(1, 0), (0, 1)])
+            c00xy = incorporateSpursInZigZag(p00xy, sp00, [(1, 0), (0, 1)], 2)
 
         if k0 - 2 < k1:
             p00 = p00[::-1]

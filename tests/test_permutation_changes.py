@@ -2,6 +2,7 @@ import pytest
 
 from helper_operations.permutation_graphs import (
     extend,
+    incorporateSpursInZigZag,
     rotate,
     selectByTail,
     shorten,
@@ -62,6 +63,58 @@ class TestPermutationChanges:
         assert swapPair(p, -1, 0) == (2, 0, 0, 1, 0)
         assert swapPair(p, -2, 0) == (1, 0, 0, 0, 2)
         assert swapPair(p, 0, -1) == (2, 0, 0, 1, 0)
+
+    def test_incorporateSpursInZigZag_path(self):
+        path = [
+            (0, 1, 0, 1, 0, 1),
+            (0, 1, 0, 1, 1, 0),
+            (0, 1, 1, 0, 1, 0),
+            (0, 1, 1, 0, 0, 1),
+            (1, 0, 1, 0, 0, 1),
+            (1, 0, 1, 0, 1, 0),
+            (1, 0, 0, 1, 1, 0),
+            (1, 0, 0, 1, 0, 1),
+        ]
+        vertices = [(0, 0, 1, 1), (1, 1, 0, 0)]
+        spur_suffixes = [(0, 1), (1, 0)]
+        result = incorporateSpursInZigZag(path, vertices, spur_suffixes)
+        expected_result = [
+            (0, 1, 0, 1, 0, 1),
+            vertices[0] + spur_suffixes[0],
+            vertices[0] + spur_suffixes[1],
+            (0, 1, 0, 1, 1, 0),
+            (0, 1, 1, 0, 1, 0),
+            (0, 1, 1, 0, 0, 1),
+            (1, 0, 1, 0, 0, 1),
+            vertices[1] + spur_suffixes[0],
+            vertices[1] + spur_suffixes[1],
+            (1, 0, 1, 0, 1, 0),
+            (1, 0, 0, 1, 1, 0),
+            (1, 0, 0, 1, 0, 1),
+        ]
+        assert result == expected_result
+
+    def test_incorporateSpursInZigZag_empty(self):
+        vertices = [(0, 0, 1, 1), (1, 1, 0, 0)]
+        spur_suffixes = [(0, 1), (1, 0)]
+        with pytest.raises(ValueError):
+            incorporateSpursInZigZag([], vertices, spur_suffixes)
+
+    def test_incorporateSpursInZigZag_no_neighbor(self):
+        path = [
+            (0, 1, 0, 1, 0, 1),
+            (0, 1, 0, 1, 1, 0),
+            (0, 1, 1, 0, 1, 0),
+            (0, 1, 1, 0, 0, 1),
+            (1, 0, 1, 0, 0, 1),
+            (1, 0, 1, 0, 1, 0),
+            (1, 0, 0, 1, 1, 0),
+            (1, 0, 0, 1, 0, 1),
+        ]
+        vertices = [(1, 0, 1, 1), (0, 1, 0, 0)]
+        spur_suffixes = [(0, 1), (1, 0)]
+        with pytest.raises(ValueError):
+            incorporateSpursInZigZag(path, vertices, spur_suffixes)
 
     def test_extend_empty_list(self):
         p = []

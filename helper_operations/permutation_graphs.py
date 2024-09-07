@@ -3,7 +3,12 @@ from collections import Counter
 from heapq import heappop, heappush
 from itertools import permutations as itertoolspermutations
 
-from helper_operations.path_operations import adjacent, cycleQ, pathQ
+from helper_operations.path_operations import (
+    adjacent,
+    cycleQ,
+    find_last_distinct_adjacent_index,
+    pathQ,
+)
 
 
 def binomial(k0: int, k1: int) -> int:
@@ -147,7 +152,7 @@ def defect(sig: tuple[int]) -> int:
     return abs(even_count - (len(inv_dict) - even_count))
 
 
-def swapPair(perm: tuple[int, ...], i: int, j: int = None) -> tuple[int, ...]:
+def swapPair(perm: tuple[int, ...], i: int, j: int | None = None) -> tuple[int, ...]:
     """
     Swaps elements in perm at positions `i` and `j` (or `i` and `i+1` if `j` is not provided).
     Note that `i` and `j` can be negative, in which case they are counted from the end of the permutation.
@@ -171,6 +176,39 @@ def swapPair(perm: tuple[int, ...], i: int, j: int = None) -> tuple[int, ...]:
     if i < len(perm) and j < len(perm):
         perm[i], perm[j] = perm[j], perm[i]
     return tuple(perm)
+
+
+def incorporateSpursInZigZag(
+    path: list[tuple[int, ...]],
+    vertices: list[tuple[int, ...]],
+    spur_suffixes: list[tuple[int, ...]],
+    skip: int = 0,
+) -> list[tuple[int, ...]]:
+    """
+    Incorporates a list of spurs in a zigzag path. See ``incorporateSpurInZigZag`` for more details.
+
+    Args:
+        path (list[tuple[int, ...]]): List of vertices, a zigzag path.
+        vertices (list[tuple[int, ...]]): List of vertices to incorporate. These should be stutters.
+        spur_suffixes (list[tuple[int, ...]]): List of spur suffixes (suffixes for the vertices variable).
+
+    Returns:
+        list[tuple[int, ...]]: List of vertices, the zigzag path with the spurs incorporated.
+    """
+    C = [stut + suff for stut in vertices for suff in spur_suffixes]
+    skip += len(spur_suffixes[0])
+    for vertex_index in range(0, len(C), 2):
+        p = swapPair(
+            C[vertex_index], find_last_distinct_adjacent_index(C[vertex_index][:-skip])
+        )
+        try:
+            i = path.index(p)
+        except ValueError:
+            raise ValueError(
+                f"Path {path} does not contain permutation {p}; generated from {C[vertex_index]}"
+            )
+        path = path[: i + 1] + [C[vertex_index], C[vertex_index + 1]] + path[i + 1 :]
+    return path
 
 
 def generate_adj(p: list[int]) -> list[tuple[int, ...]]:

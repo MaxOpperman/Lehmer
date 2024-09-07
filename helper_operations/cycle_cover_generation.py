@@ -6,7 +6,6 @@ from helper_operations.path_operations import (
     cycleQ,
     glue,
     incorporateSpurInZigZag,
-    incorporateSpursInZigZag,
     pathQ,
     splitPathIn2,
     spurBaseIndex,
@@ -16,6 +15,7 @@ from helper_operations.path_operations import (
 from helper_operations.permutation_graphs import (
     extend,
     get_perm_signature,
+    incorporateSpursInZigZag,
     rotate,
     stutterPermutations,
     swapPair,
@@ -340,6 +340,38 @@ def Hcycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
     return start_cycle + mid_cycle + end_cycle_1 + end_cycle_2
 
 
+def parallel_sub_cycle_odd_2_1_second(k: int) -> list[tuple[int, ...]]:
+    """
+    Generates the parallel cycle from the 02 and 20 cycles with stutters. Uses the createZigZagPath and incorporateSpursInZigZag functions.
+
+    Args:
+        k (int): The input value for `k`, the number of 0's\n
+        This must be even because we don't count the zero in the trailing `02 / 20`
+
+    Returns:
+        list[tuple[int, ...]]: The generated path from `0 1 0^{k-1} 1 0 2` to `1 0^(k) 1 0 2`
+
+    Raises:
+        ValueError: If k is odd
+    """
+    if k % 2 == 1:
+        raise ValueError(f"k must be even, you probably mean {k-1} and not {k}")
+    cycle_without_stutters = HpathNS(k, 2)
+    non_stutter_cut = cutCycle(cycle_without_stutters, (1, 0, 0, 1) + (0,) * (k - 2))
+    if non_stutter_cut[-1] != swapPair((1, 0, 1) + (0,) * (k - 1), 0):
+        non_stutter_cut = non_stutter_cut[:1] + non_stutter_cut[1:][::-1]
+    if non_stutter_cut[-1] != swapPair((1, 0, 1) + (0,) * (k - 1), 0):
+        print(f"ERROR: {non_stutter_cut}")
+    cycle_20_02 = cutCycle(
+        createZigZagPath(non_stutter_cut, (2, 0), (0, 2)),
+        (0, 1) + (0,) * (k - 1) + (1, 0, 2),
+    )
+    sp02 = stutterPermutations([k, 2])
+    cycle_with_stutters = incorporateSpursInZigZag(cycle_20_02, sp02, [(0, 2), (2, 0)])
+    cut_with_stutters = cutCycle(cycle_with_stutters, (0,) * (k) + (1, 1, 2, 0))
+    return cut_with_stutters
+
+
 def parallel_sub_cycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
     """
     Generates the parallel cycle from the 02 and 20 cycles with stutters. Uses the createZigZagPath and incorporateSpursInZigZag functions.
@@ -435,30 +467,21 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
         return Hpath_odd_2_1(1)
 
     # the path from a to b (_1 | _12) with parallel 02-20 cycles incorporated
-    parallelCycles = parallel_sub_cycle_odd_2_1(k - 1)
+    parallelCycles = parallel_sub_cycle_odd_2_1_second(k - 1)
     e_f_cylce = Hcycle_odd_2_1(k)
-    # split the a_b_path in 2 at the parallel edge with parallelCycles
-    # the cut_node is 0^2 1 0^{k-2} 1 2 and 0^3 1 0^{k-3} 1 2
-    cut_node = (0,) * (k - 1) + (1, 0, 1, 2)
-    parallel_cut_node = swapPair(cut_node, -3)
-    p1_p12_p02_p20 = glue(
-        e_f_cylce,
-        parallelCycles,
-        (cut_node, swapPair(cut_node, k - 2)),
-        (parallel_cut_node, swapPair(parallel_cut_node, k - 2)),
-    )
 
     # path from c'10=120^{k_0-1}10 to d'10=0210^{k_0-1}10 (_10)
     p10 = extend(Hpath_even_1_1(k - 1), (1, 0))
     # path from a'00=120^{k_0-2}100 to b'00=0210^{k_0-3}100 (_00)
     p00 = extend(incorporated_odd_2_1_path_a_b(k - 2), (0, 0))
+    print(f"p10 = {p10},\np00 = {p00}")
 
     # generate the cycle from c=1 2 0^{k0-1} 1 0 to 2 1 0^{k0-1} 1 0
     cycle = p10 + p00[::-1]
     assert cycleQ(cycle)
     # split the cycle in two at the node 1 2 0^{k0} 1 - 2 1 0^{k0} 1
-    full = glue(
-        p1_p12_p02_p20,
+    c1_c12_c00_c10 = glue(
+        e_f_cylce,
         cycle,
         (
             (0, 1, 2) + (0,) * (k - 1) + (1,),
@@ -468,6 +491,21 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
             (0, 1, 2) + (0,) * (k - 2) + (1, 0),
             swapPair((0, 1, 2) + (0,) * (k - 2) + (1, 0), 1),
         ),
+    )
+    # split the a_b_path in 2 at the parallel edge with parallelCycles
+    # the cut_node is 1 0^{k} 1 2 - 1 0^{k} 2 1
+    # the parallel cut_node is 0 1 0^{k-1} 1 2 - 0 1 0^{k-1} 2 1
+    cut_node = (0,) * (k - 1) + (1, 2, 1, 0)
+    parallel_cut_node = swapPair(cut_node, -3)
+    swap_idx = k - 2
+    print(
+        f"cut_node: {cut_node} and {swapPair(cut_node, swap_idx)}, parallel_cut_node: {parallel_cut_node} and {swapPair(parallel_cut_node, swap_idx)}"
+    )
+    full = glue(
+        c1_c12_c00_c10,
+        parallelCycles,
+        (cut_node, swapPair(cut_node, swap_idx)),
+        (parallel_cut_node, swapPair(parallel_cut_node, swap_idx)),
     )
     return full
 
