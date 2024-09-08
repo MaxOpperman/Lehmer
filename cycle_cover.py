@@ -5,7 +5,6 @@ from functools import cache
 from helper_operations.cycle_cover_connections import (
     connect_single_cycle_cover,
     find_cross_edges,
-    find_end_tuple_order,
     generate_end_tuple_order,
     get_tail_length,
 )
@@ -24,11 +23,8 @@ from helper_operations.path_operations import (
     get_first_element,
     get_transformer,
     glue,
-    incorporateSpurInZigZag,
     pathQ,
     recursive_cycle_check,
-    shorten_cycle_cover,
-    splitPathIn2,
     spurBaseIndex,
     transform,
     transform_cycle_cover,
@@ -495,8 +491,17 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             [three_odds_c1],
             [cycle_c3_c2],
         ]
-        single_cycle = connect_single_cycle_cover(
-            all_sub_cycles, generate_end_tuple_order(sig)
+        three_odds_c0_c1 = glue(
+            three_odds_c0,
+            three_odds_c1,
+            ((0, 1, 2, 3, 1, 0), (0, 1, 3, 2, 1, 0)),
+            ((0, 1, 2, 3, 0, 1), (0, 1, 3, 2, 0, 1)),
+        )
+        single_cycle = glue(
+            three_odds_c0_c1,
+            cycle_c3_c2,
+            ((0, 0, 3, 1, 2, 1), (0, 0, 1, 3, 2, 1)),
+            ((0, 0, 3, 1, 1, 2), (0, 0, 1, 3, 1, 2)),
         )
         return [single_cycle]
     # even-2-1-1 case

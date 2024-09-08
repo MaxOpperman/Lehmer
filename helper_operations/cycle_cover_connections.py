@@ -629,11 +629,11 @@ def connect_single_cycle_cover(
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
     cross_edges = {}
-    cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     sig = get_perm_signature(get_first_element(single_cycle_cover))
     if sum(n % 2 for n in sig) == 1:
         print(f"Signature {sig} has one odd number.")
-        for tail in end_tuple_order[:-1]:
+        for tail in end_tuple_order:
             tail_sig = list(get_perm_signature(tail)) + [0] * (
                 len(list(sig)) - len(get_perm_signature(tail))
             )
@@ -670,7 +670,7 @@ def connect_single_cycle_cover(
                 f"unique tails in cycle {i}: {list(set([tuple(t[-3:]) for t in c[0]]))}"
             )
         print(f"end tuples in cycle cover:")
-        for tail in end_tuple_order[:-1]:
+        for tail in end_tuple_order:
             tail_sig = list(get_perm_signature(tail)) + [0] * (
                 len(list(sig)) - len(get_perm_signature(tail))
             )
@@ -698,7 +698,7 @@ def connect_single_cycle_cover(
         print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
     elif sum(n % 2 for n in sig) >= 3:
         print(f"Signature {sig} has three or more odd numbers.")
-        for tail in end_tuple_order[:-1]:
+        for tail in end_tuple_order:
             tail_sig = list(get_perm_signature(tail)) + [0] * (
                 len(list(sig)) - len(get_perm_signature(tail))
             )
@@ -725,7 +725,7 @@ def connect_single_cycle_cover(
         print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
     elif all(n % 2 == 0 for n in sig):
         print(f"Signature {sig} has all even numbers.")
-        for tail in end_tuple_order[:-1]:
+        for tail in end_tuple_order:
             tail_sig = list(get_perm_signature(tail)) + [0] * (
                 len(list(sig)) - len(get_perm_signature(tail))
             )
