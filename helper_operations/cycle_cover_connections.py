@@ -594,13 +594,21 @@ def split_sub_cycle_for_next_cross_edge(
     print(
         f"cycle_to_cut tails unique tails: {list(set([tuple(t[-2:]) for t in cycle_to_cut]))}"
     )
-    ce0_idx = cycle_to_cut.index(cross_edge[0])
-    ce1_idx = cycle_to_cut.index(cross_edge[1])
     try:
-        assert abs(ce0_idx - ce1_idx) == 1
+        ce0_idx = cycle_to_cut.index(cross_edge[0])
+        ce1_idx = cycle_to_cut.index(cross_edge[1])
+    except ValueError:
+        raise ValueError(
+            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} not found in cycle with tails: {list(set([p[-len(tail):] for p in cycle_to_cut]))}."
+        )
+    try:
+        assert (
+            abs(ce0_idx - ce1_idx) == 1
+            or abs(ce0_idx - ce1_idx) == len(cycle_to_cut) - 1
+        )
     except AssertionError:
         raise AssertionError(
-            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} is not adjacent in the cycle:\n{cycle_to_cut[ce0_idx-1:ce0_idx+2]} and {cycle_to_cut[ce1_idx-1:ce1_idx+2]}."
+            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} is not adjacent in the cycle:\n{cycle_to_cut[ce0_idx-1:ce0_idx+2]} and {cycle_to_cut[ce1_idx-1:ce1_idx+2]} (indices {ce0_idx} and {ce1_idx})."
         )
     if ce0_idx < ce1_idx:
         splitPathIn2(cycle_to_cut, cross_edge[0])
@@ -629,7 +637,7 @@ def connect_single_cycle_cover(
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
     cross_edges = {}
-    # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     sig = get_perm_signature(get_first_element(single_cycle_cover))
     if sum(n % 2 for n in sig) == 1:
         print(f"Signature {sig} has one odd number.")
@@ -656,15 +664,7 @@ def connect_single_cycle_cover(
             node1 = node1 + tail
             print(f"newsig: {newsig} and tail {tail}")
             print(f"node1: {node1} node2: {node2}")
-            swapidx = -(
-                tail_length
-                + [
-                    cut_node_occ[1]
-                    for cut_node_occ in cut_node_sig
-                    if cut_node_occ[1] > 0
-                ][-1]
-                + 1
-            )
+            swapidx = cut_node_sig[0][1] + cut_node_sig[1][1] - 1
             cross_edges[(tail, swapPair(tail, 0))] = [
                 (
                     (node1, swapPair(node1, swapidx)),
@@ -685,23 +685,33 @@ def connect_single_cycle_cover(
             )
             newsig = [n - tail_sig[i] for i, n in enumerate(sig)]
             # first all even indices (reversed); then the odd indices; then the rest
-            even_tuples = [(i,) * el for i, el in enumerate(newsig) if el % 2 == 0]
+            even_tuples = sorted(
+                [(i,) * el for i, el in enumerate(newsig) if el % 2 == 0],
+                key=lambda x: len(x),
+                reverse=True,
+            )
             node1 = tuple()
             for el in even_tuples:
                 node1 += el
             odd_tuples = sorted(
-                [(i,) * el for i, el in enumerate(newsig) if el % 2 == 1], reverse=True
+                [(i,) * el for i, el in enumerate(newsig) if el % 2 == 1],
+                key=lambda x: len(x),
             )
             for el in odd_tuples:
                 node1 += el
             node2 = node1 + swapPair(tail, 0)
             node1 = node1 + tail
+            swapidx = (
+                sum(len(i) for i in even_tuples)
+                + sum(len(i) for i in odd_tuples[:-1])
+                - 1
+            )
             print(f"newsig: {newsig} and tail {tail}")
             print(f"node1: {node1} node2: {node2}")
             cross_edges[(tail, swapPair(tail, 0))] = [
                 (
-                    (node1, swapPair(node1, sum(len(i) for i in even_tuples) - 1)),
-                    (node2, swapPair(node2, sum(len(i) for i in even_tuples) - 1)),
+                    (node1, swapPair(node1, swapidx)),
+                    (node2, swapPair(node2, swapidx)),
                 )
             ]
         print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
@@ -713,24 +723,24 @@ def connect_single_cycle_cover(
             )
             # newsig is sorted
             unsorted_newsig = [(i, n - tail_sig[i]) for i, n in enumerate(sig)]
-            newsig = sorted(
-                unsorted_newsig, key=lambda x: [x[1] % 2 == 1, -x[1]], reverse=True
-            )
+            newsig = sorted(unsorted_newsig, key=lambda x: [x[1] % 2 == 0, x[1]])
             odd_elements = [(i, n) for i, n in newsig if n % 2 == 1 and n > 0]
             even_elements = [(i, n) for i, n in newsig if n % 2 == 0 and n > 0]
-            node1 = (odd_elements[0][0],) * odd_elements[0][1]
+            node1 = tuple()
             for i, el in even_elements:
                 node1 += (i,) * el
-            for i, n in odd_elements[1:]:
-                node1 += (i,) * n
-            if len(even_elements) > 1:
-                swapidx = odd_elements[0][1] + even_elements[0][1] - 1
-            else:
-                swapidx = odd_elements[0][1] - 1
+            for i, el in odd_elements:
+                node1 += (i,) * el
+            swapidx = (
+                sum(el for _, el in even_elements)
+                + sum(el for _, el in odd_elements[:-1])
+                - 1
+            )
+
             node2 = node1 + swapPair(tail, 0)
             node1 = node1 + tail
             print(
-                f"newsig: {newsig} from {[n for n in newsig if n != 0]} and tail {tail} swapidx {newsig[0][1]+newsig[1][1]-1}"
+                f"newsig: {newsig} from {odd_elements} and tail {tail} swapidx {swapidx}"
             )
             print(f"node1: {node1} node2: {node2}")
             cross_edges[(tail, swapPair(tail, 0))] = [
@@ -765,7 +775,7 @@ def connect_single_cycle_cover(
             node2 = node1 + swapPair(tail, 0)
             node1 = node1 + tail
             print(f"newsig: {newsig} el {odd_el} tail {tail}")
-            print(f"node1: {node1} node2: {node2}")
+            print(f"node1: {node1} node2: {node2} with swap {swapidx}")
             cross_edges[(tail, swapPair(tail, 0))] = [
                 (
                     (node1, swapPair(node1, swapidx)),

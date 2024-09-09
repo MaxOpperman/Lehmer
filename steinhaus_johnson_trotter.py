@@ -88,6 +88,9 @@ class SteinhausJohnsonTrotter:
         Returns:
             list: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
         """
+        print(
+            f"\033[1m\033[92mSTEINHAUS-JOHNSON-TROTTER USED FOR SIGNATURE {(1,) * n} \033[0m\033[0m"
+        )
         perms = []
         a = [i for i in range(n)]
         perms.append(tuple(a.copy()))
