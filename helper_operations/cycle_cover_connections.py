@@ -643,7 +643,7 @@ def connect_single_cycle_cover(
     # The cycles are split on the last elements
     tail_length = len(end_tuple_order[0])
     cross_edges = {}
-    cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
+    # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     sig = get_perm_signature(get_first_element(single_cycle_cover))
     if sum(n % 2 for n in sig) == 1:
         print(f"Signature {sig} has one odd number.")
@@ -742,17 +742,13 @@ def connect_single_cycle_cover(
                 reverse=True,
             )
             node1 = tuple()
-            for i, el in even_elements:
-                node1 += (i,) * el
             for i, el in odd_elements:
                 node1 += (i,) * el
-            swapidx = (
-                sum(el for _, el in even_elements)
-                + sum(el for _, el in odd_elements[:-1])
-                - 1
-            )
-            if len(even_elements) > 2 and sum(el for _, el in odd_elements) == 1:
-                swapidx = sum(el for _, el in even_elements[:-1]) - 1
+            for i, el in even_elements:
+                node1 += (i,) * el
+            swapidx = sum(el for _, el in odd_elements[:-1]) - 1
+            if len(odd_elements) == 1:
+                swapidx = odd_elements[0][1] - 1
             node2 = node1 + swapPair(tail, 0)
             node1 = node1 + tail
             print(

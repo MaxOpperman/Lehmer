@@ -604,8 +604,9 @@ def glue(
         cycle1 = cycle1[:1] + cycle1[1:][::-1]
     if not cycle1[-1] == vertex_pair_c1[1]:
         v2index = cycle1.index(vertex_pair_c1[1])
+        print(f"Second vertex pair: {vertex_pair_c2}")
         raise ValueError(
-            f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle:\n{[cycle1[-1]] + cycle1[:2]} and {cycle1[v2index-1:v2index+2]}."
+            f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle:\n{[cycle1[-1]] + cycle1[:2]} and {cycle1[v2index-1:v2index+2]} (index {v2index})."
         )
     # rotate the second cycle to start with the first vertex
     cycle2 = cutCycle(cycle2, vertex_pair_c2[0])

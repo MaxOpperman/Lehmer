@@ -467,19 +467,25 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         )
         two_one_one_c13 = extend(get_connected_cycle_cover((2, 1, 1)), (1, 3))
         one_two_one_c03 = extend(get_connected_cycle_cover((1, 2, 1)), (0, 3))
+        print(f"Gluing the 2-2-1-1 case {sig}")
         cycle_c13_c03 = two_one_one_c13 + one_two_one_c03
         cycle_c12_c02 = transform(cycle_c13_c03, [0, 1, 3, 2])
         # now connect the cycles with trailing 2 and 3; the ones with one odd element
-        c12_c02_cut_node = (1, 0, 0, 3, 1, 2)
-        c23_c32_cut_node = (1, 0, 0, 1, 3, 2)
+        c12_c02_cut_node = (0, 1, 0, 3, 1, 2)
+        c23_c32_cut_node = (0, 1, 0, 1, 3, 2)
+        print(f"cut node {c12_c02_cut_node} and {swapPair(c12_c02_cut_node, 1)}")
+        find_cross_edges([[cycle_c12_c02], [two_two_c23_c32]], [(3, 1, 2)])
         cycle_c2_c23 = glue(
             cycle_c12_c02,
             two_two_c23_c32,
-            (c12_c02_cut_node, swapPair(c12_c02_cut_node, 0)),
-            (c23_c32_cut_node, swapPair(c23_c32_cut_node, 0)),
+            (c12_c02_cut_node, swapPair(c12_c02_cut_node, 1)),
+            (c23_c32_cut_node, swapPair(c23_c32_cut_node, 1)),
         )
         c2_c23_cut_node = (0, 1, 0, 1, 2, 3)
         c13_c03_cut_node = (0, 1, 0, 2, 1, 3)
+        print(f"cut node {c2_c23_cut_node} and {swapPair(c2_c23_cut_node, 1)}")
+        find_cross_edges([[cycle_c2_c23], [cycle_c13_c03]], [(1, 2, 3)])
+        print(f"cycle1: {cycle_c2_c23}\ncycle2: {cycle_c13_c03}")
         cycle_c3_c2 = glue(
             cycle_c2_c23,
             cycle_c13_c03,
@@ -491,17 +497,25 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             [three_odds_c1],
             [cycle_c3_c2],
         ]
+        three_odds_cut_node1 = (0, 1, 2, 3, 1, 0)
+        three_odds_cut_node2 = (0, 1, 2, 3, 0, 1)
+        print(
+            f"cut node {three_odds_cut_node1} and {swapPair(three_odds_cut_node1, 2)}"
+        )
         three_odds_c0_c1 = glue(
             three_odds_c0,
             three_odds_c1,
-            ((0, 1, 2, 3, 1, 0), (0, 1, 3, 2, 1, 0)),
-            ((0, 1, 2, 3, 0, 1), (0, 1, 3, 2, 0, 1)),
+            (three_odds_cut_node1, swapPair(three_odds_cut_node1, 2)),
+            (three_odds_cut_node2, swapPair(three_odds_cut_node2, 2)),
         )
+        last_cut_node1 = (0, 0, 3, 1, 2, 1)
+        last_cut_node2 = (0, 0, 3, 1, 1, 2)
+        print(f"cut node {last_cut_node1} and {swapPair(last_cut_node1, 2)}")
         single_cycle = glue(
             three_odds_c0_c1,
             cycle_c3_c2,
-            ((0, 0, 3, 1, 2, 1), (0, 0, 1, 3, 2, 1)),
-            ((0, 0, 3, 1, 1, 2), (0, 0, 1, 3, 1, 2)),
+            (last_cut_node1, swapPair(last_cut_node1, 2)),
+            (last_cut_node2, swapPair(last_cut_node2, 2)),
         )
         return [single_cycle]
     # even-2-1-1 case
@@ -648,6 +662,9 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                     )
                 else:
                     connected_current = current_subcycle[0][0]
+                print(
+                    f"added cycle with tails {list(set([p[-2:] for p in connected_current]))} and after that {idx} of total sig {sig}"
+                )
                 last_odd_cycle.append([extend(connected_current, (idx,))])
                 if even_subsig not in two_odd_subsigs:
                     print(f"even sub sig {even_subsig}")
@@ -664,6 +681,10 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
                         [(odd_idx, idx), (idx, odd_idx)],
                     )
                     last_odd_cycle.append([cycle_with_stutters])
+                # if sig == (3, 3, 2, 2) or sig == (2, 2, 2, 1, 1):
+                #     print(f"connecting for prepended tails: {prepended_tails}")
+                #     print(f"connected current {last_odd_cycle[-1]}")
+                # quit()
             else:
                 c = get_connected_cycle_cover(sub_sig)
                 total_length += len(c)
@@ -702,8 +723,10 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         ]
         # node1 is a tuple of; the odd elements then the even elements in pairs of 2
         print(f"odd elements {odd_elements} and even elements {even_elements}")
-        # if sum([n[1] for n in odd_elements]) == 1 and even_elements[0][1] == 2 and even_elements[1][1] == 2 and len(even_elements) == 2:
         # this is an even-2-1 case
+        # node1 = tuple()
+        # for even_el, even_occ in even_elements:
+        #     node1 += tuple([even_el] * even_occ)
         node1 = (odd_idx2,) * unsorted_newsig[odd_idx2][1] + (
             odd_idx1,
         ) * unsorted_newsig[odd_idx1][1]
@@ -716,6 +739,9 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         node1_first = node1 + temp[0]
         node1_second = node1 + swapPair(temp[0], 0)
         swapindex1 = sum([n[1] for n in even_elements]) - 1
+        # node2 = tuple()
+        # for even_el, even_occ in even_elements:
+        #     node2 += tuple([even_el] * even_occ)
         node2 = (odd_idx1,) * unsorted_newsig[odd_idx1][1] + (
             odd_idx2,
         ) * unsorted_newsig[odd_idx2][1]
@@ -728,11 +754,10 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         node2_first = node2 + temp[1]
         node2_second = node2 + swapPair(temp[1], 0)
         swapindex2 = swapindex1
-        # cross_edges = find_cross_edges(last_odd_cycle, temp)
+        # find_cross_edges(last_odd_cycle[:2], temp[:1])
         print(
             f"unsorted newsig {unsorted_newsig}; odd idx1 {odd_idx1} and odd idx2 {odd_idx2}; swapindex1 {swapindex1}={unsorted_newsig[odd_idx1][1]}+{unsorted_newsig[odd_idx2][1]}-1; swapindex2 {swapindex2}={swapindex1}"
         )
-        print(f"test swapidx = {sum([n[1] for n in even_elements]) - 1}")
         print(
             f"\033[1m\033[92mChosen cross edges:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
         )
