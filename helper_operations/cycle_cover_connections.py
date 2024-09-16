@@ -729,7 +729,6 @@ def connect_single_cycle_cover(
             tail_sig = list(get_perm_signature(tail)) + [0] * (
                 len(list(sig)) - len(get_perm_signature(tail))
             )
-            # newsig is sorted
             unsorted_newsig = [(i, n - tail_sig[i]) for i, n in enumerate(sig)]
             odd_elements = sorted(
                 [(i, n) for i, n in unsorted_newsig if n % 2 == 1 and n > 0],
