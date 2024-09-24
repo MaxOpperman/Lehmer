@@ -501,7 +501,7 @@ def incorporated_odd_2_1_cycle(k: int, split_1s=False) -> list[tuple[int, ...]]:
     # new cut node is 1 1 0^{k-1} 2 0 - 1 0 1 0^{k-2} 2 0
     # to parallel 1 1 0^{k-2} 2 0 0 - 1 0 1 0^{k-3} 2 0 0
     if split_1s:
-        parallel_cut_node = (0,) * (k - 1) + (1, 1, 2, 0)
+        parallel_cut_node = (0,) * (k - 1) + (1, 1, 0, 2)
         cut_node = swapPair(parallel_cut_node, -3)
         swap_idx = k - 2
     print(

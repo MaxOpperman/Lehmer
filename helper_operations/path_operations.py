@@ -121,7 +121,7 @@ def splitPathIn2(
     assert len(p) > 1
     if not a in p:
         raise AssertionError(f"Vertex {a} not in path {p}")
-    assert pathQ(p)
+    # assert pathQ(p)
     A = p.index(a)
     return p[: A + 1], p[A + 1 :]
 

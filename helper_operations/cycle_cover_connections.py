@@ -652,7 +652,7 @@ def connect_single_cycle_cover(
                 len(list(sig)) - len(get_perm_signature(tail))
             )
             newsig = [n - tail_sig[i] for i, n in enumerate(sig)]
-            # the cut node is the
+            # the cut node is the odds followed by evens from largest to smallest
             cut_node_sig = sorted(
                 [(i, n - tail_sig[i]) for i, n in enumerate(sig)],
                 key=lambda x: [x[1] % 2 == 0, -x[1]],

@@ -308,13 +308,13 @@ def even_odd_1_cycle(sig: tuple[int, ...], distinct_ends=True) -> list[tuple[int
         cut_node2 = swapPair(cut_node1, -3)
         swapidx = sig[odd_idx] - 2
     else:
-        # 1^{k1-1} 0^{k0} 2 1 and 1^{k1-2} 01 0^{k0-1} 2 1
+        # 0^{k0} 1^{k1-1} 2 1 and 0^{k0-1} 10 1^{k1-2} 2 1
         cut_node1 = (
             (even_idx,) * (sig[even_idx])
             + (odd_idx,) * (sig[odd_idx] - 1)
             + (2, odd_idx)
         )
-        # 1^{k1-1} 0^{k0-1} 2 0 1 and 1^{k1-2} 01 0^{k0-2} 2 0 1
+        # 0^{k0} 1^{k1-2} 2 11 and 0^{k0-1} 10 1^{k1-3} 2 11
         cut_node2 = swapPair(cut_node1, -3)
         swapidx = sig[even_idx] - 1
     print(
@@ -831,14 +831,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             f"odd elements {odd_elements1} - {odd_elements2} and even elements {even_elements1} - {even_elements2}"
         )
         node1 = tuple()
-        # for all_el, _ in all_elements1:
-        #     for t, even_occ in even_elements1:
-        #         if t == all_el:
-        #             node1 += tuple([all_el] * even_occ)
-        # for all_el, _ in all_elements1:
-        #     for t, odd_occ in odd_elements1:
-        #         if t == all_el:
-        #             node1 += tuple([all_el] * odd_occ)
         for even_el, even_occ in even_elements1:
             node1 += tuple([even_el] * even_occ)
         for odd_el, odd_occ in odd_elements1:
@@ -851,14 +843,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             node2 += tuple([even_el] * even_occ)
         for odd_el, odd_occ in odd_elements2:
             node2 += tuple([odd_el] * odd_occ)
-        # for all_el, _ in all_elements2:
-        #     for t, even_occ in even_elements2:
-        #         if t == all_el:
-        #             node2 += tuple([all_el] * even_occ)
-        # for all_el, _ in all_elements2:
-        #     for t, odd_occ in odd_elements2:
-        #         if t == all_el:
-        #             node2 += tuple([all_el] * odd_occ)
         node2_first = node2 + temp[1]
         node2_second = node2 + swapPair(temp[1], 0)
         swapindex2 = swapindex1

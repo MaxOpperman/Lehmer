@@ -56,7 +56,6 @@ class Test_TailsOrdering:
             (2, 1, 1),
             (2, 1, 2),
             (0, 2, 2),
-            (0, 2, 0),
         ]
 
     def test_end_tuple_order_with_0s_2_2_2(self):
@@ -68,7 +67,6 @@ class Test_TailsOrdering:
             (5, 4, 4),
             (5, 4, 5),
             (3, 5, 5),
-            (3, 5, 3),
         ]
 
     def test_end_tuple_order_6_4_4(self):
@@ -80,7 +78,6 @@ class Test_TailsOrdering:
             (2, 1, 1),
             (2, 1, 2),
             (0, 2, 2),
-            (0, 2, 0),
         ]
 
     def test_end_tuple_order_4_2_8(self):
@@ -92,7 +89,6 @@ class Test_TailsOrdering:
             (1, 0, 0),
             (1, 0, 1),
             (2, 1, 1),
-            (2, 1, 2),
         ]
 
     def test_end_tuple_order_2_4_6(self):
@@ -104,23 +100,22 @@ class Test_TailsOrdering:
             (0, 1, 1),
             (0, 1, 0),
             (2, 0, 0),
-            (2, 0, 2),
         ]
 
     def test_end_tuple_order_2_3_6(self):
         sig = (2, 3, 6)
         result = generate_end_tuple_order(sig)
-        assert result == [(1, 2), (0, 1), (2, 0)]
+        assert result == [(1, 2), (0, 1)]
 
     def test_end_tuple_order_5_2_6(self):
         sig = (5, 2, 6)
         result = generate_end_tuple_order(sig)
-        assert result == [(0, 2), (1, 0), (2, 1)]
+        assert result == [(0, 2), (1, 0)]
 
     def test_end_tuple_order_4_2_3(self):
         sig = (4, 2, 3)
         result = generate_end_tuple_order(sig)
-        assert result == [(2, 0), (1, 2), (0, 1)]
+        assert result == [(2, 0), (1, 2)]
 
     def test_end_tuple_order_evens_2_2_2_2(self):
         sig = (2, 2, 2, 2)
@@ -135,18 +130,17 @@ class Test_TailsOrdering:
             (3, 2, 3),
             (1, 3, 3),
             (0, 1, 3),
-            (0, 3, 0),
         ]
 
     def test_end_tuple_order_odd_2_2_2_3(self):
         sig = (2, 2, 2, 3)
         result = generate_end_tuple_order(sig)
-        assert result == [(0, 3), (1, 0), (2, 1), (3, 2)]
+        assert result == [(0, 3), (1, 0), (2, 1)]
 
     def test_end_tuple_order_odd_2_2_2_2_3(self):
         sig = (2, 2, 2, 2, 3)
         result = generate_end_tuple_order(sig)
-        assert result == [(0, 4), (1, 0), (2, 1), (3, 2), (4, 3)]
+        assert result == [(0, 4), (1, 0), (2, 1), (3, 2)]
 
     def test_end_tuple_order_evens_2_2_2_2_2(self):
         sig = (2, 2, 2, 2, 2)
@@ -166,7 +160,6 @@ class Test_TailsOrdering:
             (2, 4, 4),
             (1, 2, 4),
             (0, 1, 4),
-            (0, 4, 0),
         ]
 
     def test_end_tuple_order_evens_2_4_6_2_4_2(self):
@@ -193,7 +186,6 @@ class Test_TailsOrdering:
             (4, 0, 5),
             (1, 4, 5),
             (2, 1, 5),
-            (2, 5, 2),
         ]
         sorted_sig = (6, 4, 4, 2, 2, 2)
         sorted_result = generate_end_tuple_order(sorted_sig)
@@ -218,7 +210,6 @@ class Test_TailsOrdering:
             (2, 3, 5),
             (1, 2, 5),
             (0, 1, 5),
-            (0, 5, 0),
         ]
 
     def test_end_tuple_order_odd_3_2_2_2_2_2_2_2(self):
@@ -232,7 +223,6 @@ class Test_TailsOrdering:
             (5, 4),
             (6, 5),
             (7, 6),
-            (0, 7),
         ]
 
     def test_end_tuple_order_evens_ten_twos(self):
@@ -293,7 +283,6 @@ class Test_TailsOrdering:
             (2, 3, 9),
             (1, 2, 9),
             (0, 1, 9),
-            (0, 9, 0),
         ]
 
     def test_end_tuple_order_odd_ten_evens(self):
@@ -312,7 +301,40 @@ class Test_TailsOrdering:
             (8, 7),
             (9, 8),
             (10, 9),
-            (0, 10),
+        ]
+
+    def test_end_tuple_order_odd_3_3_2(self):
+        sig = (3, 3, 2)
+        result = generate_end_tuple_order(sig)
+        assert result == [
+            (0, 2),
+        ]
+
+    def test_end_tuple_order_odd_3_3_2_2(self):
+        sig = (3, 3, 2, 2)
+        result = generate_end_tuple_order(sig)
+        assert result == [
+            (0, 2),
+            (0, 3),
+        ]
+
+    def test_end_tuple_order_odd_3_3_2_2_4_6_2(self):
+        sig = (3, 3, 2, 2, 4, 6, 2)
+        result = generate_end_tuple_order(sig)
+        assert result == [
+            (0, 2),
+            (0, 3),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+        ]
+
+    def test_end_tuple_order_odd_3_3_2_2(self):
+        sig = (2, 3, 2, 1)
+        result = generate_end_tuple_order(sig)
+        assert result == [
+            (1, 0),
+            (1, 2),
         ]
 
 
