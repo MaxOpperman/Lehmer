@@ -507,6 +507,7 @@ def incorporated_odd_2_1_cycle(k: int, split_1s=False) -> list[tuple[int, ...]]:
     print(
         f"cut_node: {cut_node} and {swapPair(cut_node, swap_idx)}, parallel_cut_node: {parallel_cut_node} and {swapPair(parallel_cut_node, swap_idx)}"
     )
+    print(f"bool was {split_1s}")
     full = glue(
         c1_c12_c00_c10,
         parallelCycles,

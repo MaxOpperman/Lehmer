@@ -205,6 +205,29 @@ def find_last_distinct_adjacent_index(perm: tuple[int, ...]) -> int:
     raise ValueError(f"No distinct adjacent elements found in the permutation: {perm}")
 
 
+def find_first_distinct_adjacent_index(perm: tuple[int, ...]) -> int:
+    """
+    Find the first pair of distinct adjacent elements in a permutaiton (tuple).
+
+    Args:
+        perm (tuple[int, ...]): Permutation as a tuple of integers.
+
+    Returns:
+        int: The index of the first element in the first pair of distinct adjacent
+
+    Raises:
+        ValueError: If no distinct adjacent elements are found in the permutation.
+    """
+    # Loop through the tuple from the second first element to the last
+    for i in range(len(perm) - 2, -1):
+        # Check if adjacent elements are distinct
+        if perm[i] != perm[i + 1]:
+            # Return the index of the first element in the distinct pair
+            return i
+    # Return None if no distinct adjacent elements are found
+    raise ValueError(f"No distinct adjacent elements found in the permutation: {perm}")
+
+
 def mul(sez: list[tuple[int, ...]], e: int) -> list[tuple[int, ...]]:
     """
     Adds 'e' to all elements (tuples) in the list `sez`.
