@@ -962,25 +962,6 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
             sub_sig = sorted_sig[:idx] + (color - 1,) + sorted_sig[idx + 1 :]
             if any(s < 0 for s in sub_sig):
                 raise ValueError(f"Negative signature {sub_sig}")
-            [s for s in sub_sig if s > 0]
-            # if temp_s[0] == 2 and temp_s[1] % 2 and temp_s[2] == 1 and len(temp_s) == 3:
-            #     # get the transformer
-            #     sorted_subsub_sig, transformer2 = get_transformer(
-            #         sub_sig, lambda x: [x[0]]
-            #     )
-            #     c = transform(incorporated_odd_2_1_cycle(sorted_subsub_sig[0], True), transformer2)
-            # elif temp_s[0] % 2 == 0 and temp_s[1] % 2 and temp_s[2] == 1 and len(temp_s) == 3:
-            #     sorted_subsub_sig, transformer2 = get_transformer(
-            #         sub_sig, lambda x: [x[0]]
-            #     )
-            #     c = transform(
-            #         even_odd_1_cycle(
-            #             (sorted_subsub_sig[0], sorted_subsub_sig[1], 1),
-            #             False,
-            #         ),
-            #         transformer2,
-            #     )
-            # else:
             c = get_connected_cycle_cover(sub_sig)
             if not isinstance(c[0], tuple):
                 raise ValueError(f"Expected a cycle, got {c}")
