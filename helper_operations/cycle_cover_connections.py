@@ -667,11 +667,13 @@ def connect_single_cycle_cover(
                 ]
             )
             print(f"node1 before tail: {node1}")
+            swapidx = cut_node_sig[0][1] + cut_node_sig[1][1] - 1
+            if len(node1) - 1 <= swapidx:
+                swapidx = cut_node_sig[0][1] - 1
             node2 = node1 + swapPair(tail, 0)
             node1 = node1 + tail
             print(f"newsig: {newsig} and tail {tail}")
             print(f"node1: {node1} node2: {node2}")
-            swapidx = cut_node_sig[0][1] + cut_node_sig[1][1] - 1
             cross_edges[(tail, swapPair(tail, 0))] = [
                 (
                     (node1, swapPair(node1, swapidx)),
@@ -690,7 +692,7 @@ def connect_single_cycle_cover(
             # first evens then odds from largest to smallest
             three_odd_elements_sig = sorted(
                 [(i, n - (i == tail[1])) for i, n in enumerate(sig)],
-                key=lambda x: [x[1] % 2 == 0, x[0] != tail[0], x[1]],
+                key=lambda x: [x[1] % 2 == 0, x[0] == tail[1], x[0] != tail[0], x[1]],
                 reverse=True,
             )
             node1 = tuple()
@@ -824,16 +826,21 @@ def connect_single_cycle_cover(
             )
             # odd_el^{k_{odd_el}}} 0^{k_0} 1^{k_1} 2^{k_2} ... tail - odd_el^{k_{odd_el}} 0 odd_el 0^{k_0-1} 1^{k_1} 2^{k_2-1} ... tail
             # odd_el^{k_{odd_el}}} 0^{k_0} 1^{k_1} 2^{k_2} ... swapTail - odd_el^{k_{odd_el}} 0 odd_el 0^{k_0-1} 1^{k_1} 2^{k_2-1} ... swapTail
-            node1 = (odd_el[0][0],) * odd_el[0][1]
-            even_elements = [(i, n) for i, n in enumerate(newsig) if n % 2 == 0]
+            node1 = tuple()
+            for i, n in odd_el:
+                node1 += (i,) * n
+            # node1 = (odd_el[0][0],) * odd_el[0][1]
+            even_elements = sorted(
+                [(i, n) for i, n in enumerate(newsig) if n % 2 == 0],
+                key=lambda x: [x[0] in tail[:2], x[1], -x[0]],
+                reverse=True,
+            )
             for i, el in even_elements:
                 node1 += (i,) * el
-            for i, n in odd_el[1:]:
-                node1 += (i,) * n
+            # for i, n in odd_el[1:]:
+            #     node1 += (i,) * n
             if len(odd_el) > 1:
-                swapidx = (
-                    odd_el[0][1] + sum(even_el[1] for even_el in even_elements) - 1
-                )
+                swapidx = sum(o_el[1] for o_el in odd_el[:-1]) - 1
             else:
                 swapidx = odd_el[0][1] - 1
             node2 = node1 + swapPair(tail, 0)
