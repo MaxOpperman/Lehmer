@@ -1,26 +1,17 @@
-from helper_operations.cycle_cover_connections import filter_adjacent_edges_by_tail
 from helper_operations.path_operations import (
-    adjacent,
     createZigZagPath,
     cutCycle,
     cycleQ,
     glue,
-    incorporateSpurInZigZag,
     pathQ,
     splitPathIn2,
-    spurBaseIndex,
-    stutterPermutationQ,
-    transform,
 )
 from helper_operations.permutation_graphs import (
     extend,
-    get_perm_signature,
     incorporateSpursInZigZag,
-    rotate,
     stutterPermutations,
     swapPair,
 )
-from stachowiak import lemma2_extended_path
 from verhoeff import HpathNS
 
 
@@ -411,7 +402,7 @@ def incorporated_odd_2_1_path_a_b(k: int) -> list[tuple[int, ...]]:
     return p1_p12_p02_p20[:1] + cycle + p1_p12_p02_p20[1:]
 
 
-def incorporated_odd_2_1_cycle(k: int, split_1s=False) -> list[tuple[int, ...]]:
+def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     """
     Generates a path based on the number of 0's `k` from `e = 1 0 2 0^{k0-1} 1` to `f = 0 1 2 0^{k0-1} 1`.
     Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
@@ -467,14 +458,13 @@ def incorporated_odd_2_1_cycle(k: int, split_1s=False) -> list[tuple[int, ...]]:
     swap_idx = k - 2
     # new cut node is 1 1 0^{k-1} 2 0 - 1 0 1 0^{k-2} 2 0
     # to parallel 1 1 0^{k-2} 2 0 0 - 1 0 1 0^{k-3} 2 0 0
-    if split_1s:
-        parallel_cut_node = (0,) * (k - 1) + (1, 1, 0, 2)
-        cut_node = swapPair(parallel_cut_node, -3)
-        swap_idx = k - 2
+    # if split_1s:
+    #     parallel_cut_node = (0,) * (k - 1) + (1, 1, 0, 2)
+    #     cut_node = swapPair(parallel_cut_node, -3)
+    #     swap_idx = k - 2
     print(
         f"cut_node: {cut_node} and {swapPair(cut_node, swap_idx)}, parallel_cut_node: {parallel_cut_node} and {swapPair(parallel_cut_node, swap_idx)}"
     )
-    print(f"bool was {split_1s}")
     full = glue(
         c1_c12_c00_c10,
         parallelCycles,

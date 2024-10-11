@@ -108,7 +108,7 @@ class TestPermutationGraphs:
         result = get_perm_signature(p)
         assert result == (2, 3, 1)
 
-    def check_permutations(self, s: tuple[int], ps: list[list[int]]):
+    def check_permutations(self, s: tuple[int, ...], ps: list[list[int]]):
         """Check that all permutations in ps differ, none are missing, and all have signature s"""
         assert len(ps) == len(set(tuple(p) for p in ps))  # no duplicates
         assert len(ps) == multinomial(s)  # no missing

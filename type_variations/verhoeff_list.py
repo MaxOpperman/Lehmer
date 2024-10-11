@@ -20,7 +20,7 @@ def stutterize(p: list[int]) -> list[list[int]]:
     return [[el for el in t for _ in range(2)] for t in p]
 
 
-def selectOdds(sig: tuple[int]) -> list[int]:
+def selectOdds(sig: tuple[int, ...]) -> list[int]:
     """
     Returns list of numbers with odd occurrence frequencies in the given signature.
     Args:
@@ -31,7 +31,7 @@ def selectOdds(sig: tuple[int]) -> list[int]:
     return [i for i, item in enumerate(sig) if item % 2 == 1]
 
 
-def stutterPermutations(s: tuple[int]) -> list[list[int]]:
+def stutterPermutations(s: tuple[int, ...]) -> list[list[int]]:
     """
     Generates stutter permutations of a given signature.
     Stutter permutations have the form [a, a, b, b, c, c, ..., z] where a, b, c, ... are the elements of the permutation.

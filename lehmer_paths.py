@@ -11,14 +11,14 @@ from helper_operations.permutation_graphs import (
 
 
 def order_path_to_stutter_start(
-    path: list[tuple[int]], stutters: list[tuple[int, ...]]
+    path: list[tuple[int, ...]], stutters: list[tuple[int, ...]]
 ) -> list[tuple[int, ...]]:
     """
     If the path is a cycle; order the cycle to make the start node adjacent to a stutter.
     If the path is not a cycle; just return the original path.
 
     Args:
-        path (list[tuple[int]]): The path to order.
+        path (list[tuple[int, ...]]): The path to order.
         stutters (list[tuple[int, ...]]): The stutters to incorporate.
 
     Returns:
@@ -35,13 +35,13 @@ def order_path_to_stutter_start(
     return path
 
 
-def incorporate_stutters(sig: tuple[int]) -> list[tuple[int, ...]]:
+def incorporate_stutters(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Creates a cycle/path on the non-stutter permutations and then incorporates the stutters to create a Lehmer cycle/path.
     See the Notes for which signatures result in a path instead of a cycle.
 
     Args:
-        sig (tuple[int]): The input signature.
+        sig (tuple[int, ...]): The input signature.
 
     Returns:
         list[tuple[int, ...]]: The list of tuples representing the valid cycle/path on non-stutter permutations with the stutters incorporated.

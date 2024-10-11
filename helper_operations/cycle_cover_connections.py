@@ -26,12 +26,12 @@ from helper_operations.permutation_graphs import (
 )
 
 
-def get_tail_length(sig: tuple[int]) -> int:
+def get_tail_length(sig: tuple[int, ...]) -> int:
     """
     Get the length of the tail to cut the cycle cover on.
 
     Args:
-        sig (tuple[int]): The signature of the permutation.
+        sig (tuple[int, ...]): The signature of the permutation.
 
     Returns:
         int: The length of the tail.
@@ -50,7 +50,7 @@ def get_tail_length(sig: tuple[int]) -> int:
 
 
 @cache
-def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
+def generate_end_tuple_order(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generates the order of the end tuples of the cycles in the cycle cover.
     The end tuples are the tails of the cycles that are the nodes that connect them.
@@ -59,7 +59,7 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
     - **All-but-one-even**: _0, _1, _2, _3, _4, _5, ...
 
     Args:
-        sig (tuple[int]): The signature of the permutation.
+        sig (tuple[int, ...]): The signature of the permutation.
 
     Returns:
         list[tuple[int, ...]]:
@@ -121,7 +121,7 @@ def generate_end_tuple_order(sig: tuple[int]) -> list[tuple[int, ...]]:
 
 
 def find_end_tuple_order(
-    cycle_cover: list[list[tuple[int]]], force_three: bool = False
+    cycle_cover: list[list[tuple[int, ...]]], force_three: bool = False
 ) -> list[tuple[int, ...]]:
     """
     Find the connecting end tuples in the order of the cycle cover.
@@ -129,7 +129,7 @@ def find_end_tuple_order(
     The length of the end tuples is at most 3 but they can vary between end tuples.
 
     Args:
-        cycle_cover (list[list[tuple[int]]]): The cycle cover to find the end tuples for.
+        cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to find the end tuples for.
         force_three (bool): If the end tuples should be of length 3.
 
     Returns:
@@ -260,7 +260,6 @@ def find_parallel_edges_in_cycle_cover(
     The tail is defined by the number of odd colors in the signature.
 
     Args:
-        sig (tuple[int]): The signature of the permutation.
         cycle_cover (list[tuple[int, ...]]): The cycle cover to find parallel edges in.
         end_tuple_order (list[tuple[int, ...]]): The order of the end tuples of the cycles in the cycle cover.
 

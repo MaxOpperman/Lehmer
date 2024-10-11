@@ -288,14 +288,14 @@ def _lemma8_helper(
 
 
 def _lemma7_constructor(
-    sig: tuple[int],
+    sig: tuple[int, ...],
 ) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
     """
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
     Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
     Parameters:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
             Colors 0 and 1 occur once, colors 2 and 3 occur q and p times respectively.
@@ -310,12 +310,12 @@ def _lemma7_constructor(
     return _lemma8_helper([(0, 1), (1, 1), (2, sig[2]), (3, sig[3])])
 
 
-def lemma7(sig: tuple[int]) -> list[tuple[int, ...]]:
+def lemma7(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Computes Lemma 7 by Stachowiak: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
 
@@ -547,12 +547,12 @@ def _lemma9_glue_a_edges(
     return g_result_start
 
 
-def lemma8(sig: tuple[int]) -> list[tuple[int, ...]]:
+def lemma8(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             The signature of the neighbor-swap graph; 1, 1, q, p.
             We assume the first two elements are of colors 0 and 1 and occur once.
             The second two elements are of colors 2 and 3 and occur q and p times respectively.
@@ -580,12 +580,12 @@ def lemma8(sig: tuple[int]) -> list[tuple[int, ...]]:
 
 
 @cache
-def lemma9(sig: tuple[int]) -> list[tuple[int, ...]]:
+def lemma9(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             The signature of the neighbor-swap graph; (1, 1, r, s, p). We assume:\n
             - The first two elements are of colors 0 and 1 respectively and occur once.
             - The second two elements are of color 2 and occur r and s times respectively.
@@ -803,14 +803,14 @@ def _lemma10_helper(
     return cycle
 
 
-def lemma10(sig: tuple[int]) -> list[tuple[int, ...]]:
+def lemma10(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Computes Lemma 10 by Stachowiak:
     If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
     Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             The signature of the graph; `Q` is the first two elements, `p` is the third.
             `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
             `p` is the third element of sig and has color 2 and occurs `p` times.
@@ -830,13 +830,13 @@ def lemma10(sig: tuple[int]) -> list[tuple[int, ...]]:
 
 
 @cache
-def lemma11(sig: tuple[int]) -> list[tuple[int, ...]]:
+def lemma11(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
             These two elements are set to the front of the signature using a recursive call.
             Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).

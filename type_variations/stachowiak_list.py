@@ -232,7 +232,9 @@ def _lemma8_helper(
         return all_q, result
 
 
-def _lemma7_constructor(sig: tuple[int]) -> tuple[list[list[int]], list[list[int]]]:
+def _lemma7_constructor(
+    sig: tuple[int, ...]
+) -> tuple[list[list[int]], list[list[int]]]:
     """
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
     Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
@@ -253,7 +255,7 @@ def _lemma7_constructor(sig: tuple[int]) -> tuple[list[list[int]], list[list[int
     return _lemma8_helper([(0, 1), (1, 1), (2, sig[2]), (3, sig[3])])
 
 
-def lemma7(sig: tuple[int]) -> list[list[int]]:
+def lemma7(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Computes Lemma 7 by Stachowiak: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
 
@@ -434,7 +436,7 @@ def _lemma9_glue_a_edges(
         sub_cycles (list[list[int]]): Sub cycles created by gluing y_{ij}, x_{i(j+1)} from Lemma 8
 
     Returns:
-        list[tuple[int]]:
+        list[tuple[int, ...]]:
             Cycle of all sub cycles glued together. Has the form `GE( (k^r (0|1) k^s) | l^p) )`
     """
     # make the a1 path, we have as first part of the cycle a11~path~a12
@@ -488,7 +490,7 @@ def _lemma9_glue_a_edges(
     return g_result_start
 
 
-def lemma8(sig: tuple[int]) -> list[list[int]]:
+def lemma8(sig: tuple[int, ...]) -> list[list[int]]:
     """
     The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
@@ -518,7 +520,7 @@ def lemma8(sig: tuple[int]) -> list[list[int]]:
     return g_result_start
 
 
-def lemma9(sig: tuple[int]) -> list[list[int]]:
+def lemma9(sig: tuple[int, ...]) -> list[list[int]]:
     """
     The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
 
@@ -737,7 +739,7 @@ def _lemma10_helper(K: list[list[int]], p: int, new_color: int) -> list[list[int
     return cycle
 
 
-def lemma10(sig: tuple[int]) -> list[list[int]]:
+def lemma10(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Computes Lemma 10 by Stachowiak:
     If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
@@ -762,7 +764,7 @@ def lemma10(sig: tuple[int]) -> list[list[int]]:
     return cycle
 
 
-def lemma11(sig: tuple[int]) -> list[list[int]]:
+def lemma11(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.

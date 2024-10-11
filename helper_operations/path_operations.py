@@ -337,17 +337,19 @@ def createSquareTube(path: list[tuple], u: tuple, v: tuple) -> list[tuple[int, .
     return result
 
 
-def get_transformer(s: tuple[int], func: callable) -> tuple[tuple[int], list[int]]:
+def get_transformer(
+    s: tuple[int, ...], func: callable
+) -> tuple[tuple[int, ...], list[int]]:
     """
     Sorts the signature using a given function and provides array to transform it back.
     The transformer array is built by indexing the numbers. See ``transform`` for more details on the format.
 
     Args:
-        s (tuple[int]): The signature as a tuple of integers.
+        s (tuple[int, ...]): The signature as a tuple of integers.
         func (callable): The lambda function of tuples of form (value, index) to sort the signature.
 
     Returns:
-        tuple[tuple[int], list[int]]:
+        tuple[tuple[int, ...], list[int]]:
             A tuple of a tuple and a list of integers:
             - the first is a tuple: the sorted signature.
             - the second is a list: the transformation array (used in the ``tranform`` function).
@@ -547,7 +549,7 @@ def get_first_element(nested_list: list, element=0) -> tuple[int, ...]:
         return nested_list
 
 
-def non_stutter_cycleQ(sig: tuple[int]) -> bool:
+def non_stutter_cycleQ(sig: tuple[int, ...]) -> bool:
     """
     Return whether a cycle on the non-stutter permutations is possible for the given signature.
     This cycle is not possible for the following signatures:\n
@@ -557,7 +559,7 @@ def non_stutter_cycleQ(sig: tuple[int]) -> bool:
     - Even-1-1
 
     Args:
-        sig (tuple[int]): The signature of the multiset permutations.
+        sig (tuple[int, ...]): The signature of the multiset permutations.
 
     Returns:
         bool: True if a cycle on the non-stutter permutations is possible, False if only a path is possible.

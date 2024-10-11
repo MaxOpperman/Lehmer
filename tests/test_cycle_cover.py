@@ -435,6 +435,7 @@ class Test_HpathCycleCover_Even_Odd_1:
         assert len(cycles[0]) == multinomial(signature)
         assert cycleQ(cycles[0])
 
+    @pytest.mark.slow
     def test_HpathCycleCover_4_9_1(self):
         signature = (4, 9, 1)
         cycles = generate_cycle_cover(signature)

@@ -8,7 +8,7 @@ from type_variations.steinhaus_johnson_trotter_list import SteinhausJohnsonTrott
 from verhoeff import HpathNS
 
 
-def lemma10(sig: tuple[int]) -> list[list[int]]:
+def lemma10(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Computes Lemma 10 by Stachowiak:
     If `q = |Q| > 2`, `Q` is even and `GE(Q)` contains a Hamiltonian path and `p > 0` then `GE(Q|l^p)` has a Hamiltonian cycle.
@@ -33,7 +33,7 @@ def lemma10(sig: tuple[int]) -> list[list[int]]:
     return cycle
 
 
-def lemma11(sig: tuple[int]) -> list[list[int]]:
+def lemma11(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Finds a Hamiltonian cycle in a graph using Lemma 11 from Stachowiak's paper:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.

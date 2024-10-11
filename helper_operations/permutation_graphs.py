@@ -35,7 +35,7 @@ def binomial(k0: int, k1: int) -> int:
         return (binomial(k0 - 1, k) * k) // k0
 
 
-def multinomial(sig: tuple[int]) -> int:
+def multinomial(sig: tuple[int, ...]) -> int:
     """
     Returns multinomial coefficient for list `sig`. `sig` is a tuple of integers, where each integer represents the number of
     occurrences of a unique element in a multiset. The multinomial coefficient is calculated as the product of the
@@ -43,7 +43,7 @@ def multinomial(sig: tuple[int]) -> int:
     elements of a multiset.
 
     Args:
-        sig (tuple[int]): The tuple of integers for which the multinomial coefficient is calculated.
+        sig (tuple[int, ...]): The tuple of integers for which the multinomial coefficient is calculated.
 
     Returns:
         int: The calculated multinomial coefficient.
@@ -61,13 +61,13 @@ def multinomial(sig: tuple[int]) -> int:
     return binomial(k0, k1) * multinomial(tuple(t[1:]))
 
 
-def perm(sig: tuple[int]) -> list[list[int]]:
+def perm(sig: tuple[int, ...]) -> list[list[int]]:
     """
     Returns all permutations with signature `sig`. The signature is a list of integers, where each integer represents the
     number of occurrences of a unique element in a multiset. The permutations are returned as a list of lists of integers.
 
     Args:
-        sig (tuple[int]): Signature as a tuple of integers
+        sig (tuple[int, ...]): Signature as a tuple of integers
 
     Returns:
         list[list[int]]: List of permutations as lists of integers
@@ -117,12 +117,12 @@ def get_num_of_inversions(permutation: tuple[int, ...]) -> int:
     return result
 
 
-def count_inversions(sig: tuple[int]) -> dict[tuple, int]:
+def count_inversions(sig: tuple[int, ...]) -> dict[tuple, int]:
     """
     Count the number of inversions for all permutations of a signature
 
     Args:
-        sig (tuple[int]): Signature as a tuple of integers
+        sig (tuple[int, ...]): Signature as a tuple of integers
 
     Returns:
         dict[tuple, int]: Dictionary with permutations as keys and number of inversions as values
@@ -132,7 +132,7 @@ def count_inversions(sig: tuple[int]) -> dict[tuple, int]:
     return {tuple(i): get_num_of_inversions(i) for i in perm(sig)}
 
 
-def defect(sig: tuple[int]) -> int:
+def defect(sig: tuple[int, ...]) -> int:
     """
     Compute the defect of a signature. The defect is the difference between the number of even and odd permutations.
     The defect is the number of permutations that cannot be reached in the bipartite neighbor-swap graph.
@@ -140,7 +140,7 @@ def defect(sig: tuple[int]) -> int:
     A bipartite graph can only admit a Hamiltonian cycle if the defect is 0 since it needs to alternate between the two partitions.
 
     Args:
-        sig (tuple[int]): Signature as a list of integers
+        sig (tuple[int, ...]): Signature as a list of integers
 
     Returns:
         int: The absolute difference between the number of even and odd permutations.
@@ -228,13 +228,13 @@ def generate_adj(p: list[int]) -> list[tuple[int, ...]]:
     return v
 
 
-def graph(sig: tuple[int]) -> dict[str, set[str]]:
+def graph(sig: tuple[int, ...]) -> dict[str, set[str]]:
     """
     Returns a graph with signature `sig` in form of dictionary of strings.
     Generates an adjacency dictionary where the keys are permutations and the values are sets of adjacent permutations.
 
     Args:
-        sig (tuple[int]): signature as a tuple of integers
+        sig (tuple[int, ...]): signature as a tuple of integers
 
     Returns:
         dict[str, set[str]]: dictionary with permutations as keys and adjacent permutations as values
@@ -307,7 +307,7 @@ def shorten(lis: list[tuple[int, ...]], num: int) -> list[tuple[int, ...]]:
     return [i[:-num] for i in lis]
 
 
-def get_perm_signature(permutation: tuple[int, ...]) -> tuple[int]:
+def get_perm_signature(permutation: tuple[int, ...]) -> tuple[int, ...]:
     """
     Get the signature of a permutation.
 
@@ -315,7 +315,7 @@ def get_perm_signature(permutation: tuple[int, ...]) -> tuple[int]:
         permutation (tuple[int, ...]): The permutation as a tuple of integers.
 
     Returns:
-        tuple[int]: The signature of the permutation as a tuple of integers.
+        tuple[int, ...]: The signature of the permutation as a tuple of integers.
     """
     if not permutation:
         return []
@@ -338,15 +338,15 @@ def rotate(l: list, n: int) -> list:
     return l[n % len(l) :] + l[: n % len(l)]
 
 
-def halve_signature(sig: tuple[int]) -> tuple[int]:
+def halve_signature(sig: tuple[int, ...]) -> tuple[int, ...]:
     """
     Halves a signature `sig` (tuple of integers) by taking every element and dividing it by 2. The result is rounded down.
 
     Args:
-        sig (tuple[int]): Signature as a tuple of integers.
+        sig (tuple[int, ...]): Signature as a tuple of integers.
 
     Returns:
-        tuple[int]: Halved signature as a tuple of integers.
+        tuple[int, ...]: Halved signature as a tuple of integers.
 
     Raises:
         ValueError: If the signature contains negative integers.
@@ -362,12 +362,12 @@ def halve_signature(sig: tuple[int]) -> tuple[int]:
     return tuple([i // 2 for i in sig])
 
 
-def multiset(s: tuple[int]) -> tuple[int, ...]:
+def multiset(s: tuple[int, ...]) -> tuple[int, ...]:
     """
     Generates the lexicographically smallest list with given signature.
 
     Args:
-        s (tuple[int]): Tuple of integers, each representing the frequency of the corresponding element (signature).
+        s (tuple[int, ...]): Tuple of integers, each representing the frequency of the corresponding element (signature).
 
     Returns:
         tuple[int, ...]: Lexicographically smallest permutation with the given signature.
@@ -379,12 +379,12 @@ def multiset(s: tuple[int]) -> tuple[int, ...]:
     return tuple([i for i, f in enumerate(s) for _ in range(f)])
 
 
-def permutations_from_sig(sig: tuple[int]) -> list[tuple[int, ...]]:
+def permutations_from_sig(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generates all possible permutations of a given signature `sig` which is tuple of integers.
 
     Args:
-        sig (tuple[int]): Tuple of integers, the signature.
+        sig (tuple[int, ...]): Tuple of integers, the signature.
 
     Returns:
         list[tuple[int, ...]]: List of permutations as tuples of integers.
@@ -411,7 +411,7 @@ def _selectOdds(sig: tuple[int, ...]) -> tuple[int, ...]:
     return tuple([i for i, item in enumerate(sig) if item % 2 == 1])
 
 
-def stutterPermutations(sig: tuple[int]) -> list[tuple[int, ...]]:
+def stutterPermutations(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generates stutter permutations of a given signature.
     A stutter permutation is a permutation where each element is repeated twice.
@@ -419,7 +419,7 @@ def stutterPermutations(sig: tuple[int]) -> list[tuple[int, ...]]:
     If the signature is empty or contains only a single 0, an empty list is returned.
 
     Args:
-        sig (tuple[int]):
+        sig (tuple[int, ...]):
             Signature of the permutations as a tuple of integers.
             Or an empty list if there are no stutter permutations.
 
@@ -437,13 +437,13 @@ def stutterPermutations(sig: tuple[int]) -> list[tuple[int, ...]]:
             return result
 
 
-def nonStutterPermutations(s: tuple[int]) -> list[tuple[int, ...]]:
+def nonStutterPermutations(s: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Returns all non-stutter permutations of signature `sig`.
     See `stutterPermutations` for the definition of stutter permutations.
 
     Args:
-        s (tuple[int]): signature of the permutations as a tuple of integers
+        s (tuple[int, ...]): signature of the permutations as a tuple of integers
 
     Returns:
         list[tuple[int, ...]]: non-stutter permutations as a list of tuples of integers
@@ -486,14 +486,14 @@ def selectByTail(
     return [i for i in permutations if i[-len(tail) :] == tail]
 
 
-def HpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
+def HpathQ(per: list[tuple[int, ...]], sig: tuple[int, ...]) -> bool:
     """
     Determines whether the path is a Hamiltonian path on the non-stutter permutations of the given signature.
     The list is a Hamiltonian path iff it is a path **and** the set of permutations is equal to the set of non-stutter permutations.
 
     Args:
         per (list[tuple[int, ...]]): List of permutations ordered in a path.
-        sig (tuple[int]): Signature as a tuple of integers.
+        sig (tuple[int, ...]): Signature as a tuple of integers.
 
     Returns:
         bool: `True` if the path is a Hamiltonian path on the non-stutter permutations of the given signature, `False` otherwise.
@@ -508,14 +508,14 @@ def HpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
     return False
 
 
-def HcycleQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
+def HcycleQ(per: list[tuple[int, ...]], sig: tuple[int, ...]) -> bool:
     """
     Determines whether the list of permutations is a Hamiltonian cycle on the non-stutter permutations of the given signature.
     The list is a Hamiltonian cycle iff the list is a Hamiltonian path **and** the first and last permutations are adjacent.
 
     Args:
         per (list[tuple[int, ...]]): List of permutations, ordered in a cycle.
-        sig (tuple[int]): Signature as a tuple of integers.
+        sig (tuple[int, ...]): Signature as a tuple of integers.
 
     Returns:
         bool: `True` if the list of permutations is a Hamiltonian cycle on the non-stutter permutations of the given signature, `False` otherwise.
@@ -525,7 +525,7 @@ def HcycleQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
     return adjacent(per[0], per[-1]) and HpathQ(per, sig)
 
 
-def LargeHpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
+def LargeHpathQ(per: list[tuple[int, ...]], sig: tuple[int, ...]) -> bool:
     """
     Determines whether the list is a Hamiltonian path on the non-stutter permutations of the given signature.
     Used for "larger" signatures where the path contains a lot of permutations. The other function will get slow
@@ -536,7 +536,7 @@ def LargeHpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
 
     Args:
         per (list[tuple[int, ...]]): List of permutations, ordered in a path.
-        sig (tuple[int]): Signature as a tuple of integers.
+        sig (tuple[int, ...]): Signature as a tuple of integers.
 
     Returns:
         bool: `True` if the path is a Hamiltonian path on the non-stutter permutations of the given signature, `False` otherwise.
@@ -552,7 +552,7 @@ def LargeHpathQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
     return len(set(per)) == len(per) and len(per) == expected_length and pathQ(per)
 
 
-def LargeHcycleQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
+def LargeHcycleQ(per: list[tuple[int, ...]], sig: tuple[int, ...]) -> bool:
     """
     Determines whether the list is a Hamiltonian cycle on the non-stutter permutations of the given signature.
     Used for "larger" signatures where the cycle contains a lot of permutations. The other function will get slow
@@ -563,7 +563,7 @@ def LargeHcycleQ(per: list[tuple[int, ...]], sig: tuple[int]) -> bool:
 
     Args:
         per (list[tuple[int, ...]]): List of permutations, ordered in a cycle.
-        sig (tuple[int]): Signature as a tuple of integers.
+        sig (tuple[int, ...]): Signature as a tuple of integers.
 
     Returns:
         bool: `True` if the list is a Hamiltonian cycle on the non-stutter permutations of the given signature, `False` otherwise.

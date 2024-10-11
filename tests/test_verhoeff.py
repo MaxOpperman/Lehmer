@@ -296,6 +296,11 @@ class Test_HpathNS_Odd_Odd:
         result = HpathNS(5, 5)
         assert LargeHpathQ(result, [5, 5])
 
+    def test_HpathNS_3_7(self):
+        result = HpathNS(3, 7)
+        assert LargeHpathQ(result, [3, 7])
+
+    @pytest.mark.slow
     def test_HpathNS_5_7(self):
         result = HpathNS(5, 7)
         assert LargeHpathQ(result, [5, 7])
