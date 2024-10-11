@@ -340,38 +340,6 @@ def Hcycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
     return start_cycle + mid_cycle + end_cycle_1 + end_cycle_2
 
 
-def parallel_sub_cycle_odd_2_1_second(k: int) -> list[tuple[int, ...]]:
-    """
-    Generates the parallel cycle from the 02 and 20 cycles with stutters. Uses the createZigZagPath and incorporateSpursInZigZag functions.
-
-    Args:
-        k (int): The input value for `k`, the number of 0's\n
-        This must be even because we don't count the zero in the trailing `02 / 20`
-
-    Returns:
-        list[tuple[int, ...]]: The generated path from `0 1 0^{k-1} 1 0 2` to `1 0^(k) 1 0 2`
-
-    Raises:
-        ValueError: If k is odd
-    """
-    if k % 2 == 1:
-        raise ValueError(f"k must be even, you probably mean {k-1} and not {k}")
-    cycle_without_stutters = HpathNS(k, 2)
-    non_stutter_cut = cutCycle(cycle_without_stutters, (1, 0, 0, 1) + (0,) * (k - 2))
-    if non_stutter_cut[-1] != swapPair((1, 0, 1) + (0,) * (k - 1), 0):
-        non_stutter_cut = non_stutter_cut[:1] + non_stutter_cut[1:][::-1]
-    if non_stutter_cut[-1] != swapPair((1, 0, 1) + (0,) * (k - 1), 0):
-        print(f"ERROR: {non_stutter_cut}")
-    cycle_20_02 = cutCycle(
-        createZigZagPath(non_stutter_cut, (2, 0), (0, 2)),
-        (0, 1) + (0,) * (k - 1) + (1, 0, 2),
-    )
-    sp02 = stutterPermutations([k, 2])
-    cycle_with_stutters = incorporateSpursInZigZag(cycle_20_02, sp02, [(0, 2), (2, 0)])
-    cut_with_stutters = cutCycle(cycle_with_stutters, (0,) * (k) + (1, 1, 2, 0))
-    return cut_with_stutters
-
-
 def parallel_sub_cycle_odd_2_1(k: int) -> list[tuple[int, ...]]:
     """
     Generates the parallel cycle from the 02 and 20 cycles with stutters. Uses the createZigZagPath and incorporateSpursInZigZag functions.
@@ -467,14 +435,13 @@ def incorporated_odd_2_1_cycle(k: int, split_1s=False) -> list[tuple[int, ...]]:
         return Hpath_odd_2_1(1)
 
     # the path from a to b (_1 | _12) with parallel 02-20 cycles incorporated
-    parallelCycles = parallel_sub_cycle_odd_2_1_second(k - 1)
+    parallelCycles = parallel_sub_cycle_odd_2_1(k - 1)
     e_f_cylce = Hcycle_odd_2_1(k)
 
     # path from c'10=120^{k_0-1}10 to d'10=0210^{k_0-1}10 (_10)
     p10 = extend(Hpath_even_1_1(k - 1), (1, 0))
     # path from a'00=120^{k_0-2}100 to b'00=0210^{k_0-3}100 (_00)
     p00 = extend(incorporated_odd_2_1_path_a_b(k - 2), (0, 0))
-    print(f"p10 = {p10},\np00 = {p00}")
 
     # generate the cycle from c=1 2 0^{k0-1} 1 0 to 2 1 0^{k0-1} 1 0
     cycle = p10 + p00[::-1]
