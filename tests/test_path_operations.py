@@ -340,11 +340,11 @@ class TestPathOperations:
             createZigZagPath(c, u, v)
 
     def test_createZigZagPath_not_path(self):
-        c = [(0, 1, 0, 1), (0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 1, 0)]
+        p = [(0, 1, 0, 1), (0, 1, 1, 0), (1, 0, 0, 1), (1, 0, 1, 0)]
         u = (0, 1)
         v = (1, 0)
         with pytest.raises(AssertionError):
-            createZigZagPath(c, u, v)
+            createZigZagPath(p, u, v)
 
     def test_createSquarTube_path(self):
         path = [(0, 0, 0, 1), (0, 0, 1, 0), (0, 1, 0, 0), (1, 0, 0, 0)]

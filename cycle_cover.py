@@ -1030,10 +1030,10 @@ def get_connected_cycle_cover(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
         - Stachowiak G. Hamilton Paths in Graphs of Linear Extensions for Unions of Posets. Technical report, 1992
     """
+    sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
     if len(list(sig)) <= 1:
         # if there is one element, it is a stutter permutation by definition
         return []
-    sorted_sig, transformer = get_transformer(sig, lambda x: x[0])
     if sig != sorted_sig:
         return transform(get_connected_cycle_cover(sorted_sig), transformer)
     elif len(list(sig)) == 2 and any(c % 2 == 0 for c in sig):

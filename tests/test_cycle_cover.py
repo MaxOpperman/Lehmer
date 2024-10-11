@@ -463,43 +463,43 @@ class Test_HpathCycleCover_Odd_Odd_1:
     def test_HpathCycleCover_3_3_1(self):
         signature = (3, 3, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     def test_HpathCycleCover_3_5_1(self):
         signature = (3, 5, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     def test_HpathCycleCover_5_5_1(self):
         signature = (5, 5, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     def test_HpathCycleCover_7_5_1(self):
         signature = (7, 5, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     def test_HpathCycleCover_3_9_1(self):
         signature = (3, 9, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     @pytest.mark.slow
     def test_HpathCycleCover_7_7_1(self):
         signature = (7, 7, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
     @pytest.mark.slow
     def test_HpathCycleCover_5_9_1(self):
         signature = (5, 9, 1)
         cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
+        assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)

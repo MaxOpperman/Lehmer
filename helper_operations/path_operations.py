@@ -119,6 +119,7 @@ def splitPathIn2(
         AssertionError: If the list `p` does not represent a path.
     """
     assert len(p) > 1
+    assert pathQ(p)
     if not a in p:
         raise AssertionError(f"Vertex {a} not in path {p}")
     # assert pathQ(p)
