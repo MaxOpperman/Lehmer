@@ -84,6 +84,7 @@ def main():
             )
 
 
+@cache
 def _generate_all_di(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generate all possible `d_i` chains based on the given `chain_p`.
@@ -111,6 +112,7 @@ def _generate_all_di(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     return d_all
 
 
+@cache
 def _generate_all_di_prime(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Generate all possible `d_i` chains based on the given `chain_p`.
@@ -138,6 +140,7 @@ def _generate_all_di_prime(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
     return d_all
 
 
+@cache
 def lemma2_cycle(chain_p: tuple[int, ...], case_2_1=True) -> list[tuple[int, ...]]:
     """
     This function generates the cycles of Lemma 2.
@@ -287,6 +290,7 @@ def _lemma8_helper(
         return all_q, result
 
 
+@cache
 def _lemma7_constructor(
     sig: tuple[int, ...],
 ) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
@@ -369,6 +373,7 @@ def _cut_cycle_start_end(
     return cyc_cut
 
 
+@cache
 def _lemma8_g_i_sub_graphs(
     k_q: tuple[int, ...], l_p: tuple[int, ...]
 ) -> list[list[tuple[int, ...]]]:
@@ -547,6 +552,7 @@ def _lemma9_glue_a_edges(
     return g_result_start
 
 
+@cache
 def lemma8(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
@@ -803,6 +809,7 @@ def _lemma10_helper(
     return cycle
 
 
+@cache
 def lemma10(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     """
     Computes Lemma 10 by Stachowiak:

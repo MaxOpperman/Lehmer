@@ -165,7 +165,16 @@ def fig12(ax, even_int: int):
     ax.plot(path_x, path_y, color="blue", linewidth=5)
 
     # Draw black circles at key points
-    key_points = [(0, 1), (0, 0), (x, 0), (x, y), (0, y), (1, 1)]
+    key_points = [
+        (0, 1),
+        (0, 0),
+        (x, 0),
+        (x, y),
+        (0, y),
+        (1, 1),
+        (x, y - 1),
+        (x, y - 2),
+    ]
     for point in key_points:
         ax.plot(*point, "ko", markersize=10)
 
@@ -175,6 +184,8 @@ def fig12(ax, even_int: int):
         (0, y + 0.5): f'1{odd_int*"0"}12',
         (x, y + 0.5): f'{odd_int*"0"}112',
         (x, -0.5): f'2{odd_int*"0"}11',
+        (x - 0.1 + ((odd_int) * 0.25), y - 1): f'{odd_int*"0"}121',
+        (x - 0.1 + ((odd_int) * 0.25), y - 2): f'{odd_int*"0"}211',
         (0, -0.5): f'21{odd_int*"0"}1',
         (0, 1.5): f'12{odd_int*"0"}1',
         (1, 0.5): f'021{(odd_int-1)*"0"}1',
@@ -264,7 +275,16 @@ def fig12_e_f(ax, even_int: int):
     ax.plot([0, 1], [2, 2], color="orange", linewidth=5)
 
     # Draw black circles at key points
-    key_points = [(0, 2), (0, 0), (x, 0), (x, y), (0, y), (1, 2)]
+    key_points = [
+        (0, 2),
+        (0, 0),
+        (x, 0),
+        (x, y),
+        (0, y),
+        (1, 2),
+        (x, y - 1),
+        (x, y - 2),
+    ]
     for point in key_points:
         ax.plot(*point, "ko", markersize=10)
 
@@ -277,6 +297,8 @@ def fig12_e_f(ax, even_int: int):
         (0, -0.5): f'21{odd_int*"0"}1',
         (((odd_int + 1.1) * -0.22), 2.0): f'e=102{(odd_int-1)*"0"}1',
         (0.8, 2.3): f'f=012{(odd_int-1)*"0"}1',
+        (x - 0.1 + ((odd_int) * 0.25), y - 1): f'{odd_int*"0"}121',
+        (x - 0.1 + ((odd_int) * 0.25), y - 2): f'{odd_int*"0"}211',
     }
     for (x, y), text in annotations.items():
         ax.text(x, y, text, fontsize=12, ha="center", va="center")
