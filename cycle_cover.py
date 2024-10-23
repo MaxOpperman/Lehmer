@@ -4,6 +4,7 @@ from functools import cache
 
 from helper_operations.cycle_cover_connections import (
     connect_single_cycle_cover,
+    find_cross_edges,
     generate_end_tuple_order,
     get_tail_length,
 )
@@ -555,6 +556,15 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
         (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
     )
+    # find_cross_edges([[c3_c32_c02], [even_1_1_c12]], [(1, 0, 2)])
+    # cn_c2_c3_first = (1,) + (0,) * (sig[0]-1) + (3, 1, 0, 2)
+    # cn_c2_c3_second = (1,) + (0,) * (sig[0]-1) + (3, 0, 1, 2)
+    # c2_c3 = glue(
+    #     c3_c32_c02,
+    #     even_1_1_c12,
+    #     (cn_c2_c3_first, swapPair(cn_c2_c3_first, 0)),
+    #     (cn_c2_c3_second, swapPair(cn_c2_c3_second, 0)),
+    # )
     c0_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 3, 0)
     c1_cut_node = swapPair(c0_cut_node, -2)
     print(f"c0-c1 cut node {c0_cut_node} and {swapPair(c0_cut_node, sig[0])}")
@@ -901,7 +911,13 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         # use induction on the last element
         all_sub_cycles = []
         # sort the signature to first have the even numbers then the odd numbers
-        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2 == 0, x[0]])
+        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2 == 1, x[0]])
+        print(
+            f"{len(sorted_sig) == 4} {sorted_sig[-1] == 2} {sorted_sig[1:3] == (1, 1)} for sig {sig}"
+        )
+        # quit()
+        if len(sorted_sig) == 4 and sorted_sig[-1] == 2 and sorted_sig[1:3] == (1, 1):
+            sorted_sig, transformer = get_transformer(sig, lambda x: [x[0]])
         print(f"new sig {sorted_sig} and transformer {transformer}")
         for idx, color in enumerate(sorted_sig):
             sub_sig = sorted_sig[:idx] + (color - 1,) + sorted_sig[idx + 1 :]

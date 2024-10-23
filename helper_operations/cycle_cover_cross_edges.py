@@ -126,8 +126,13 @@ def generate_one_odd_cross_edges(
         )
         # the signatures odd-2-1 and even-odd-1 are exceptions here
         if (
-            (sig_min_tail[0] % 2 == 1 and sig_min_tail[2] == 2) or sig_min_tail[1] == 1
-        ) and len(sig) == 3 and len(odd_elements) >= 2:
+            (
+                (sig_min_tail[0] % 2 == 1 and sig_min_tail[2] == 2)
+                or sig_min_tail[1] == 1
+            )
+            and len(sig) == 3
+            and len(odd_elements) >= 2
+        ):
             swapidx = odd_elements[0][1] + odd_elements[1][1] - 1
         cross_edges[(tail, swapPair(tail, 0))] = [
             (
