@@ -523,50 +523,73 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (even_1_1_start13[0], even_1_1_start13[1]),
     )
     # combine c2 and c3 to get order; c0, c1, c2/c3
-    cn_03_to_23_32_first = (1, 1) + (0,) * (sig[0] - 1) + (2, 0, 3)
-    cn_03_to_23_32_second = (1, 1) + (0,) * (sig[0]) + (2, 3)
-    swapidx_c03_c13 = 1
-    c03_c23_c32 = glue(
-        odd_2_1_c03,
-        even_2_c23_c32,
-        (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
-        (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
-    )
+    # cn_03_to_23_32_first = (1, 1) + (0,) * (sig[0] - 1) + (2, 0, 3)
+    # cn_03_to_23_32_second = (1, 1) + (0,) * (sig[0]) + (2, 3)
+    # swapidx_c03_c13 = 1
+    # c03_c23_c32 = glue(
+    #     odd_2_1_c03,
+    #     even_2_c23_c32,
+    #     (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
+    #     (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
+    # )
     cn_c3_first = (0,) * sig[0] + (1, 2, 1, 3)
     cn_c3_second = (0,) * sig[0] + (1, 1, 2, 3)
-    c3 = glue(
+    find_cross_edges([[even_1_1_c13], [even_2_c23_c32]], [(2, 1, 3)])
+    c13_c23_c32 = glue(
         even_1_1_c13,
-        c03_c23_c32,
+        even_2_c23_c32,
         (cn_c3_first, swapPair(cn_c3_first, sig[0] - 1)),
         (cn_c3_second, swapPair(cn_c3_second, sig[0] - 1)),
     )
-    cn_c32_c02_first = (1, 1) + (0,) * (sig[0]) + (3, 2)
-    cn_c32_c02_second = (1, 1) + (0,) * (sig[0] - 1) + (3, 0, 2)
+    cn_03_to_23_32_first = (0, 1, 2) + (0,) * (sig[0] - 2) + (1, 0, 3)
+    cn_03_to_23_32_second = (0, 1, 2) + (0,) * (sig[0] - 2) + (0, 1, 3)
+    # find_cross_edges([[odd_2_1_c03], [c13_c23_c32]], [(1, 0, 3)])
+    swapidx_c03_c13 = 0
+    c3 = glue(
+        odd_2_1_c03,
+        c13_c23_c32,
+        (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
+        (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
+    )
+    # find_cross_edges([[c3], [odd_2_0_1_c02]], [(0, 3, 2)])
+    # cn_c32_c02_first = (1, 1) + (0,) * (sig[0]) + (3, 2)
+    # cn_c32_c02_second = (1, 1) + (0,) * (sig[0] - 1) + (3, 0, 2)
+    # c3_c32_c02 = glue(
+    #     c3,
+    #     odd_2_0_1_c02,
+    #     (cn_c32_c02_first, swapPair(cn_c32_c02_first, 1)),
+    #     (cn_c32_c02_second, swapPair(cn_c32_c02_second, 1)),
+    # )
+    cn_c32_c02_first = (1, 0, 1) + (0,) * (sig[0] - 1) + (3, 2)
+    cn_c32_c02_second = (1, 0, 1) + (0,) * (sig[0] - 2) + (3, 0, 2)
     c3_c32_c02 = glue(
         c3,
         odd_2_0_1_c02,
         (cn_c32_c02_first, swapPair(cn_c32_c02_first, 1)),
         (cn_c32_c02_second, swapPair(cn_c32_c02_second, 1)),
     )
-    cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
-    cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
-    c2_c3 = glue(
-        c3_c32_c02,
-        even_1_1_c12,
-        (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
-        (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
+    print(
+        f"USED CROSS EDGES: {(cn_c32_c02_first, swapPair(cn_c32_c02_first, 1))} and {(cn_c32_c02_second, swapPair(cn_c32_c02_second, 1))}"
     )
-    # find_cross_edges([[c3_c32_c02], [even_1_1_c12]], [(1, 0, 2)])
-    # cn_c2_c3_first = (1,) + (0,) * (sig[0]-1) + (3, 1, 0, 2)
-    # cn_c2_c3_second = (1,) + (0,) * (sig[0]-1) + (3, 0, 1, 2)
+    # cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
+    # cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
     # c2_c3 = glue(
     #     c3_c32_c02,
     #     even_1_1_c12,
-    #     (cn_c2_c3_first, swapPair(cn_c2_c3_first, 0)),
-    #     (cn_c2_c3_second, swapPair(cn_c2_c3_second, 0)),
+    #     (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
+    #     (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
     # )
+    # find_cross_edges([[c3_c32_c02], [even_1_1_c12]], [(1, 3, 2)])
+    cn_c2_c3_first = (1,) + (0,) * (sig[0]) + (1, 3, 2)
+    cn_c2_c3_second = (1,) + (0,) * (sig[0]) + (3, 1, 2)
+    c2_c3 = glue(
+        c3_c32_c02,
+        even_1_1_c12,
+        (cn_c2_c3_first, swapPair(cn_c2_c3_first, 0)),
+        (cn_c2_c3_second, swapPair(cn_c2_c3_second, 0)),
+    )
     c0_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 3, 0)
-    c1_cut_node = swapPair(c0_cut_node, -2)
+    c1_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 0, 3)
     print(f"c0-c1 cut node {c0_cut_node} and {swapPair(c0_cut_node, sig[0])}")
     c0_c2_c3 = glue(
         odd_2_1_1_c0,
@@ -575,7 +598,7 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (c1_cut_node, swapPair(c1_cut_node, sig[0])),
     )
     last_cut_node1 = (0,) * sig[0] + (1, 2, 3, 1)
-    last_cut_node2 = swapPair(last_cut_node1, -2)
+    last_cut_node2 = (0,) * sig[0] + (1, 2, 1, 3)
     print(
         f"last cut node1 {last_cut_node1}-{swapPair(last_cut_node1, sig[0])} and node2 {last_cut_node2}-{swapPair(last_cut_node2, sig[0])}"
     )
