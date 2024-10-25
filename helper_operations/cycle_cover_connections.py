@@ -706,6 +706,38 @@ def connect_single_cycle_cover(
                     (node2, swapPair(node2, swapidx)),
                 )
             ]
+    elif all(s == 1 for s in sorted(sig, reverse=True)):
+        # permutahedron
+        for tail in end_tuple_order:
+            node1 = tuple()
+            newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
+            even_elements = sorted(
+                [(i, n) if n % 2 == 0 else (i, 0) for i, n in newsig],
+                key=lambda x: [x[0] in tail, -x[1], -x[0]],
+                reverse=True,
+            )
+            odd_elements = sorted(
+                [(i, n) for i, n in newsig if n % 2 == 1],
+                key=lambda x: [x[0] in tail, x[1]],
+                reverse=True,
+            )
+            for i, n in even_elements:
+                node1 += (i,) * n
+            for i, n in odd_elements:
+                node1 += (i,) * n
+            swapidx = (
+                sum(n for _, n in even_elements)
+                + sum(n for _, n in odd_elements[:-1])
+                - 1
+            )
+            node2 = node1 + swapPair(tail, 0)
+            node1 += tail
+            cross_edges[(tail, swapPair(tail, 0))] = [
+                (
+                    (node1, swapPair(node1, swapidx)),
+                    (node2, swapPair(node2, swapidx)),
+                )
+            ]
     elif (
         len(sig) == 4
         and sorted(sig, reverse=True)[0] % 2 == 1
@@ -754,10 +786,12 @@ def connect_single_cycle_cover(
                     key=lambda x: [x[0] != tail[0], x[1]],
                     reverse=True,
                 )
-                for i, n in odd_elements:
+                for i, n in odd_elements[:1]:
                     node1 += (i,) * n
-                swapidx = sum(n for _, n in odd_elements[:-1]) - 1
+                swapidx = odd_elements[0][1] - 1
                 for i, n in even_elements:
+                    node1 += (i,) * n
+                for i, n in odd_elements[1:]:
                     node1 += (i,) * n
                 node2 = node1 + swapPair(tail, 0)
                 node1 += tail
@@ -804,7 +838,6 @@ def connect_single_cycle_cover(
                 swapidx = -1
                 i = 0
                 while len(even_greater_zero) > 0:
-                    # TODO Hier zit een fout
                     i = i % len(even_greater_zero)
                     if even_greater_zero[i][1] > 0:
                         node1 += (even_greater_zero[i][0],) * 2
@@ -819,6 +852,8 @@ def connect_single_cycle_cover(
                     i += 1
                 for i, n in odd_elements:
                     node1 += (i,) * n
+                if swapidx == -1:
+                    swapidx = find_last_distinct_adjacent_index(node1[:-1])
                 node1 += (tail[1],)
                 node2 = swapPair(node1, -2)
             elif ((sig[tail[0]] % 2) + (sig[tail[1]] % 2)) == 1:
