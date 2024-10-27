@@ -745,7 +745,7 @@ def connect_single_cycle_cover(
     ):
         # this must be the odd, 2, 1, 1 case; sorted as odd, 1, 1, 2
         assert sorted(sig, reverse=True)[0] % 2 == 1
-        find_cross_edges(single_cycle_cover, end_tuple_order)
+        # find_cross_edges(single_cycle_cover, end_tuple_order)
         for tail in end_tuple_order:
             if set(tail) == {0, 1}:
                 node1 = (1,) + (0,) * (sig[0] - 1) + (2, 3) + tail
@@ -791,6 +791,13 @@ def connect_single_cycle_cover(
                 swapidx = odd_elements[0][1] - 1
                 for i, n in even_elements:
                     node1 += (i,) * n
+                if (
+                    len(sig) == 4
+                    and all(s % 2 == 1 for s in sig)
+                    and sig[2:] == (1, 1)
+                    and set(tail) == {1, 2}
+                ):
+                    swapidx = len(node1) - 1
                 for i, n in odd_elements[1:]:
                     node1 += (i,) * n
                 node2 = node1 + swapPair(tail, 0)
@@ -799,9 +806,33 @@ def connect_single_cycle_cover(
                 # this is one with even and one with odd trailing element
                 even_tail = tail[0] if sig[tail[0]] % 2 == 1 else tail[1]
                 odd_tail = tail[1] if sig[tail[0]] % 2 == 1 else tail[0]
-                raise NotImplementedError(
-                    f"EVEN odds; even odd tail {even_tail, odd_tail} from signature {sig} newsig {[(s - (i == tail[0])) for i, s in enumerate(sig)]} and {[(s - (i == tail[1])) for i, s in enumerate(sig)]}"
+                newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
+                even_elements = sorted(
+                    [(i, n) if n % 2 == 0 else (i, 0) for i, n in newsig],
+                    key=lambda x: [x[0] in tail, -x[1], -x[0]],
+                    reverse=True,
                 )
+                odd_elements = sorted(
+                    [(i, n) for i, n in newsig if n % 2 == 1],
+                    key=lambda x: [x[0] != tail[0], x[1]],
+                    reverse=True,
+                )
+                for i, n in odd_elements[:1]:
+                    node1 += (i,) * n
+                swapidx = odd_elements[0][1] - 1
+                for i, n in even_elements:
+                    node1 += (i,) * n
+                for i, n in odd_elements[1:]:
+                    node1 += (i,) * n
+                if (
+                    len(sig) == 5
+                    and sig[0] % 2 == 0
+                    and sig[1:] == (1, 1, 1, 1)
+                    and set(tail) == {0, 1}
+                ):
+                    swapidx = len(node1) - 2
+                node2 = node1 + swapPair(tail, 0)
+                node1 += tail
             else:
                 # both tails are even so the number of odds is incremented by 1
                 raise NotImplementedError(
