@@ -4,7 +4,6 @@ from functools import cache
 
 from helper_operations.cycle_cover_connections import (
     connect_single_cycle_cover,
-    find_cross_edges,
     generate_end_tuple_order,
     get_tail_length,
 )
@@ -245,6 +244,7 @@ def even_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
 
     Args:
         sig (tuple[int, ...]): The signature of the permutations. Must be of structure even-odd-1 or odd-even-1.
+        distinct_ends (bool, optional): If the ends of the cutnodes should be distinct. Defaults to True.
 
     Returns:
         list[tuple[int, ...]]: The cycle for the even-odd-1 case.
@@ -322,14 +322,14 @@ def even_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         even_odd_x = [even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]]
 
     # assume even is 0 and odd is 1
-    # 0^{k0} 1^{k1-1} 2 1 and 0^{k0-1} 10 1^{k1-2} 2 1
+    # 0^{k0-1} 21^{k1-2} 011 and 0^{k0-2} 201^{k1-2} 011
     cn_011 = (
         (even_idx,) * (sig[even_idx] - 1)
         + (2,)
         + (odd_idx,) * (sig[odd_idx] - 2)
         + (even_idx, odd_idx, odd_idx)
     )
-    # 0^{k0} 1^{k1-2} 2 11 and 0^{k0-1} 10 1^{k1-3} 2 11
+    # 0^{k0-1} 21^{k1-2} 101 and 0^{k0-2} 201^{k1-2} 101
     cn_101 = swapPair(cn_011, -3)
     swapidx_cn_101_011 = sig[even_idx] - 2
     print(
@@ -341,23 +341,35 @@ def even_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (cn_011, swapPair(cn_011, swapidx_cn_101_011)),
         (cn_101, swapPair(cn_101, swapidx_cn_101_011)),
     )
-    # 1^{k1-1} 0^{k0} 2 1 and 1^{k1-2} 01 0^{k0-1} 2 1
-    cn_021 = (
-        (odd_idx,) * (sig[odd_idx] - 1) + (even_idx,) * (sig[even_idx]) + (2, odd_idx)
-    )
-    # 1^{k1-1} 0^{k0-1} 2 0 1 and 1^{k1-2} 01 0^{k0-2} 2 0 1
-    cn_201 = swapPair(cn_021, -3)
-    swapidx_cn_021_201 = sig[odd_idx] - 2
+    if sig[even_idx] < sig[odd_idx]:
+        # 1^{k1-1} 0^{k0} 2 1 and 1^{k1-2} 01 0^{k0-1} 2 1
+        cn_021 = (
+            (odd_idx,) * (sig[odd_idx] - 1)
+            + (even_idx,) * (sig[even_idx])
+            + (2, odd_idx)
+        )
+        # 1^{k1-1} 0^{k0-1} 2 0 1 and 1^{k1-2} 01 0^{k0-2} 2 0 1
+        cn_201 = swapPair(cn_021, -3)
+        swapidx = sig[odd_idx] - 2
+    else:
+        # 0^{k0} 1^{k1-1} 2 1 and 0^{k0-1} 10 1^{k1-2} 2 1
+        cn_021 = (
+            (even_idx,) * (sig[even_idx])
+            + (odd_idx,) * (sig[odd_idx] - 1)
+            + (2, odd_idx)
+        )
+        # 0^{k0} 1^{k1-2} 2 11 and 0^{k0-1} 10 1^{k1-3} 2 11
+        cn_201 = swapPair(cn_021, -3)
+        swapidx = sig[even_idx] - 1
     print(
-        f"gluing even-even cycle with {cn_021} and {swapPair(cn_021, swapidx_cn_021_201)} and parallel {cn_201} and {swapPair(cn_201, swapidx_cn_021_201)}"
+        f"Gluing cross edge stutter {cn_021}-{swapPair(cn_021, swapidx)} and {cn_201}-{swapPair(cn_201, swapidx)}"
     )
     c_12_21_11_01 = glue(
         incorporated_even_even,
         c_01_11,
-        (cn_021, swapPair(cn_021, swapidx_cn_021_201)),
-        (cn_201, swapPair(cn_201, swapidx_cn_021_201)),
+        (cn_021, swapPair(cn_021, swapidx)),
+        (cn_201, swapPair(cn_201, swapidx)),
     )
-
     # combine the odd_odd_p2 path and the odd_odd_1 cycle
     odd_odd_cycle_02_0 = waveTopRowOddOddOne(odd_odd_1, odd_odd_p2)
 
@@ -531,73 +543,41 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (even_1_1_start13[0], even_1_1_start13[1]),
     )
     # combine c2 and c3 to get order; c0, c1, c2/c3
-    # cn_03_to_23_32_first = (1, 1) + (0,) * (sig[0] - 1) + (2, 0, 3)
-    # cn_03_to_23_32_second = (1, 1) + (0,) * (sig[0]) + (2, 3)
-    # swapidx_c03_c13 = 1
-    # c03_c23_c32 = glue(
-    #     odd_2_1_c03,
-    #     even_2_c23_c32,
-    #     (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
-    #     (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
-    # )
-    cn_c3_first = (0,) * sig[0] + (1, 2, 1, 3)
-    cn_c3_second = (0,) * sig[0] + (1, 1, 2, 3)
-    find_cross_edges([[even_1_1_c13], [even_2_c23_c32]], [(2, 1, 3)])
-    c13_c23_c32 = glue(
-        even_1_1_c13,
-        even_2_c23_c32,
-        (cn_c3_first, swapPair(cn_c3_first, sig[0] - 1)),
-        (cn_c3_second, swapPair(cn_c3_second, sig[0] - 1)),
-    )
-    cn_03_to_23_32_first = (0, 1, 2) + (0,) * (sig[0] - 2) + (1, 0, 3)
-    cn_03_to_23_32_second = (0, 1, 2) + (0,) * (sig[0] - 2) + (0, 1, 3)
-    # find_cross_edges([[odd_2_1_c03], [c13_c23_c32]], [(1, 0, 3)])
-    swapidx_c03_c13 = 0
-    c3 = glue(
+    cn_03_to_23_32_first = (1, 1) + (0,) * (sig[0] - 1) + (2, 0, 3)
+    cn_03_to_23_32_second = (1, 1) + (0,) * (sig[0]) + (2, 3)
+    swapidx_c03_c13 = 1
+    c03_c23_c32 = glue(
         odd_2_1_c03,
-        c13_c23_c32,
+        even_2_c23_c32,
         (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
         (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
     )
-    # find_cross_edges([[c3], [odd_2_0_1_c02]], [(0, 3, 2)])
-    # cn_c32_c02_first = (1, 1) + (0,) * (sig[0]) + (3, 2)
-    # cn_c32_c02_second = (1, 1) + (0,) * (sig[0] - 1) + (3, 0, 2)
-    # c3_c32_c02 = glue(
-    #     c3,
-    #     odd_2_0_1_c02,
-    #     (cn_c32_c02_first, swapPair(cn_c32_c02_first, 1)),
-    #     (cn_c32_c02_second, swapPair(cn_c32_c02_second, 1)),
-    # )
-    cn_c32_c02_first = (1, 0, 1) + (0,) * (sig[0] - 1) + (3, 2)
-    cn_c32_c02_second = (1, 0, 1) + (0,) * (sig[0] - 2) + (3, 0, 2)
+    cn_c3_first = (0,) * sig[0] + (1, 2, 1, 3)
+    cn_c3_second = (0,) * sig[0] + (1, 1, 2, 3)
+    c3 = glue(
+        even_1_1_c13,
+        c03_c23_c32,
+        (cn_c3_first, swapPair(cn_c3_first, sig[0] - 1)),
+        (cn_c3_second, swapPair(cn_c3_second, sig[0] - 1)),
+    )
+    cn_c32_c02_first = (1, 1) + (0,) * (sig[0]) + (3, 2)
+    cn_c32_c02_second = (1, 1) + (0,) * (sig[0] - 1) + (3, 0, 2)
     c3_c32_c02 = glue(
         c3,
         odd_2_0_1_c02,
         (cn_c32_c02_first, swapPair(cn_c32_c02_first, 1)),
         (cn_c32_c02_second, swapPair(cn_c32_c02_second, 1)),
     )
-    print(
-        f"USED CROSS EDGES: {(cn_c32_c02_first, swapPair(cn_c32_c02_first, 1))} and {(cn_c32_c02_second, swapPair(cn_c32_c02_second, 1))}"
-    )
-    # cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
-    # cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
-    # c2_c3 = glue(
-    #     c3_c32_c02,
-    #     even_1_1_c12,
-    #     (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
-    #     (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
-    # )
-    # find_cross_edges([[c3_c32_c02], [even_1_1_c12]], [(1, 3, 2)])
-    cn_c2_c3_first = (1,) + (0,) * (sig[0]) + (1, 3, 2)
-    cn_c2_c3_second = (1,) + (0,) * (sig[0]) + (3, 1, 2)
+    cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
+    cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
     c2_c3 = glue(
         c3_c32_c02,
         even_1_1_c12,
-        (cn_c2_c3_first, swapPair(cn_c2_c3_first, 0)),
-        (cn_c2_c3_second, swapPair(cn_c2_c3_second, 0)),
+        (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
+        (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
     )
     c0_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 3, 0)
-    c1_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 0, 3)
+    c1_cut_node = swapPair(c0_cut_node, -2)
     print(f"c0-c1 cut node {c0_cut_node} and {swapPair(c0_cut_node, sig[0])}")
     c0_c2_c3 = glue(
         odd_2_1_1_c0,
@@ -606,7 +586,7 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (c1_cut_node, swapPair(c1_cut_node, sig[0])),
     )
     last_cut_node1 = (0,) * sig[0] + (1, 2, 3, 1)
-    last_cut_node2 = (0,) * sig[0] + (1, 2, 1, 3)
+    last_cut_node2 = swapPair(last_cut_node1, -2)
     print(
         f"last cut node1 {last_cut_node1}-{swapPair(last_cut_node1, sig[0])} and node2 {last_cut_node2}-{swapPair(last_cut_node2, sig[0])}"
     )
@@ -746,24 +726,22 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     tail2_sig = list(get_perm_signature(t2)) + [0] * (
         len(list(sig)) - len(get_perm_signature(t2))
     )
-    lambda_func1 = lambda x: x[1]
-    lambda_func2 = lambda x: x[1]
+    unsorted_newsig = [(i, n - tail1_sig[i]) for i, n in enumerate(sig)]
+    newsig = sorted(unsorted_newsig, key=lambda x: x[1] % 2 == 0)
+    lambda_func = lambda x: x[1]
+    # if len(newsig) < 4:
+    #     lambda_func = lambda x: [x[1] % 2, x[1]]
     all_elements1 = sorted(
         [[i, n - (i == odd_idx1)] for i, n in enumerate(sig)],
-        key=lambda_func1,
+        key=lambda_func,
         reverse=True,
     )
     all_elements2 = sorted(
         [[i, n - (i == odd_idx2)] for i, n in enumerate(sig)],
-        key=lambda_func2,
+        key=lambda_func,
         reverse=True,
     )
-    # if len(newsig) < 4:
-    #     lambda_func = lambda x: [x[1] % 2, x[1]]
-    print(
-        f"allelements {all_elements1} - {odd_idx1} - {[i != odd_idx1 for i, _ in all_elements1]}"
-    )
-    print(f"all elements {all_elements1} - {all_elements2}")
+    print(f"newsig {newsig} and all elements {all_elements1} - {all_elements2}")
     odd_elements1 = [
         [i, n - tail1_sig[i]] for i, n in all_elements1 if (n - tail1_sig[i]) % 2 == 1
     ]
@@ -785,57 +763,21 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         node1 += tuple([even_el] * even_occ)
     for odd_el, odd_occ in odd_elements1:
         node1 += tuple([odd_el] * odd_occ)
+    node1_first = node1 + temp[0]
+    node1_second = node1 + swapPair(temp[0], 0)
+    swapindex1 = sum([n[1] for n in even_elements2]) - 1
     node2 = tuple()
     for even_el, even_occ in even_elements2:
         node2 += tuple([even_el] * even_occ)
     for odd_el, odd_occ in odd_elements2:
         node2 += tuple([odd_el] * odd_occ)
-    newsig1 = tuple(
-        sorted(
-            [(i, n - tail1_sig[i]) for i, n in enumerate(sig)],
-            key=lambda x: x[1] % 2 == 1,
-        )
-    )
-    newsig2 = tuple(
-        sorted(
-            [(i, n - tail2_sig[i]) for i, n in enumerate(sig)],
-            key=lambda x: x[1] % 2 == 1,
-        )
-    )
-    if (
-        len(newsig1) == 3
-        and newsig1[2][1] == 1
-        and newsig1[1][1] >= 3
-        and newsig1[1][1] % 2 == 1
-        and newsig1[0][1] >= 3
-        and newsig1[0][1] % 2 == 0
-    ):
-        node1 = (
-            (newsig1[1][0],) * (newsig1[1][1] - 1)
-            + (newsig1[0][0],) * newsig1[0][1]
-            + (newsig1[2][0],) * newsig1[2][1]
-        )
-    if (
-        len(newsig2) == 3
-        and newsig2[2][1] == 1
-        and newsig2[1][1] >= 3
-        and newsig2[1][1] % 2 == 1
-        and newsig2[0][1] >= 3
-        and newsig2[0][1] % 2 == 0
-    ):
-        node1 = (
-            (newsig2[1][0],) * (newsig2[1][1] - 1)
-            + (newsig2[0][0],) * newsig2[0][1]
-            + (newsig2[2][0],) * newsig2[2][1]
-        )
-    node1_first = node1 + temp[0]
-    node1_second = node1 + swapPair(temp[0], 0)
-    swapindex1 = sum([n[1] for n in even_elements2]) - 1
     node2_first = node2 + temp[1]
     node2_second = node2 + swapPair(temp[1], 0)
     swapindex2 = swapindex1
     # find_cross_edges(last_odd_cycle[:2], temp[:1])
-    print(f"EVEN {last_even_idx} odd first {odd_idx1} and second {odd_idx2}")
+    print(
+        f"unsorted newsig {unsorted_newsig}; odd idx1 {odd_idx1} and odd idx2 {odd_idx2}; swapindex1 {swapindex1}={unsorted_newsig[odd_idx1][1]}+{unsorted_newsig[odd_idx2][1]}-1; swapindex2 {swapindex2}={swapindex1}"
+    )
     print(
         f"\033[1m\033[92mChosen cross edges {temp[0], swapPair(temp[0], 0)} and {temp[1], swapPair(temp[1], 0)}:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
     )
@@ -980,31 +922,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         # use induction on the last element
         all_sub_cycles = []
         # sort the signature to first have the even numbers then the odd numbers
-        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2 == 1, x[0]])
-        print(
-            f"{len(sorted_sig) == 4} {sorted_sig[-1] == 2} {sorted_sig[1:3] == (1, 1)} for sig {sig}"
-        )
-        # quit()
-        if (
-            (len(sorted_sig) == 4 and sorted_sig[-1] == 2 and sorted_sig[1:3] == (1, 1))
-            or (
-                len(sig) == 5
-                and sorted_sig[-1] % 2 == 0
-                and sorted_sig[:-1] == (1, 1, 1, 1)
-            )
-            or (
-                len(sig) == 5
-                and sorted_sig[-1] % 2 == 0
-                and sorted_sig[:-1] == (1, 1, 1, 2)
-            )
-            or (
-                len(sig) == 4
-                and sorted_sig[-1] % 2 == 0
-                and sorted_sig[0] >= 3
-                and sorted_sig[1:-1] == (1, 1)
-            )
-        ):
-            sorted_sig, transformer = get_transformer(sig, lambda x: [x[0]])
+        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2 == 0, x[0]])
         print(f"new sig {sorted_sig} and transformer {transformer}")
         for idx, color in enumerate(sorted_sig):
             sub_sig = sorted_sig[:idx] + (color - 1,) + sorted_sig[idx + 1 :]

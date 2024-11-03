@@ -2,6 +2,7 @@ import bisect
 import csv
 import os
 from ast import literal_eval
+from collections import Counter
 from fractions import Fraction
 from functools import cache
 
@@ -25,7 +26,6 @@ from helper_operations.path_operations import (
 from helper_operations.permutation_graphs import (
     get_perm_signature,
     multinomial,
-    rotate,
     stutterPermutations,
     swapPair,
 )
@@ -680,298 +680,81 @@ def connect_single_cycle_cover(
         return get_two_odd_rest_even_cycle(
             single_cycle_cover, end_tuple_order, cross_edges, sig
         )
-    elif len(sig) == 4 and sorted(sig, reverse=True)[1:] == [1, 1, 1]:
-        # this must be the odd, 1, 1, 1 case
-        assert sorted(sig, reverse=True)[0] % 2 == 1
+    elif sum(n % 2 for n in sig) >= 3:
+        print(
+            f"Signature {sig} has three or more odd numbers. (total: {sum(n % 2 for n in sig)})"
+        )
+        # find_cross_edges(single_cycle_cover, end_tuple_order)
         for tail in end_tuple_order:
-            if set(tail) == {0, 1}:
-                node1 = (2,) + (0,) * (sig[0] - 1) + (3,) + tail
-                node2 = (2,) + (0,) * (sig[0] - 1) + (3,) + swapPair(tail, 0)
-                swapidx = 0
-            else:
-                newsig = [
-                    (i, n - (i in tail))
-                    for i, n in enumerate(sig)
-                    if (n - (i in tail) > 0)
-                ]
-                node1 = tuple()
-                for i, n in newsig:
-                    node1 += (i,) * n
-                node2 = node1 + swapPair(tail, 0)
-                node1 += tail
-                swapidx = newsig[0][1] - 1
-            cross_edges[(tail, swapPair(tail, 0))] = [
-                (
-                    (node1, swapPair(node1, swapidx)),
-                    (node2, swapPair(node2, swapidx)),
-                )
-            ]
-    elif all(s == 1 for s in sorted(sig, reverse=True)):
-        # permutahedron
-        for tail in end_tuple_order:
-            node1 = tuple()
-            newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
+            newsig = [n - (i in tail) for i, n in enumerate(sig)]
             even_elements = sorted(
-                [(i, n) if n % 2 == 0 else (i, 0) for i, n in newsig],
-                key=lambda x: [x[0] in tail, -x[1], -x[0]],
-                reverse=True,
-            )
-            odd_elements = sorted(
-                [(i, n) for i, n in newsig if n % 2 == 1],
+                [
+                    (i, n if n % 2 == 0 else n - 1)
+                    for i, n in enumerate(newsig)
+                    if n >= 2
+                ],
                 key=lambda x: [x[0] in tail, x[1]],
                 reverse=True,
             )
-            for i, n in even_elements:
-                node1 += (i,) * n
-            for i, n in odd_elements:
-                node1 += (i,) * n
-            swapidx = (
-                sum(n for _, n in even_elements)
-                + sum(n for _, n in odd_elements[:-1])
-                - 1
+            # even_elements = [(i, n if n % 2 == 0 else n - 1) for i, n in enumerate(newsig) if n >= 2]
+            odd_elements = sorted(
+                [(i, 1) for i, n in enumerate(newsig) if n % 2 == 1],
+                key=lambda x: [x[0] in tail, x[1]],
+                reverse=True,
             )
+            print(
+                f"newsig: {newsig} odd count in newsig {sum(n % 2 for n in newsig)} and evens; {sum(n % 2 == 0 for n in newsig)} even_elements: {even_elements} odd_elements: {odd_elements}"
+            )
+            node1 = tuple()
+            if (
+                len(even_elements) == 2
+                and len(odd_elements) > 0
+                and even_elements[0][0] == odd_elements[0][0]
+            ):
+                even_elements = even_elements[::-1]
+
+            for i, el in even_elements:
+                node1 += (i,) * el
+            for i, el in odd_elements:
+                node1 += (i,) * el
+            if len(even_elements) > 1:
+                if sum(n % 2 for n in sig) == 4:
+                    swapidx = sum(el for _, el in even_elements)
+                elif sum(n % 2 for n in sig) > 4:
+                    swapidx = sum(el for _, el in even_elements) + sum(
+                        n % 2 for n in sig
+                    )
+                elif (
+                    len(even_elements) == 2
+                    and len(odd_elements) > 1
+                    and even_elements[1][0] == odd_elements[0][0]
+                ):
+                    swapidx = sum(el for _, el in even_elements)
+                elif (
+                    len(even_elements) == 2
+                    and len(odd_elements) == 1
+                    and even_elements[1][0] != odd_elements[0][0]
+                ):
+                    swapidx = sum(el for _, el in even_elements) - 1
+                else:
+                    swapidx = sum(el for _, el in even_elements[:-1]) - 1
+                print(f"odd count in sig {sum(n % 2 for n in sig)}")
+            else:
+                swapidx = find_last_distinct_adjacent_index(node1)
+            # else:
+            #     o_idx = len(odd_elements) - 1
+            #     swapidx = find_last_distinct_adjacent_index(node1[:o_idx])
+            print(
+                f"node1: {node1} swapidx: {swapidx} (to get {swapPair(node1, swapidx)} with tails {tail, swapPair(tail, 0)}) those are elements {node1[swapidx]} and {node1[swapidx+1]} with occurences {newsig[node1[swapidx]]} and {newsig[node1[swapidx+1]]} and in the old sig {sig[node1[swapidx]]} and {sig[node1[swapidx+1]]}"
+            )
+            # check if the swap is between two elements that are adjacent in the neighbor-swap graph of length n-1
+
             node2 = node1 + swapPair(tail, 0)
-            node1 += tail
-            cross_edges[(tail, swapPair(tail, 0))] = [
-                (
-                    (node1, swapPair(node1, swapidx)),
-                    (node2, swapPair(node2, swapidx)),
-                )
-            ]
-    elif (
-        len(sig) == 4
-        and sorted(sig, reverse=True)[0] % 2 == 1
-        and sorted(sig, reverse=True)[1:] == [2, 1, 1]
-    ):
-        # this must be the odd, 2, 1, 1 case; sorted as odd, 1, 1, 2
-        assert sorted(sig, reverse=True)[0] % 2 == 1
-        # find_cross_edges(single_cycle_cover, end_tuple_order)
-        for tail in end_tuple_order:
-            if set(tail) == {0, 1}:
-                node1 = (1,) + (0,) * (sig[0] - 1) + (2, 3) + tail
-                node2 = (1,) + (0,) * (sig[0] - 1) + (2, 3) + swapPair(tail, 0)
-                swapidx = 0
-            elif set(tail) == {1, 2}:
-                node1 = (0,) * (sig[0]) + (1, 3) + tail
-                node2 = (0,) * (sig[0]) + (1, 3) + swapPair(tail, 0)
-                swapidx = sig[0]
-            else:
-                # tail is 32/23
-                node1 = (1, 1) + (0,) * (sig[0]) + tail
-                node2 = (1, 1) + (0,) * (sig[0]) + swapPair(tail, 0)
-                swapidx = 1
-            cross_edges[(tail, swapPair(tail, 0))] = [
-                (
-                    (node1, swapPair(node1, swapidx)),
-                    (node2, swapPair(node2, swapidx)),
-                )
-            ]
-    elif sum(n % 2 for n in sig) >= 4 and sum(n % 2 for n in sig) % 2 == 0:
-        print(
-            f"Signature {sig} has four or more odd numbers; even number of odds. (total: {sum(n % 2 for n in sig)}). All subsigs odd number of odds"
-        )
-        # find_cross_edges(single_cycle_cover, end_tuple_order)
-        for tail in end_tuple_order:
-            node1 = tuple()
-            if sig[tail[0]] % 2 == 1 and sig[tail[1]] % 2 == 1:
-                # this reduces the number of odds by 1 (base case = three odds)
-                newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
-                even_elements = sorted(
-                    [(i, n) if n % 2 == 0 else (i, 0) for i, n in newsig],
-                    key=lambda x: [x[0] in tail, -x[1], -x[0]],
-                    reverse=True,
-                )
-                odd_elements = sorted(
-                    [(i, n) for i, n in newsig if n % 2 == 1],
-                    key=lambda x: [x[0] != tail[0], x[1]],
-                    reverse=True,
-                )
-                for i, n in odd_elements[:1]:
-                    node1 += (i,) * n
-                swapidx = odd_elements[0][1] - 1
-                for i, n in even_elements:
-                    node1 += (i,) * n
-                if (
-                    len(sig) == 4
-                    and all(s % 2 == 1 for s in sig)
-                    and sig[2:] == (1, 1)
-                    and set(tail) == {1, 2}
-                ):
-                    swapidx = len(node1) - 1
-                for i, n in odd_elements[1:]:
-                    node1 += (i,) * n
-                node2 = node1 + swapPair(tail, 0)
-                node1 += tail
-            elif ((sig[tail[0]] % 2) + (sig[tail[1]] % 2)) == 1:
-                # this is one with even and one with odd trailing element
-                even_tail = tail[0] if sig[tail[0]] % 2 == 1 else tail[1]
-                odd_tail = tail[1] if sig[tail[0]] % 2 == 1 else tail[0]
-                newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
-                even_elements = sorted(
-                    [(i, n) if n % 2 == 0 else (i, 0) for i, n in newsig],
-                    key=lambda x: [x[0] in tail, -x[1], -x[0]],
-                    reverse=True,
-                )
-                odd_elements = sorted(
-                    [(i, n) for i, n in newsig if n % 2 == 1],
-                    key=lambda x: [x[0] != tail[0], x[1]],
-                    reverse=True,
-                )
-                for i, n in odd_elements[:1]:
-                    node1 += (i,) * n
-                swapidx = odd_elements[0][1] - 1
-                for i, n in even_elements:
-                    node1 += (i,) * n
-                for i, n in odd_elements[1:]:
-                    node1 += (i,) * n
-                if (
-                    len(sig) == 5
-                    and sig[0] % 2 == 0
-                    and sig[1:] == (1, 1, 1, 1)
-                    and set(tail) == {0, 1}
-                ):
-                    swapidx = len(node1) - 2
-                node2 = node1 + swapPair(tail, 0)
-                node1 += tail
-            else:
-                # both tails are even so the number of odds is incremented by 1
-                raise NotImplementedError(
-                    f"Both tails are even so the number of odds is incremented by 1 -> {sig} and tails {tail, swapPair(tail, 0)}"
-                )
-            cross_edges[(tail, swapPair(tail, 0))] = [
-                (
-                    (node1, swapPair(node1, swapidx)),
-                    (node2, swapPair(node2, swapidx)),
-                )
-            ]
-        print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
-    elif sum(n % 2 for n in sig) >= 3 and sum(n % 2 for n in sig) % 2 == 1:
-        print(
-            f"Signature {sig} has three or more odd numbers; odd number of odds. (total: {sum(n % 2 for n in sig)}). All subsigs even number of odds"
-        )
-        # find_cross_edges(single_cycle_cover, end_tuple_order)
-        for tail in end_tuple_order:
-            node1 = tuple()
-            if sig[tail[0]] % 2 == 1 and sig[tail[1]] % 2 == 1:
-                # this reduces the number of odds by 1 (base case 2 odds)
-                newsig = [(i, n - (i == tail[1])) for i, n in enumerate(sig)]
-                even_elements = sorted(
-                    [(i, n) if n % 2 == 0 else (i, n - 1) for i, n in newsig],
-                    key=lambda x: [x[1], x[0] in tail, x[0]],
-                    reverse=True,
-                )
-                odd_elements = sorted(
-                    [(i, 1) for i, n in newsig if n % 2 == 1],
-                    key=lambda x: [x[0] != tail[0], -x[1]],
-                    reverse=True,
-                )
-                even_greater_zero = [even for even in even_elements if even[1] > 0]
-                swapidx = -1
-                i = 0
-                while len(even_greater_zero) > 0:
-                    i = i % len(even_greater_zero)
-                    if even_greater_zero[i][1] > 0:
-                        node1 += (even_greater_zero[i][0],) * 2
-                        even_greater_zero[i] = (
-                            even_greater_zero[i][0],
-                            even_greater_zero[i][1] - 2,
-                        )
-                    if even_greater_zero[i][1] == 0:
-                        even_greater_zero.pop(i)
-                    if len(even_greater_zero) == 1 and swapidx == -1:
-                        swapidx = len(node1) - 1
-                    i += 1
-                for i, n in odd_elements:
-                    node1 += (i,) * n
-                if swapidx == -1:
-                    swapidx = find_last_distinct_adjacent_index(node1[:-1])
-                node1 += (tail[1],)
-                node2 = swapPair(node1, -2)
-            elif ((sig[tail[0]] % 2) + (sig[tail[1]] % 2)) == 1:
-                newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
-                # this is one with even and one with odd trailing element
-                even_tail = tail[0] if sig[tail[0]] % 2 == 1 else tail[1]
-                odd_tail = tail[1] if sig[tail[0]] % 2 == 1 else tail[0]
-                even_elements = sorted(
-                    [(i, n) if n % 2 == 0 else (i, n - 1) for i, n in newsig],
-                    key=lambda x: [x[1], x[0] in tail],
-                    reverse=True,
-                )
-                even_greater_zero = [even for even in even_elements if even[1] > 0]
-                odd_elements = sorted(
-                    [(i, 1) for i, n in newsig if n % 2 == 1],
-                    key=lambda x: [x[0]],
-                    reverse=True,
-                )
-                even_greater_zero = rotate(even_greater_zero, -2)
-                swapidx = -1
-                print(f"swapidx {swapidx} {even_elements} {even_greater_zero}")
-                i = 0
-                while len(even_greater_zero) > 0:
-                    # TODO Hier zit een fout
-                    i = i % len(even_greater_zero)
-                    if even_greater_zero[i][1] > 0:
-                        node1 += (even_greater_zero[i][0],) * 2
-                        even_greater_zero[i] = (
-                            even_greater_zero[i][0],
-                            even_greater_zero[i][1] - 2,
-                        )
-                    if even_greater_zero[i][1] == 0:
-                        even_greater_zero.pop(i)
-                    if len(even_greater_zero) == 1 and swapidx == -1:
-                        swapidx = len(node1) - 1
-                    i += 1
-                for i, n in odd_elements:
-                    node1 += (i,) * n
-                node1 += tail
-                node2 = swapPair(node1, -2)
-                # raise NotImplementedError(
-                #     f"ODD odds; even odd tail {even_tail, odd_tail} from signature {sig} newsig {[(s - (i == tail[0])) for i, s in enumerate(sig)]} and {[(s - (i == tail[1])) for i, s in enumerate(sig)]}"
-                # )
-            else:
-                # both tails are even so the number of odds is incremented by 1
-                # K >= 5
-                newsig = [(i, n - (i in tail)) for i, n in enumerate(sig)]
-                # this is one with even and one with odd trailing element
-                even_tail = tail[0] if sig[tail[0]] % 2 == 1 else tail[1]
-                odd_tail = tail[1] if sig[tail[0]] % 2 == 1 else tail[0]
-                even_elements = sorted(
-                    [(i, n) if n % 2 == 0 else (i, n - 1) for i, n in newsig],
-                    key=lambda x: [x[1], x[0] in tail],
-                    reverse=True,
-                )
-                even_greater_zero = [even for even in even_elements if even[1] > 0]
-                odd_elements = sorted(
-                    [(i, 1) for i, n in newsig if n % 2 == 1],
-                    key=lambda x: [x[0]],
-                    reverse=True,
-                )
-                swapidx = -1
-                print(f"swapidx {swapidx} {even_elements} {even_greater_zero}")
-                i = 0
-                while len(even_greater_zero) > 0:
-                    # TODO Hier zit een fout
-                    i = i % len(even_greater_zero)
-                    if even_greater_zero[i][1] > 0:
-                        node1 += (even_greater_zero[i][0],) * 2
-                        even_greater_zero[i] = (
-                            even_greater_zero[i][0],
-                            even_greater_zero[i][1] - 2,
-                        )
-                    if even_greater_zero[i][1] == 0:
-                        even_greater_zero.pop(i)
-                    if len(even_greater_zero) == 1 and swapidx == -1:
-                        swapidx = len(node1) - 1
-                    i += 1
-                for i, n in odd_elements:
-                    node1 += (i,) * n
-                node1 += tail
-                node2 = swapPair(node1, -2)
-                # raise NotImplementedError(
-                #     f"Both tails are even so the number of odds is incremented by 1 -> {sig} and tails {tail, swapPair(tail, 0)}"
-                # )
+            node1 = node1 + tail
             # check the number of even and odds in node1 and node2
-            print(f"newsig: {newsig} node1,2 {node1, node2} for {sig}")
+            print(
+                f"newsig: {newsig} node1 {sum(c % 2 == 0 for c in Counter(node1[:-1]).values()), sum(c % 2 != 0 for c in Counter(node1[:-1]).values())}, node2 {sum(c % 2 == 0 for c in Counter(node2[:-1]).values()), sum(c % 2 != 0 for c in Counter(node2[:-1]).values())}"
+            )
             cross_edges[(tail, swapPair(tail, 0))] = [
                 (
                     (node1, swapPair(node1, swapidx)),
