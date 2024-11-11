@@ -221,16 +221,16 @@ def odd_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     )
     assert cycleQ(even_odd_combined)
     # the cut nodes are 0^{k0-1} 1^{k1} 2 0 and 0 ^{k0-2} 1 0 1^{k1-1} 2 0
-    extended_odd_odd_cut_node = (0,) * (sig[0] - 1) + (1,) * (sig[1]) + (0, 2)
+    extended_odd_odd_cut_node = (1,) * (sig[1] - 1) + (0,) * (sig[0]) + (1, 2)
     combined_cut_node = swapPair(extended_odd_odd_cut_node, -2)
 
     result = glue(
         even_odd_combined,
         extended_odd_odd[0],
-        (combined_cut_node, swapPair(combined_cut_node, sig[0] - 2)),
+        (combined_cut_node, swapPair(combined_cut_node, sig[1] - 2)),
         (
             extended_odd_odd_cut_node,
-            swapPair(extended_odd_odd_cut_node, sig[0] - 2),
+            swapPair(extended_odd_odd_cut_node, sig[1] - 2),
         ),
     )
 
