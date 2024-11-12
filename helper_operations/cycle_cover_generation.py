@@ -402,7 +402,9 @@ def incorporated_odd_2_1_path_a_b(k: int) -> list[tuple[int, ...]]:
     return p1_p12_p02_p20[:1] + cycle + p1_p12_p02_p20[1:]
 
 
-def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
+def incorporated_odd_2_1_cycle(
+    k: int, flip_stutter_cross_edge: bool = False
+) -> list[tuple[int, ...]]:
     """
     Generates a path based on the number of 0's `k` from `e = 1 0 2 0^{k0-1} 1` to `f = 0 1 2 0^{k0-1} 1`.
     Including the _02 and _20 cycles (with stutters), and the _1 & _12 path.
@@ -413,6 +415,7 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
 
     Args:
         k (int): The input value the number of 0s. Must be odd!
+        flip_stutter_cross_edge (bool): If the cross edge should be flipped. Defaults to False; `0^{k-1} 1 0 2` to `0^{k0-1} 1 2`.
 
     Returns:
         list[tuple[int, ...]]:
@@ -453,9 +456,14 @@ def incorporated_odd_2_1_cycle(k: int) -> list[tuple[int, ...]]:
     # split the a_b_path in 2 at the parallel edge with parallelCycles
     # the cut_node is 1 0^{k} 1 2 - 1 0^{k} 2 1
     # the parallel cut_node is 0 1 0^{k-1} 1 2 - 0 1 0^{k-1} 2 1
-    cut_node = (0,) * (k - 1) + (1, 2, 1, 0)
-    parallel_cut_node = swapPair(cut_node, -3)
-    swap_idx = k - 2
+    if flip_stutter_cross_edge:
+        parallel_cut_node = (1, 1) + (0,) * (k - 1) + (2, 0)
+        cut_node = swapPair(parallel_cut_node, -3)
+        swap_idx = 1
+    else:
+        cut_node = (0,) * (k - 1) + (1, 2, 1, 0)
+        parallel_cut_node = swapPair(cut_node, -3)
+        swap_idx = k - 2
     # new cut node is 1 1 0^{k-1} 2 0 - 1 0 1 0^{k-2} 2 0
     # to parallel 1 1 0^{k-2} 2 0 0 - 1 0 1 0^{k-3} 2 0 0
     # if split_1s:
