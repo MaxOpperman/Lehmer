@@ -1,9 +1,6 @@
 import pytest
 
-from cycle_cover import generate_cycle_cover, get_connected_cycle_cover
-from helper_operations.cycle_cover_connections import generate_end_tuple_order
-from helper_operations.path_operations import cycleQ, get_first_element, pathQ
-from helper_operations.permutation_graphs import multinomial, stutterPermutations
+from cycle_cover import get_connected_cycle_cover
 
 
 class Test_GuaranteedEdges_Even_1_1_1:

@@ -1,9 +1,6 @@
 import pytest
 
-from cycle_cover import generate_cycle_cover, get_connected_cycle_cover
-from helper_operations.cycle_cover_connections import generate_end_tuple_order
-from helper_operations.path_operations import cycleQ, get_first_element, pathQ
-from helper_operations.permutation_graphs import multinomial, stutterPermutations
+from cycle_cover import get_connected_cycle_cover
 
 
 class Test_GuaranteedEdges_Even_2_1_subcycles:
@@ -231,9 +228,8 @@ class Test_GuaranteedEdges_Even_Odd_1:
                 )
 
                 # test_guaranteed_stutter_cross_edge
-                # TODO, veranderen als even < odd
-                node_8 = (1,) * (odd_val_1 - 1) + (0,) * (even_val_0) + (2, 1)
-                node_9 = (1,) * (odd_val_1 - 1) + (0,) * (even_val_0 - 1) + (2, 0, 1)
+                node_8 = (0,) * (even_val_0) + (1,) * (odd_val_1 - 1) + (2, 1)
+                node_9 = (0,) * (even_val_0) + (1,) * (odd_val_1 - 2) + (2, 1, 1)
                 index_8 = cc.index(node_8)
                 index_9 = cc.index(node_9)
                 assert (
@@ -315,7 +311,7 @@ class Test_GuaranteedEdges_Even_Odd_1:
                     or abs(index_20 - index_19) == len(cc) - 1
                 )
 
-    def test_guaranteed_edges_Odd_Odd_1(self):
+    def test_guaranteed_edges_Odd_Even_1(self):
         # odd is larger than even
         for odd_val_0 in [5, 7]:
             even_val_1 = 4
