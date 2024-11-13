@@ -220,7 +220,6 @@ def cut_sub_cycle_to_past(
     elif cut_cycle[1] == end:
         return cut_cycle[:1] + cut_cycle[1:][::-1]
     else:
-        print(f"cut_cycle: {cut_cycle}")
         raise ValueError(
             f"Start and end nodes {start} and {end} are not adjacent in the cycle.\n"
             f"Start node at index {cut_cycle.index(start)} and end node at index {cut_cycle.index(end)}.\n"
@@ -686,72 +685,101 @@ def connect_single_cycle_cover(
         )
         # find_cross_edges(single_cycle_cover, end_tuple_order)
         for tail in end_tuple_order:
-            newsig = [n - (i in tail) for i, n in enumerate(sig)]
-            even_elements = sorted(
-                [
-                    (i, n if n % 2 == 0 else n - 1)
-                    for i, n in enumerate(newsig)
-                    if n >= 2
-                ],
-                key=lambda x: [x[0] in tail, x[1]],
-                reverse=True,
-            )
-            # even_elements = [(i, n if n % 2 == 0 else n - 1) for i, n in enumerate(newsig) if n >= 2]
-            odd_elements = sorted(
-                [(i, 1) for i, n in enumerate(newsig) if n % 2 == 1],
-                key=lambda x: [x[0] in tail, x[1]],
-                reverse=True,
-            )
-            print(
-                f"newsig: {newsig} odd count in newsig {sum(n % 2 for n in newsig)} and evens; {sum(n % 2 == 0 for n in newsig)} even_elements: {even_elements} odd_elements: {odd_elements}"
-            )
-            node1 = tuple()
-            if (
-                len(even_elements) == 2
-                and len(odd_elements) > 0
-                and even_elements[0][0] == odd_elements[0][0]
-            ):
-                even_elements = even_elements[::-1]
+            newsig = [
+                n - (i in tail) for i, n in enumerate(sig) if n - (i in tail) >= 0
+            ]
+            if sum(n % 2 for n in sig) % 2 == 1:
+                even_elements = sorted(
+                    [
+                        (i, n if n % 2 == 0 else n - 1)
+                        for i, n in enumerate(newsig)
+                        if n >= 2
+                    ],
+                    key=lambda x: [-x[1], x[0]],
+                    reverse=True,
+                )
+                # even_elements = [(i, n if n % 2 == 0 else n - 1) for i, n in enumerate(newsig) if n >= 2]
+                odd_elements = sorted(
+                    [(i, 1) for i, n in enumerate(newsig) if n % 2 == 1],
+                    key=lambda x: [x[1]],
+                    reverse=True,
+                )
+                swapidx = -1
+                print(
+                    f"newsig: {newsig} odd count in newsig {sum(n % 2 for n in newsig)} and evens; {sum(n % 2 == 0 for n in newsig)} even_elements: {even_elements} odd_elements: {odd_elements}"
+                )
+                if (
+                    sig[2:] == (1, 1)
+                    and (sig[0] + sig[1]) % 2 == 1
+                    and sig[0] > 2
+                    and sig[1] > 2
+                ):
+                    if tail == (1, 0):
+                        # move the first odd occurring element to the last position
+                        odd_elements = odd_elements[1:] + odd_elements[:1]
+                        swapidx = sum(el for _, el in even_elements)
+                    elif sig[0] % 2 == 1 and sig[1] % 2 == 0 and tail == (2, 1):
+                        swapidx = (
+                            sum(el for _, el in even_elements)
+                            + odd_elements[0][1]
+                            + odd_elements[1][1]
+                            - 1
+                        )
+                node1 = tuple()
+                for i, el in even_elements:
+                    node1 += (i,) * el
+                for i, el in odd_elements:
+                    node1 += (i,) * el
+                if sum(n % 2 for n in sig) == 3 and swapidx == -1:
+                    if len(even_elements) > 1:
+                        swapidx = sum(el for _, el in even_elements[:-1]) - 1
+                        print(f"odd count in sig {sum(n % 2 for n in sig)}")
+                    else:
+                        swapidx = find_last_distinct_adjacent_index(node1)
+                    print(f"odd count in sig {sum(n % 2 for n in sig)}")
+                elif swapidx == -1:
+                    swapidx = find_last_distinct_adjacent_index(node1)
+                # else:
+                #     o_idx = len(odd_elements) - 1
+                #     swapidx = find_last_distinct_adjacent_index(node1[:o_idx])
+                print(
+                    f"node1: {node1} swapidx: {swapidx} (to get {swapPair(node1, swapidx)} with tails {tail, swapPair(tail, 0)}) those are elements {node1[swapidx]} and {node1[swapidx+1]} with occurences {newsig[node1[swapidx]]} and {newsig[node1[swapidx+1]]} and in the old sig {sig[node1[swapidx]]} and {sig[node1[swapidx+1]]}"
+                )
+                # check if the swap is between two elements that are adjacent in the neighbor-swap graph of length n-1
 
-            for i, el in even_elements:
-                node1 += (i,) * el
-            for i, el in odd_elements:
-                node1 += (i,) * el
-            if len(even_elements) > 1:
-                if sum(n % 2 for n in sig) == 4:
-                    swapidx = sum(el for _, el in even_elements)
-                elif sum(n % 2 for n in sig) > 4:
-                    swapidx = sum(el for _, el in even_elements) + sum(
-                        n % 2 for n in sig
-                    )
-                elif (
-                    len(even_elements) == 2
-                    and len(odd_elements) > 1
-                    and even_elements[1][0] == odd_elements[0][0]
-                ):
-                    swapidx = sum(el for _, el in even_elements)
-                elif (
-                    len(even_elements) == 2
-                    and len(odd_elements) == 1
-                    and even_elements[1][0] != odd_elements[0][0]
-                ):
-                    swapidx = sum(el for _, el in even_elements) - 1
-                else:
-                    swapidx = sum(el for _, el in even_elements[:-1]) - 1
-                print(f"odd count in sig {sum(n % 2 for n in sig)}")
+                node2 = node1 + swapPair(tail, 0)
+                node1 = node1 + tail
+                # check the number of even and odds in node1 and node2
             else:
-                swapidx = find_last_distinct_adjacent_index(node1)
-            # else:
-            #     o_idx = len(odd_elements) - 1
-            #     swapidx = find_last_distinct_adjacent_index(node1[:o_idx])
-            print(
-                f"node1: {node1} swapidx: {swapidx} (to get {swapPair(node1, swapidx)} with tails {tail, swapPair(tail, 0)}) those are elements {node1[swapidx]} and {node1[swapidx+1]} with occurences {newsig[node1[swapidx]]} and {newsig[node1[swapidx+1]]} and in the old sig {sig[node1[swapidx]]} and {sig[node1[swapidx+1]]}"
-            )
-            # check if the swap is between two elements that are adjacent in the neighbor-swap graph of length n-1
-
-            node2 = node1 + swapPair(tail, 0)
-            node1 = node1 + tail
-            # check the number of even and odds in node1 and node2
+                even_elements = sorted(
+                    [(i, n) for i, n in enumerate(newsig) if n % 2 == 0],
+                    key=lambda x: [x[1], x[0]],
+                    reverse=True,
+                )
+                # even_elements = [(i, n if n % 2 == 0 else n - 1) for i, n in enumerate(newsig) if n >= 2]
+                odd_elements = sorted(
+                    [(i, n) for i, n in enumerate(newsig) if n % 2 == 1],
+                    key=lambda x: [x[1]],
+                    reverse=True,
+                )
+                node1 = (odd_elements[0][0],) * odd_elements[0][1]
+                swapidx = len(node1) - 1
+                for i, el in even_elements:
+                    node1 += (i,) * el
+                for i, el in odd_elements[1:]:
+                    node1 += (i,) * el
+                if sum(n % 2 for n in sig) > 4 or (
+                    sig[0] % 2 == 1
+                    and sig[1] % 2 == 1
+                    and sig[0] > 1
+                    and sig[1] > 1
+                    and sig[2:] == (1, 1)
+                    and tail == (2, 1)
+                ):
+                    swapidx = find_last_distinct_adjacent_index(node1)
+                print(f"newsig: {newsig} node1 {node1}, node2 swapidx {swapidx}")
+                node2 = node1 + swapPair(tail, 0)
+                node1 = node1 + tail
             print(
                 f"newsig: {newsig} node1 {sum(c % 2 == 0 for c in Counter(node1[:-1]).values()), sum(c % 2 != 0 for c in Counter(node1[:-1]).values())}, node2 {sum(c % 2 == 0 for c in Counter(node2[:-1]).values()), sum(c % 2 != 0 for c in Counter(node2[:-1]).values())}"
             )

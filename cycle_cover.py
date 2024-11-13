@@ -562,13 +562,13 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (cn_c3_first, swapPair(cn_c3_first, sig[0] - 1)),
         (cn_c3_second, swapPair(cn_c3_second, sig[0] - 1)),
     )
-    cn_c32_c02_first = (1, 1) + (0,) * (sig[0]) + (3, 2)
-    cn_c32_c02_second = (1, 1) + (0,) * (sig[0] - 1) + (3, 0, 2)
+    cn_c32_c02_first = (0,) * (sig[0] - 1) + (1, 1, 0, 3, 2)
+    cn_c32_c02_second = (0,) * (sig[0] - 1) + (1, 1, 3, 0, 2)
     c3_c32_c02 = glue(
         c3,
         odd_2_0_1_c02,
-        (cn_c32_c02_first, swapPair(cn_c32_c02_first, 1)),
-        (cn_c32_c02_second, swapPair(cn_c32_c02_second, 1)),
+        (cn_c32_c02_first, swapPair(cn_c32_c02_first, sig[0] - 2)),
+        (cn_c32_c02_second, swapPair(cn_c32_c02_second, sig[0] - 2)),
     )
     cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
     cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
@@ -810,6 +810,7 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     node2_second = node2 + swapPair(temp[1], 0)
     swapindex2 = swapindex1
     # find_cross_edges(last_odd_cycle[:2], temp[:1])
+    print(f"sig {sig} last odd cycle")
     print(
         f"\033[1m\033[92mChosen cross edges {temp[0], swapPair(temp[0], 0)} and {temp[1], swapPair(temp[1], 0)}:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
     )
@@ -954,13 +955,14 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         # use induction on the last element
         all_sub_cycles = []
         # sort the signature to first have the even numbers then the odd numbers
-        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0] % 2 == 0, x[0]])
+        sorted_sig, transformer = get_transformer(sig, lambda x: [x[0]])
         print(f"new sig {sorted_sig} and transformer {transformer}")
         for idx, color in enumerate(sorted_sig):
             sub_sig = sorted_sig[:idx] + (color - 1,) + sorted_sig[idx + 1 :]
             if any(s < 0 for s in sub_sig):
                 raise ValueError(f"Negative signature {sub_sig}")
-            c = get_connected_cycle_cover(sub_sig)
+            else:
+                c = get_connected_cycle_cover(sub_sig)
             if not isinstance(c[0], tuple):
                 raise ValueError(f"Expected a cycle, got {c}")
             all_sub_cycles.append([extend(c, (idx,))])
