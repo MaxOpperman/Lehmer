@@ -545,60 +545,62 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (even_1_1_start13[0], even_1_1_start13[1]),
     )
     # combine c2 and c3 to get order; c0, c1, c2/c3
-    cn_03_to_23_32_first = (1, 1) + (0,) * (sig[0] - 1) + (2, 0, 3)
-    cn_03_to_23_32_second = (1, 1) + (0,) * (sig[0]) + (2, 3)
-    swapidx_c03_c13 = 1
-    c03_c23_c32 = glue(
+    cn103 = (1, 0, 2) + (0,) * (sig[0] - 2) + (1, 0, 3)
+    cn013 = swapPair(cn103, -3)
+    swap103_013 = 0
+    c03_13 = glue(
         odd_2_1_c03,
-        even_2_c23_c32,
-        (cn_03_to_23_32_first, swapPair(cn_03_to_23_32_first, swapidx_c03_c13)),
-        (cn_03_to_23_32_second, swapPair(cn_03_to_23_32_second, swapidx_c03_c13)),
-    )
-    cn_c3_first = (0,) * sig[0] + (1, 2, 1, 3)
-    cn_c3_second = (0,) * sig[0] + (1, 1, 2, 3)
-    c3 = glue(
         even_1_1_c13,
-        c03_c23_c32,
-        (cn_c3_first, swapPair(cn_c3_first, sig[0] - 1)),
-        (cn_c3_second, swapPair(cn_c3_second, sig[0] - 1)),
+        (cn103, swapPair(cn103, swap103_013)),
+        (cn013, swapPair(cn013, swap103_013)),
     )
-    cn_c32_c02_first = (0,) * (sig[0] - 1) + (1, 1, 0, 3, 2)
-    cn_c32_c02_second = (0,) * (sig[0] - 1) + (1, 1, 3, 0, 2)
-    c3_c32_c02 = glue(
-        c3,
+    cn102 = (1, 0, 3) + (0,) * (sig[0] - 2) + (1, 0, 2)
+    cn012 = swapPair(cn102, -3)
+    swap102_012 = 0
+    c02_12 = glue(
         odd_2_0_1_c02,
-        (cn_c32_c02_first, swapPair(cn_c32_c02_first, sig[0] - 2)),
-        (cn_c32_c02_second, swapPair(cn_c32_c02_second, sig[0] - 2)),
-    )
-    cn_c2_c3_first = (0,) * (sig[0]) + (1, 1, 3, 2)
-    cn_c2_c3_second = (0,) * (sig[0]) + (1, 3, 1, 2)
-    c2_c3 = glue(
-        c3_c32_c02,
         even_1_1_c12,
-        (cn_c2_c3_first, swapPair(cn_c2_c3_first, sig[0] - 1)),
-        (cn_c2_c3_second, swapPair(cn_c2_c3_second, sig[0] - 1)),
+        (cn102, swapPair(cn102, swap102_012)),
+        (cn012, swapPair(cn012, swap102_012)),
     )
-    c0_cut_node = (0,) * (sig[0] - 1) + (1, 1, 2, 3, 0)
-    c1_cut_node = swapPair(c0_cut_node, -2)
-    print(f"c0-c1 cut node {c0_cut_node} and {swapPair(c0_cut_node, sig[0])}")
+    cn213 = (0,) * (sig[0]) + (1, 2, 1, 3)
+    cn123 = swapPair(cn213, -3)
+    swap213_123 = sig[0] - 1
+    c02_12_23_32 = glue(
+        c03_13,
+        even_2_c23_c32,
+        (cn213, swapPair(cn213, swap213_123)),
+        (cn123, swapPair(cn123, swap213_123)),
+    )
+    cn312 = (0,) * (sig[0]) + (1, 3, 1, 2)
+    cn132 = swapPair(cn312, -3)
+    swap213_123 = sig[0] - 1
+    c2_c3 = glue(
+        c02_12,
+        c02_12_23_32,
+        (cn312, swapPair(cn312, swap213_123)),
+        (cn132, swapPair(cn132, swap213_123)),
+    )
+
+    cn30 = (0,) * (sig[0] - 1) + (1, 1, 2, 3, 0)
+    cn03 = swapPair(cn30, -2)
+    swap30_03 = sig[0]
     c0_c2_c3 = glue(
         odd_2_1_1_c0,
         c2_c3,
-        (c0_cut_node, swapPair(c0_cut_node, sig[0])),
-        (c1_cut_node, swapPair(c1_cut_node, sig[0])),
+        (cn30, swapPair(cn30, swap30_03)),
+        (cn03, swapPair(cn03, swap30_03)),
     )
-    last_cut_node1 = (0,) * sig[0] + (1, 2, 3, 1)
-    last_cut_node2 = swapPair(last_cut_node1, -2)
-    print(
-        f"last cut node1 {last_cut_node1}-{swapPair(last_cut_node1, sig[0])} and node2 {last_cut_node2}-{swapPair(last_cut_node2, sig[0])}"
-    )
-    full_cycle = glue(
+    cn31 = (0,) * (sig[0]) + (1, 2, 3, 1)
+    cn13 = swapPair(cn31, -2)
+    swap31_13 = sig[0]
+    cycle = glue(
         even_1_1_1_c1,
         c0_c2_c3,
-        (last_cut_node1, swapPair(last_cut_node1, sig[0])),
-        (last_cut_node2, swapPair(last_cut_node2, sig[0])),
+        (cn31, swapPair(cn31, swap31_13)),
+        (cn13, swapPair(cn13, swap31_13)),
     )
-    return [full_cycle]
+    return [cycle]
 
 
 @cache
