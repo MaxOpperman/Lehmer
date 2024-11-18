@@ -623,6 +623,7 @@ def glue(
     Returns:
         list[tuple[int, ...]]: The glued cycles.
     """
+    print(f"Gluing parallel edges {vertex_pair_c1} and {vertex_pair_c2}")
     # rotate the first cycle to start with the first vertex
     cycle1 = cutCycle(cycle1, vertex_pair_c1[0])
     # make sure it ends with the second vertex

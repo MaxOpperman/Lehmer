@@ -1,5 +1,4 @@
 import argparse
-import collections
 from functools import cache
 
 from helper_operations.cycle_cover_connections import (
@@ -237,6 +236,33 @@ def odd_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     return [result]
 
 
+def even_2_1_cycle(
+    k: int,
+) -> list[tuple[int, ...]]:
+    """
+    Generates a Hamiltonian cycle for the even-2-1 case.
+
+    Args:
+        k (int): Value for `even` or `k_0`.
+
+    Returns:
+        list[tuple[int, ...]]: The cycle for the even-odd-1 case.
+    """
+    # a cycle from 1 0^(k-1) 1 0 2 to 1 0^k 1 2
+    p2 = extend(HpathNS(k, 2), (2,))[::-1]
+
+    # p0 and p1 are combined into a cycle
+    # a path from c1 = 1 2 0^k 1 to d1 = 0 2 1 0^(k-1) 1
+    p1 = extend(Hpath_even_1_1(k), (1,))
+    # a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0
+    p0 = extend(incorporated_odd_2_1_path_a_b(k - 1)[::-1], (0,))
+
+    # v = 1 0^(k-1) 1 2
+    v = (1,) + tuple([0] * k) + (1, 2)
+    c = p0 + p1
+    return [cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))]
+
+
 @cache
 def even_odd_1_cycle(
     sig: tuple[int, ...], distinct_ends: bool = True
@@ -267,13 +293,15 @@ def even_odd_1_cycle(
     )
 
     # even, odd, 1 (appended with both even and odd, since both subtracted by 1; smaller case holds by induction)
-    even_odd_x = extend_cycle_cover(
-        generate_cycle_cover((sig[0] - 1, sig[1] - 1, 1)), (even_idx, odd_idx)
+    even_odd_x = extend(
+        get_connected_cycle_cover((sig[0] - 1, sig[1] - 1, 1)), (even_idx, odd_idx)
     )
 
     # odd-2, even, 1 (appended with odd, odd); so odd, even, 1 (but a smaller case)
-    odd_even_y = extend_cycle_cover(
-        generate_cycle_cover((sig[0] - (sig[0] % 2) * 2, sig[1] - (sig[1] % 2) * 2, 1)),
+    odd_even_y = extend(
+        get_connected_cycle_cover(
+            (sig[0] - (sig[0] % 2) * 2, sig[1] - (sig[1] % 2) * 2, 1)
+        ),
         (odd_idx, odd_idx),
     )
 
@@ -313,15 +341,15 @@ def even_odd_1_cycle(
 
     if sig[odd_idx] - 2 == 1:
         # for even-1-1 signature, we need to change the path to a cycle
-        odd_even_1_tip, odd_even_y = odd_even_y[0][:2], [odd_even_y[0][2:]]
+        odd_even_1_tip, odd_even_y = odd_even_y[:2], odd_even_y[2:]
         # the tip is 12 0^k 11 - 21 0^k 11
         # cut the cycle to a vertex adjacent to the tip
-        even_odd_cut = cutCycle(even_odd_x[0], swapPair(odd_even_1_tip[0], -3))
+        even_odd_cut = cutCycle(even_odd_x, swapPair(odd_even_1_tip[0], -3))
         if even_odd_cut[1] != swapPair(odd_even_1_tip[1], -3):
             # make sure the second vertex is adjacent to the second vertex of the tip
             even_odd_cut = even_odd_cut[:1] + even_odd_cut[1:][::-1]
         # move the tip between the two adjacent vertices
-        even_odd_x = [even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]]
+        even_odd_x = even_odd_cut[:1] + odd_even_1_tip + even_odd_cut[1:]
 
     # assume even is 0 and odd is 1
     # 0^{k0-1} 21^{k1-2} 011 and 0^{k0-2} 201^{k1-2} 011
@@ -338,8 +366,8 @@ def even_odd_1_cycle(
         f"gluing x and y between {cn_011}-{swapPair(cn_011, swapidx_cn_101_011)} and {cn_101}-{swapPair(cn_101, swapidx_cn_101_011)}"
     )
     c_01_11 = glue(
-        odd_even_y[0],
-        even_odd_x[0],
+        odd_even_y,
+        even_odd_x,
         (cn_011, swapPair(cn_011, swapidx_cn_101_011)),
         (cn_101, swapPair(cn_101, swapidx_cn_101_011)),
     )
@@ -899,19 +927,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         return [Hpath_even_1_1(k)]
     # even-2-1 case
     elif len(list(sig)) == 3 and k % 2 == 0 and sig[1] == 2 and sig[2] == 1:
-        # a cycle from 1 0^(k-1) 1 0 2 to 1 0^k 1 2
-        p2 = extend(HpathNS(k, 2), (2,))[::-1]
-
-        # p0 and p1 are combined into a cycle
-        # a path from c1 = 1 2 0^k 1 to d1 = 0 2 1 0^(k-1) 1
-        p1 = extend(Hpath_even_1_1(k), (1,))
-        # a path from b0 = 0 2 1 0^(k-2) 1 0 to a0 = 1 2 0^(k-1) 1 0
-        p0 = extend(incorporated_odd_2_1_path_a_b(k - 1)[::-1], (0,))
-
-        # v = 1 0^(k-1) 1 2
-        v = (1,) + tuple([0] * k) + (1, 2)
-        c = p0 + p1
-        return [cutCycle(p2, swapPair(v, 1))[::-1] + cutCycle(c, swapPair(v, -2))]
+        return even_2_1_cycle(k)
     # odd-2-1 case
     elif len(list(sig)) == 3 and k % 2 == 1 and sig[1] == 2 and sig[2] == 1:
         # a cycle from 1 0^k 1 2 to 1 0^(k-1) 1 0 2
@@ -922,18 +938,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         and ((k % 2 == 1 and sig[1] % 2 == 0) or (k % 2 == 0 and sig[1] % 2 == 1))
         and sig[2] == 1
     ):
-        last_combined = even_odd_1_cycle(sig)
-        try:
-            assert len(last_combined) == len(set(last_combined))
-            assert len(last_combined) == multinomial(sig)
-            assert cycleQ(last_combined)
-        except AssertionError:
-            print(f"SIGNATURE {sig} missing {set(perm(sig)) - set(last_combined)}")
-            print(
-                f"duplicates {[item for item, count in collections.Counter(last_combined).items() if count > 1]}"
-            )
-            print(f"sig {sig} gives a cycle {cycleQ(last_combined)}")
-        return [last_combined]
+        return [even_odd_1_cycle(sig)]
     # odd-odd-1 case
     elif len(list(sig)) == 3 and k % 2 == 1 and sig[1] % 2 == 1 and sig[2] == 1:
         return odd_odd_1_cycle(sig)
@@ -979,27 +984,7 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         all_sub_cycles = []
         for idx, color in enumerate(sig):
             sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
-            # check if this results an odd-2-1 case, then we need a cycle and not a path
-            sorted_subsub_sig, transformer2 = get_transformer(
-                sub_sig, lambda x: [x[0] % 2, x[0]]
-            )
-            if (
-                len(sub_sig) == 3
-                and sorted_subsub_sig[0] % 2 == 1
-                and sorted_subsub_sig[1] == 1
-                and sorted_subsub_sig[2] == 2
-            ):
-                if sorted_subsub_sig[0] == 1:
-                    transformer = [transformer2[2], transformer2[0], transformer2[1]]
-                else:
-                    transformer = [transformer2[0], transformer2[2], transformer2[1]]
-                c = [
-                    transform(
-                        incorporated_odd_2_1_cycle(sorted_subsub_sig[0]), transformer
-                    )
-                ]
-            else:
-                c = generate_cycle_cover(sub_sig)
+            c = generate_cycle_cover(sub_sig)
             all_sub_cycles.append(extend_cycle_cover(c, (idx,)))
         return all_sub_cycles
     # all-even case

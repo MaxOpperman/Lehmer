@@ -7,12 +7,10 @@ from helper_operations.cycle_cover_cross_edges import (
     get_all_even_cross_edges,
 )
 from helper_operations.path_operations import (
-    cutCycle,
     find_last_distinct_adjacent_index,
     get_first_element,
     get_transformer,
     glue,
-    splitPathIn2,
     transform,
 )
 from helper_operations.permutation_graphs import get_perm_signature, swapPair
@@ -112,113 +110,6 @@ def generate_end_tuple_order(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         )
 
 
-def cut_sub_cycle_to_past(
-    cycle_to_cut: list[tuple[int, ...]],
-    start: tuple[int, ...],
-    end: tuple[int, ...],
-) -> list[tuple[int, ...]]:
-    """
-    Opens the cycle such that the previous cycle can be connected to the current cycle.
-    The start and end nodes are the nodes that should be at the start and end of the cycle.
-
-    Args:
-        cycle_to_cut (list[tuple[int, ...]]): The cycle to cut.
-        start (tuple[int, ...]): The start nodes of the cycle.
-        end (tuple[int, ...]): The end nodes of the cycle.
-
-    Returns:
-        list[tuple[int, ...]]: The cut cycle.
-
-    Raises:
-        AssertionError: If the start or end nodes are not found in the cycle.
-        ValueError: If the start and end nodes are not adjacent in the cycle.
-    """
-    cut_cycle = cutCycle(cycle_to_cut, start)
-    try:
-        assert end in cut_cycle
-    except AssertionError:
-        raise AssertionError(
-            f"Cycle from {cut_cycle[0]}-{cut_cycle[1]} to {cut_cycle[-1]} does not contain end node {end}."
-        )
-    if cut_cycle[-1] == end:
-        return cut_cycle
-    elif cut_cycle[1] == end:
-        return cut_cycle[:1] + cut_cycle[1:][::-1]
-    else:
-        raise ValueError(
-            f"Start and end nodes {start} and {end} are not adjacent in the cycle.\n"
-            f"Start node at index {cut_cycle.index(start)} and end node at index {cut_cycle.index(end)}.\n"
-            f"Adjacent nodes to start index: {cut_cycle[cut_cycle.index(start) - 1]}-{cut_cycle[cut_cycle.index(start)]}-{cut_cycle[cut_cycle.index(start) + 1]}.\n"
-            f"Adjacent nodes to end index: {cut_cycle[cut_cycle.index(end) - 1]}-{cut_cycle[cut_cycle.index(end)]}-{cut_cycle[cut_cycle.index(end) + 1]}."
-        )
-
-
-def split_sub_cycle_for_next_cross_edge(
-    cycle_to_cut: list[tuple[int, ...]],
-    tail: tuple[int, ...],
-    cross_edges: dict[
-        list[
-            tuple[tuple[int, ...], tuple[int, ...]],
-            tuple[tuple[int, ...], tuple[int, ...]],
-        ]
-    ],
-) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
-    """
-    Cuts the subcycle cover at nodes that end with `tail` and opens them such that the next cycle can be connected to the current cycle.
-    The tail is the part of the permutation that should be at the end of the nodes.
-    The cut is made based on a dictionary of cross edges that are used to connect the cycles.
-
-    Args:
-        cycle_to_cut (list[tuple[int, ...]]): The cycle to cut open at nodes with the provided tail. Both the node before and after the cut should end with `tail`.
-        tail (tuple[int, ...]): The exact elements as a tuple of integers that the nodes should end with.
-        cross_edges (dict[list[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]): The cross edges that connect the cycles.
-
-    Returns:
-        tuple[list[tuple[int, ...]], list[tuple[int, ...]]]: The cycle cover cut open between the two nodes with the provided tail.
-
-    Raises:
-        ValueError: If the cross edge is not found in the cross edges dictionary.
-    """
-    next_tail = swapPair(tail, 0)
-    if cross_edges.get((tail, next_tail)) is None:
-        raise ValueError(
-            f"Cross edge {(tail, next_tail)} not found in cross edges from signature {get_perm_signature(cycle_to_cut[0])}. Cross edges keys: {cross_edges.keys()}."
-        )
-    # take the lexicographically smallest cross edge
-    cross_edge = min(cross_edges.get((tail, next_tail)))[0]
-    if cross_edge is None:
-        raise ValueError(
-            f"Cross edge {(tail, next_tail)} not found in cross edges {cross_edges}."
-        )
-    try:
-        ce0_idx = cycle_to_cut.index(cross_edge[0])
-        ce1_idx = cycle_to_cut.index(cross_edge[1])
-    except ValueError:
-        raise ValueError(
-            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} not found in cycle with tails: {list(set([p[-len(tail):] for p in cycle_to_cut]))}."
-        )
-    try:
-        assert (
-            abs(ce0_idx - ce1_idx) == 1
-            or abs(ce0_idx - ce1_idx) == len(cycle_to_cut) - 1
-        )
-    except AssertionError:
-        slice1 = cycle_to_cut[ce0_idx - 1 : ce0_idx + 2]
-        slice2 = cycle_to_cut[ce1_idx - 1 : ce1_idx + 2]
-        if len(slice1) == 0:
-            slice1 = cycle_to_cut[-1:] + cycle_to_cut[:2]
-        if len(slice2) == 0:
-            slice2 = cycle_to_cut[-1:] + cycle_to_cut[:2]
-        raise AssertionError(
-            f"Cross edge {cross_edge} in {get_perm_signature(get_first_element(cycle_to_cut))} is not adjacent in the cycle:\n{slice1} and {slice2} (indices {ce0_idx} and {ce1_idx} with length {len(cycle_to_cut)})."
-        )
-    if ce0_idx < ce1_idx:
-        splitPathIn2(cycle_to_cut, cross_edge[0])
-        return splitPathIn2(cycle_to_cut, cross_edge[0])
-    else:
-        return splitPathIn2(cycle_to_cut, cross_edge[1])
-
-
 def get_two_odd_rest_even_cycle(
     single_cycle_cover: list[list[tuple[int, ...]]],
     end_tuple_order: list[tuple[int, ...]],
@@ -276,7 +167,6 @@ def connect_single_cycle_cover(
             The last element of the last tuple is the first element of the first tuple.
     """
     # The cycles are split on the last elements
-    tail_length = len(end_tuple_order[0])
     cross_edges = {}
     # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
     sig = get_perm_signature(get_first_element(single_cycle_cover))
@@ -340,10 +230,8 @@ def connect_single_cycle_cover(
                 if sum(n % 2 for n in sig) == 3 and swapidx == -1:
                     if len(even_elements) > 1:
                         swapidx = sum(el for _, el in even_elements[:-1]) - 1
-                        print(f"odd count in sig {sum(n % 2 for n in sig)}")
                     else:
                         swapidx = find_last_distinct_adjacent_index(node1)
-                    print(f"odd count in sig {sum(n % 2 for n in sig)}")
                 elif swapidx == -1:
                     swapidx = find_last_distinct_adjacent_index(node1)
                 # else:
@@ -401,30 +289,18 @@ def connect_single_cycle_cover(
         get_all_even_cross_edges(end_tuple_order, cross_edges, sig)
     else:
         raise ValueError(f"Signature {sig} has an unexpected number of odd numbers.")
-    start_cycles, end_cycles = split_sub_cycle_for_next_cross_edge(
-        single_cycle_cover[0][0], end_tuple_order[0], cross_edges
-    )
-    print(
-        f"used cross edges: {cross_edges[(end_tuple_order[0], swapPair(end_tuple_order[0], 0))]}"
-    )
-    # start_cycles, end_cycles = split_sub_cycle_for_next(single_list, tail)
-    for i, cycle_list in enumerate(single_cycle_cover[1:], start=1):
-        print(f"cut nodes start: {start_cycles[-1]} end: {end_cycles[0]}")
-        cut_cycle = cut_sub_cycle_to_past(
-            cycle_list[0],
-            swapPair(start_cycles[-1], -tail_length),
-            swapPair(end_cycles[0], -tail_length),
-        )
-        if i < len(single_cycle_cover) - 1:
-            new_tail = end_tuple_order[i]
-            # cycle_split = split_sub_cycle_for_next(cut_cycle, new_tail)
-            cycle_split = split_sub_cycle_for_next_cross_edge(
-                cut_cycle,
-                new_tail,
-                cross_edges,
+    result_cycle = single_cycle_cover[0][0]
+    for i, tail in enumerate(end_tuple_order):
+        next_tail = swapPair(tail, 0)
+        if cross_edges.get((tail, next_tail)) is None:
+            raise ValueError(
+                f"Cross edge {(tail, next_tail)} not found in cross edges from signature {sig}. Cross edges keys: {cross_edges.keys()}."
             )
-            start_cycles += cycle_split[0]
-            end_cycles = cycle_split[1] + end_cycles
-        else:
-            start_cycles += cut_cycle
-    return start_cycles + end_cycles
+        cross_edge = cross_edges.get((tail, next_tail))[0]
+        result_cycle = glue(
+            result_cycle,
+            single_cycle_cover[i + 1][0],
+            cross_edge[0],
+            cross_edge[1],
+        )
+    return result_cycle
