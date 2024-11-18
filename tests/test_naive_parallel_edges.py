@@ -5,7 +5,6 @@ from helper_operations.naive_parallel_edges import (
     find_cross_edges,
     find_end_tuple_order,
     find_parallel_edges_in_cycle_cover,
-    write_cross_edge_ratio_to_file,
 )
 
 
@@ -145,11 +144,11 @@ class Test_Find_Parallel_Edges_In_Cycle_Cover:
             cc,
             [(2, 3)],
         )
-        assert res == {(2, 3): [[]], (3, 2): [[]]}
+        assert res == {(2, 3): [[]]}
         res = find_parallel_edges_in_cycle_cover(cc, [(2, 1)])
-        assert res == {(2, 1): [[]], (1, 2): [[((0, 1, 1, 2), (1, 0, 1, 2))]]}
+        assert res == {(2, 1): [[]]}
         res = find_parallel_edges_in_cycle_cover(cc, [(1, 2)])
-        assert res == {(1, 2): [[((0, 1, 1, 2), (1, 0, 1, 2))]], (2, 1): [[]]}
+        assert res == {(1, 2): [[((0, 1, 1, 2), (1, 0, 1, 2))]]}
 
     def test_length_two_cycles(self):
         cc = [
@@ -205,10 +204,115 @@ class Test_Find_Parallel_Edges_In_Cycle_Cover:
             [[(1, 1, 0, 2), (1, 0, 1, 2), (0, 1, 1, 2)]],
         ]
         res = find_parallel_edges_in_cycle_cover(cc, [(1, 0), (2, 1)])
-        print(res)
         assert res == {
             (1, 0): [((2, 1, 1, 0), (1, 2, 1, 0))],
             (0, 1): [((2, 1, 0, 1), (1, 2, 0, 1))],
             (2, 1): [((1, 0, 2, 1), (0, 1, 2, 1))],
             (1, 2): [((1, 0, 1, 2), (0, 1, 1, 2))],
+        }
+        with pytest.raises(ValueError):
+            find_parallel_edges_in_cycle_cover(cc, [(1, 0), (0, 1)])
+
+
+class Test_Find_Cross_Edges:
+    def test_empty_cycle_cover(self):
+        with pytest.raises(
+            ValueError, match="Cycle cover should contain at least one cycle."
+        ):
+            find_cross_edges([], [])
+        with pytest.raises(
+            ValueError, match="Cycle cover should contain at least one cycle."
+        ):
+            find_cross_edges([], [(1, 0)])
+
+    def test_len_one_cycle_cover(self):
+        cc = [
+            [
+                (0, 1, 1, 2),
+                (1, 0, 1, 2),
+                (1, 1, 0, 2),
+                (2, 1, 1, 0),
+                (1, 2, 1, 0),
+                (1, 1, 2, 0),
+            ]
+        ]
+        with pytest.raises(ValueError):
+            find_cross_edges(cc, [(1, 2)])
+
+    def test_simple_cycle(self):
+        cc = [
+            [[(2, 1, 1, 0), (1, 2, 1, 0), (1, 1, 2, 0)]],
+            [
+                [
+                    (2, 1, 0, 1),
+                    (1, 2, 0, 1),
+                    (1, 0, 2, 1),
+                    (0, 1, 2, 1),
+                    (0, 2, 1, 1),
+                    (2, 0, 1, 1),
+                ]
+            ],
+            [[(1, 1, 0, 2), (1, 0, 1, 2), (0, 1, 1, 2)]],
+        ]
+        res = find_cross_edges(cc, [(1, 0), (2, 1)])
+        assert res == {
+            ((1, 0), (0, 1)): [
+                (((2, 1, 1, 0), (1, 2, 1, 0)), ((2, 1, 0, 1), (1, 2, 0, 1)))
+            ],
+            ((2, 1), (1, 2)): [
+                (((1, 0, 2, 1), (0, 1, 2, 1)), ((1, 0, 1, 2), (0, 1, 1, 2)))
+            ],
+        }
+
+    def test_multiple_cross_edges_2_2_1(self):
+        cc221 = [
+            [[(0, 1, 0, 1, 2), (0, 1, 1, 0, 2), (1, 0, 1, 0, 2), (1, 0, 0, 1, 2)]],
+            [
+                [
+                    (1, 0, 0, 2, 1),
+                    (1, 0, 2, 0, 1),
+                    (0, 1, 2, 0, 1),
+                    (0, 2, 1, 0, 1),
+                    (1, 2, 0, 0, 1),
+                    (2, 1, 0, 0, 1),
+                    (2, 0, 1, 0, 1),
+                    (2, 0, 0, 1, 1),
+                    (0, 2, 0, 1, 1),
+                    (0, 0, 2, 1, 1),
+                    (0, 0, 1, 2, 1),
+                    (0, 1, 0, 2, 1),
+                ]
+            ],
+            [
+                [
+                    (0, 2, 1, 1, 0),
+                    (2, 0, 1, 1, 0),
+                    (2, 1, 0, 1, 0),
+                    (2, 1, 1, 0, 0),
+                    (1, 2, 1, 0, 0),
+                    (1, 1, 2, 0, 0),
+                    (1, 1, 0, 2, 0),
+                    (1, 0, 1, 2, 0),
+                    (0, 1, 1, 2, 0),
+                    (0, 1, 2, 1, 0),
+                    (1, 0, 2, 1, 0),
+                    (1, 2, 0, 1, 0),
+                ]
+            ],
+        ]
+        res = find_cross_edges(cc221, [(1, 2), (0, 1)])
+        assert res == {
+            ((1, 2), (2, 1)): [
+                (((1, 0, 0, 1, 2), (0, 1, 0, 1, 2)), ((1, 0, 0, 2, 1), (0, 1, 0, 2, 1)))
+            ],
+            ((0, 1), (1, 0)): [
+                (
+                    ((1, 0, 2, 0, 1), (0, 1, 2, 0, 1)),
+                    ((1, 0, 2, 1, 0), (0, 1, 2, 1, 0)),
+                ),
+                (
+                    ((2, 1, 0, 0, 1), (2, 0, 1, 0, 1)),
+                    ((2, 1, 0, 1, 0), (2, 0, 1, 1, 0)),
+                ),
+            ],
         }

@@ -130,9 +130,6 @@ def find_parallel_edges_in_cycle_cover(
             (end_tuple_order[0]): [
                 filter_adjacent_edges_by_tail(cycle_cover[0], end_tuple_order[0])
             ],
-            (start_tails[0]): [
-                filter_adjacent_edges_by_tail(cycle_cover[0], start_tails[0])
-            ],
         }
     assert len(cycle_cover) == len(end_tuple_order) + 1
     parallel_edges = {}
@@ -216,8 +213,6 @@ def find_cross_edges(
                     cross = (edge1, edge2)
                 elif adjacent(edge1[0], edge2[1]) and adjacent(edge1[1], edge2[0]):
                     cross = (edge1, edge2[::-1])
-                elif adjacent(edge1[1], edge2[0]) and adjacent(edge1[0], edge2[1]):
-                    cross = (edge1[::-1], edge2)
                 if cross is not None:
                     if (tail1, tail2) in cross_edges:
                         cross_edges[(tail1, tail2)].append(cross)
