@@ -457,6 +457,7 @@ def incorporated_odd_2_1_cycle(
     # the cut_node is 1 0^{k} 1 2 - 1 0^{k} 2 1
     # the parallel cut_node is 0 1 0^{k-1} 1 2 - 0 1 0^{k-1} 2 1
     if flip_stutter_cross_edge:
+        assert k == 3
         parallel_cut_node = (1, 1) + (0,) * (k - 1) + (2, 0)
         cut_node = swapPair(parallel_cut_node, -3)
         swap_idx = 1

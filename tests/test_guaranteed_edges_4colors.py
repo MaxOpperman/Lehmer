@@ -138,10 +138,34 @@ class Test_GuaranteedEdges_Even_2_1_1:
                 or abs(cyc.index(node_16) - cyc.index(node_15)) == len(cyc) - 1
             )
 
-            # test_guaranteed 2110^{k_0-1}30 ~ 1210^{k_0-1}30
+            # test_guaranteed 0^{k_0}1123\sim 0^{k_0}1213
             node_17 = (0,) * (even_val) + (1, 1, 2, 3)
             node_18 = (0,) * (even_val) + (1, 2, 1, 3)
             assert (
                 abs(cyc.index(node_17) - cyc.index(node_18)) == 1
                 or abs(cyc.index(node_17) - cyc.index(node_18)) == len(cyc) - 1
+            )
+
+            # test_guaranteed 0^{k_0}1132\sim 0^{k_0}1312
+            node_19 = (0,) * (even_val) + (1, 1, 3, 2)
+            node_20 = (0,) * (even_val) + (1, 3, 1, 2)
+            assert (
+                abs(cyc.index(node_19) - cyc.index(node_20)) == 1
+                or abs(cyc.index(node_19) - cyc.index(node_20)) == len(cyc) - 1
+            )
+
+            # test_guaranteed 110^{k_0}32 \sim 1010^{k_0-1}32
+            node_21 = (1, 1) + (0,) * (even_val) + (3, 2)
+            node_22 = (1, 0, 1) + (0,) * (even_val - 1) + (3, 2)
+            assert (
+                abs(cyc.index(node_21) - cyc.index(node_22)) == 1
+                or abs(cyc.index(node_21) - cyc.index(node_22)) == len(cyc) - 1
+            )
+
+            # test_guaranteed 110^{k_0}23 \sim 1010^{k_0-1}23
+            node_23 = (1, 1) + (0,) * (even_val) + (2, 3)
+            node_24 = (1, 0, 1) + (0,) * (even_val - 1) + (2, 3)
+            assert (
+                abs(cyc.index(node_23) - cyc.index(node_24)) == 1
+                or abs(cyc.index(node_23) - cyc.index(node_24)) == len(cyc) - 1
             )
