@@ -5,8 +5,8 @@ from argparse import Namespace
 import networkx as nx
 from matplotlib import pyplot as plt
 
+from figure_generation_files.pathmarker import PathMarker
 from helper_operations.permutation_graphs import defect, multiset, total_path_motion
-from pathmarker import PathMarker
 
 
 def visualize(

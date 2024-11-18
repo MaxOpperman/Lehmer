@@ -9,7 +9,6 @@ Lehmer Paths in Neighbor-Swap Graphs
    figure_generation_files
    helper_operations
    lehmer_paths
-   pathmarker
    permute
    stachowiak
    steinhaus_johnson_trotter

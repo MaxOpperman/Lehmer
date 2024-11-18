@@ -27,3 +27,10 @@ Verhoeff Cycle Cover Paths module
    :undoc-members:
    :show-inheritance:
 
+Pathmarker
+--------------------------------------------------------
+
+.. automodule:: figure_generation_files.Pathmarker
+   :members:
+   :undoc-members:
+   :show-inheritance:
