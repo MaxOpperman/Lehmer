@@ -153,3 +153,4 @@ cython_debug/
 permutation-software-master/
 /out
 result.csv
+crossedges.csv
