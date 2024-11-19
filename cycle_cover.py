@@ -798,12 +798,6 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     # first odd indices then the even indices;
     t1 = (odd_idx2, last_even_idx, odd_idx1)
     t2 = (odd_idx1, last_even_idx, odd_idx2)
-    tail1_sig = list(get_perm_signature(t1)) + [0] * (
-        len(list(sig)) - len(get_perm_signature(t1))
-    )
-    tail2_sig = list(get_perm_signature(t2)) + [0] * (
-        len(list(sig)) - len(get_perm_signature(t2))
-    )
     lambda_func = lambda x: x[1]
     all_elements1 = sorted(
         [[i, n - (i in t1)] for i, n in enumerate(sig)],

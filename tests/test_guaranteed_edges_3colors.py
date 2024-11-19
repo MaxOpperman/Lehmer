@@ -163,7 +163,7 @@ class Test_GuaranteedEdges_Even_2_1_subcycles:
         index_19 = cc.index(node_19)
         assert abs(index_18 - index_19) == 1 or abs(index_18 - index_19) == len(cc) - 1
 
-    def test_guaranteed_edges_alternative_Odd_2_1(self):
+    def test_guaranteed_edges_alternative_Odd_2_1_error(self):
         odd_val = 5
         with pytest.raises(AssertionError):
             incorporated_odd_2_1_cycle(odd_val, True)
