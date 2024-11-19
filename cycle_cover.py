@@ -687,33 +687,21 @@ def two_odd_rest_even_cycle_cover(
                 print(
                     f"\033[1m\033[91mSUBSUUBSIG {two_odd_subsubsig} sorted {sorted_subsub_sig} tran {tran}\033[0m\033[0m"
                 )
-                if len(list(two_odd_subsubsig)) == 3 and two_odd_subsubsig == (2, 3, 1):
-                    current_subcycle.append(
-                        [
-                            extend(
-                                transform(
-                                    incorporated_odd_2_1_cycle(
-                                        sorted_subsub_sig[0], True
-                                    ),
-                                    [1, 0, 2],
-                                ),
-                                (i,),
-                            ),
-                        ]
-                    )
-                elif (
+                if (
                     len(sorted_subsub_sig) == 3
                     and two_odd_subsubsig[2] == 1
                     and (
                         (
+                            # even-odd-1
                             two_odd_subsubsig[0] % 2 == 0
-                            and two_odd_subsubsig[0] - two_odd_subsubsig[1] < 1
-                            and two_odd_subsubsig[0] > two_odd_subsubsig[1]
+                            and two_odd_subsubsig[0] > 2
+                            and two_odd_subsubsig[0] < two_odd_subsubsig[1]
                         )
                         or (
+                            # odd-even-1
                             two_odd_subsubsig[1] % 2 == 0
                             and two_odd_subsubsig[1] > 2
-                            and two_odd_subsubsig[1] - two_odd_subsubsig[0] < 1
+                            and two_odd_subsubsig[1] < two_odd_subsubsig[0]
                         )
                     )
                 ):
@@ -791,24 +779,22 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     last_even_idx = [i for i, v in enumerate(sig) if v % 2 == 0][-1]
     # the connecting tails are 201, 021 for signature (3, 3, 2)
     # since we cannot guarantee that there are more odd colors, we use an even color to swap to the tail
-    temp = [
-        (odd_idx2, last_even_idx, odd_idx1),
-        (last_even_idx, odd_idx1, odd_idx2),
-    ]
     # first odd indices then the even indices;
     t1 = (odd_idx2, last_even_idx, odd_idx1)
     t2 = (odd_idx1, last_even_idx, odd_idx2)
     lambda_func = lambda x: x[1]
     all_elements1 = sorted(
-        [[i, n - (i in t1)] for i, n in enumerate(sig)],
+        [[i, n - (i in t1[1:])] for i, n in enumerate(sig)],
         key=lambda_func,
         reverse=True,
     )
     all_elements2 = sorted(
-        [[i, n - (i in t2)] for i, n in enumerate(sig)],
+        [[i, n - (i in t2[1:])] for i, n in enumerate(sig)],
         key=lambda_func,
         reverse=True,
     )
+    all_elements1 = [[i, n - (i == t1[0])] for i, n in all_elements1]
+    all_elements2 = [[i, n - (i == t2[0])] for i, n in all_elements2]
     odd_elements1 = [[i, n] for i, n in all_elements1 if n % 2 == 1]
     even_elements1 = [[i, n] for i, n in all_elements1 if n % 2 == 0]
     odd_elements2 = [[i, n] for i, n in all_elements2 if n % 2 == 1]
@@ -822,21 +808,21 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         node1 += tuple([even_el] * even_occ)
     for odd_el, odd_occ in odd_elements1:
         node1 += tuple([odd_el] * odd_occ)
-    node1_first = node1 + temp[0]
-    node1_second = node1 + swapPair(temp[0], 0)
+    node1_first = node1 + t1
+    node1_second = node1 + swapPair(t1, 0)
     swapindex1 = sum([n[1] for n in even_elements2]) - 1
     node2 = tuple()
     for even_el, even_occ in even_elements2:
         node2 += tuple([even_el] * even_occ)
     for odd_el, odd_occ in odd_elements2:
         node2 += tuple([odd_el] * odd_occ)
-    node2_first = node2 + temp[1]
-    node2_second = node2 + swapPair(temp[1], 0)
+    node2_first = node2 + swapPair(t2, 0)
+    node2_second = node2 + t2
     swapindex2 = swapindex1
     # find_cross_edges(last_odd_cycle[:2], temp[:1])
     print(f"sig {sig} last odd cycle")
     print(
-        f"\033[1m\033[92mChosen cross edges {temp[0], swapPair(temp[0], 0)} and {temp[1], swapPair(temp[1], 0)}:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
+        f"\033[1m\033[92mChosen cross edges {t1, swapPair(t1, 0)} and {t2, swapPair(t2, 0)}:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
     )
 
     connected_odds1 = glue(

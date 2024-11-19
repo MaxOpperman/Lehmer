@@ -198,16 +198,34 @@ def incorporateSpursInZigZag(
     C = [stut + suff for stut in vertices for suff in spur_suffixes]
     skip += len(spur_suffixes[0])
     for vertex_index in range(0, len(C), 2):
-        p = swapPair(
-            C[vertex_index], find_last_distinct_adjacent_index(C[vertex_index][:-skip])
-        )
+        swapidx = find_last_distinct_adjacent_index(C[vertex_index][:-skip])
+        p = swapPair(C[vertex_index], swapidx)
+        q = swapPair(C[vertex_index + 1], swapidx)
         try:
             i = path.index(p)
         except ValueError:
             raise ValueError(
                 f"Path {path} does not contain permutation {p}; generated from {C[vertex_index]}"
             )
-        path = path[: i + 1] + [C[vertex_index], C[vertex_index + 1]] + path[i + 1 :]
+        try:
+            j = path.index(q)
+        except ValueError:
+            raise ValueError(
+                f"Path {path} does not contain permutation {q}; generated from {C[vertex_index + 1]}"
+            )
+        # check whether the index of j is i + 1 or i - 1
+        if j == i + 1:
+            # add the spur after i
+            path = (
+                path[: i + 1] + [C[vertex_index], C[vertex_index + 1]] + path[i + 1 :]
+            )
+        elif j == i - 1:
+            # add the spur before i
+            path = path[:i] + [C[vertex_index + 1], C[vertex_index]] + path[i:]
+        else:
+            raise ValueError(
+                f"Permutations {p} and {q} are not adjacent in path {path}."
+            )
     return path
 
 

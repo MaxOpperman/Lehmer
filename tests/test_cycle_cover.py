@@ -333,15 +333,14 @@ class Test_HpathCycleCover_All_But_One_Even:
             stutterPermutations(signature)
         )
 
-    # def test_HpathCycleCover_4_3_2_2(self):
-    # TODO fix this case
-    #     signature = (4, 3, 2, 2)
-    #     cycles = generate_cycle_cover(signature)
-    #     assert len(cycles) == len(signature)
-    #     total_length = recursive_cycle_check(cycles)
-    #     assert total_length == multinomial(signature) - len(
-    #         stutterPermutations(signature)
-    #     )
+    def test_HpathCycleCover_4_3_2_2(self):
+        signature = (4, 3, 2, 2)
+        cycles = generate_cycle_cover(signature)
+        assert len(cycles) == len(signature)
+        total_length = recursive_cycle_check(cycles)
+        assert total_length == multinomial(signature) - len(
+            stutterPermutations(signature)
+        )
 
 
 class Test_HpathCycleCover_All_Even:

@@ -1,11 +1,14 @@
 import pytest
 
+from cycle_cover import get_connected_cycle_cover
+from helper_operations.path_operations import createZigZagPath, cycleQ
 from helper_operations.permutation_graphs import (
     extend,
     incorporateSpursInZigZag,
     rotate,
     selectByTail,
     shorten,
+    stutterPermutations,
     swapPair,
 )
 
@@ -115,6 +118,18 @@ class TestPermutationChanges:
         spur_suffixes = [(0, 1), (1, 0)]
         with pytest.raises(ValueError):
             incorporateSpursInZigZag(path, vertices, spur_suffixes)
+
+    def test_incorporateSpursInZigZag_multiple_elements_cycle(self):
+        all_even_subsig = (2, 2, 2, 2)
+        cycle_without_stutters = get_connected_cycle_cover(all_even_subsig)
+        odds_non_stutter_cycle = createZigZagPath(
+            cycle_without_stutters, (0, 1), (1, 0)
+        )
+        all_even_spurs = stutterPermutations(all_even_subsig)
+        result = incorporateSpursInZigZag(
+            odds_non_stutter_cycle, all_even_spurs, [(1, 0), (0, 1)]
+        )
+        assert cycleQ(result)
 
     def test_extend_empty_list(self):
         p = []

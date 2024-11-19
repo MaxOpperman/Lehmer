@@ -186,19 +186,17 @@ def connect_single_cycle_cover(
                 n - (i in tail) for i, n in enumerate(sig) if n - (i in tail) >= 0
             ]
             if sum(n % 2 for n in sig) % 2 == 1:
-                even_elements = sorted(
-                    [
-                        (i, n if n % 2 == 0 else n - 1)
-                        for i, n in enumerate(newsig)
-                        if n >= 2
-                    ],
+                all_elements = sorted(
+                    [[i, n - (i in tail)] for i, n in enumerate(sig)],
                     key=lambda x: [-x[1], x[0]],
                     reverse=True,
                 )
-                # even_elements = [(i, n if n % 2 == 0 else n - 1) for i, n in enumerate(newsig) if n >= 2]
+                even_elements = [
+                    (i, n if n % 2 == 0 else n - 1) for i, n in all_elements if n >= 2
+                ]
                 odd_elements = sorted(
-                    [(i, 1) for i, n in enumerate(newsig) if n % 2 == 1],
-                    key=lambda x: [x[1]],
+                    [(i, 1) for i, n in all_elements if n % 2 == 1],
+                    key=lambda x: [-x[0]],
                     reverse=True,
                 )
                 swapidx = -1
