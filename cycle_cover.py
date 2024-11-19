@@ -129,7 +129,7 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
                     )
                 ]
             else:
-                cycle_cover = generate_cycle_cover(sub_sig)
+                cycle_cover = [get_connected_cycle_cover(sub_sig)]
             if idx != idx2:
                 # this gives a set of cycles that we just need to add in order
                 sub_cycles = []
@@ -984,64 +984,13 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         all_sub_cycles = []
         for idx, color in enumerate(sig):
             sub_sig = sig[:idx] + (color - 1,) + sig[idx + 1 :]
-            c = generate_cycle_cover(sub_sig)
-            all_sub_cycles.append(extend_cycle_cover(c, (idx,)))
+            c = [extend(get_connected_cycle_cover(sub_sig), (idx,))]
+            all_sub_cycles.append(c)
         return all_sub_cycles
     # all-even case
     else:
         all_sub_cycles = generate_all_even_cycle_cover(sig)
         return all_sub_cycles
-
-
-def connect_cycles_recursive(
-    cycle_cover: list[list], sig: tuple[int, ...]
-) -> list[list[tuple[int, ...]]]:
-    """
-    Connects cycles in a cycle cover recursively. This is equal to the inductive step of our proof.
-
-    Args:
-        cycle_cover (list[list]): The cycle cover to connect. This list has an unknown depth
-        sig (tuple[int, ...]): The signature of the permutations. Must have at least
-
-    Returns:
-        list[list[tuple[int, ...]]]: The connected cycle cover as a list of tuples, where each tuple represents a permutation.
-    """
-    tail_length = get_tail_length(sig)
-    single_cycle_cover = []
-    for nested_cycle in cycle_cover:
-        if (
-            isinstance(nested_cycle, list)
-            and isinstance(nested_cycle[0], list)
-            and isinstance(nested_cycle[0][0], list)
-        ):
-            # we need to remove tails from every list in the nested cycle to connect them
-            first_cycle_element = get_first_element(nested_cycle)
-
-            # Get the new signature
-            subsig = get_perm_signature(first_cycle_element[:-tail_length])
-            sorted_subsig, subsig_transformer = get_transformer(subsig, lambda x: x[0])
-            if sum(n % 2 for n in sig) == 2 and sum(n % 2 for n in subsig) == 1:
-                print(
-                    f"TEST subsiggg {subsig} {sorted_subsig} last element {first_cycle_element} {sum(n % 2 for n in subsig)}"
-                )
-
-                # now we should incorporate the stutters in the cycle
-            # TODO check if we have to incorporate stutters (when two colors are odd)
-            connected_shortened = get_connected_cycle_cover(sorted_subsig)
-            # Now we need to add the last element back to the connected shortened cycle
-            if isinstance(connected_shortened[0], tuple):
-                connected_shortened = [connected_shortened]
-            # now transform the connected shortened subsig back to the original values
-            transformed_short = transform_cycle_cover(
-                connected_shortened, subsig_transformer
-            )
-            connected = extend_cycle_cover(
-                transformed_short, first_cycle_element[-tail_length:]
-            )
-            single_cycle_cover.append(connected)
-        else:
-            single_cycle_cover.append(nested_cycle)
-    return single_cycle_cover
 
 
 @cache
@@ -1085,9 +1034,8 @@ def get_connected_cycle_cover(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         # If there is less than two odd occurring colors, we can connect the cycles using the recursive connection method
         # Loop over the cycles in the cover and connect the cycle at index `i` ends with an element of color `i`
         # while the depth of the list is more than 2, we need to connect the previous cycles
-        single_cycle_cover = connect_cycles_recursive(cover, sig)
         connected_cover = connect_single_cycle_cover(
-            single_cycle_cover, generate_end_tuple_order(sig)
+            cover, generate_end_tuple_order(sig)
         )
         return connected_cover
 
