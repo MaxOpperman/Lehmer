@@ -145,8 +145,7 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
                     if subcyc[1] != swapPair(cut_node, sub_sig[idx] - 1):
                         subcyc = subcyc[:1] + subcyc[1:][::-1]
                 sub_cycles.append(
-                    extend(subcyc, (idx2, idx))[::-1]
-                    + extend(subcyc, (idx, idx2))
+                    extend(subcyc, (idx2, idx))[::-1] + extend(subcyc, (idx, idx2))
                 )
                 if idx2 - idx <= 1:
                     all_sub_cycles.append(sub_cycles)
