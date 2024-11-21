@@ -116,35 +116,38 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
             # check if this results an even-1-1 case
             sorted_sub_sig, transformer2 = get_transformer(sub_sig, lambda x: x[0])
             # for the even-1-1 case we need a specific path that has parallel edges
+            even_1_1_sig = False
             if (
                 len(list(sorted_sub_sig)) == 3
                 and sorted_sub_sig[0] % 2 == 0
                 and sorted_sub_sig[1] == 1
                 and sorted_sub_sig[2] == 1
             ):
-                cycle_cover = [
-                    transform(
-                        Hpath_even_1_1(sorted_sub_sig[0]),
-                        transformer2,
-                    )
-                ]
+                even_1_1_sig = True
+                subcyc = transform(
+                    Hpath_even_1_1(sorted_sub_sig[0]),
+                    transformer2,
+                )
             else:
-                cycle_cover = [get_connected_cycle_cover(sub_sig)]
+                subcyc = get_connected_cycle_cover(sub_sig)
             if idx != idx2:
                 # this gives a set of cycles that we just need to add in order
                 sub_cycles = []
-                if len(cycle_cover) == 1:
-                    sub_cycles.append(
-                        extend(cycle_cover[0], (idx2, idx))[::-1]
-                        + extend(cycle_cover[0], (idx, idx2))
-                    )
-                else:
-                    # first connect them, then add them
-                    connected = get_connected_cycle_cover(sub_sig)
-                    sub_cycles = [
-                        extend(connected, (idx2, idx))[::-1]
-                        + extend(connected, (idx, idx2))
-                    ]
+                # generate the cut nodes
+                if not even_1_1_sig:
+                    cut_node = (idx,) * (sub_sig[idx])
+                    for i, n in enumerate(sub_sig):
+                        if i != idx and i != idx2:
+                            cut_node += (i,) * n
+                    cut_node += (idx2,) * (sub_sig[idx2])
+                    # rotate the cycle cover to the correct position
+                    subcyc = cutCycle(subcyc, cut_node)
+                    if subcyc[1] != swapPair(cut_node, sub_sig[idx] - 1):
+                        subcyc = subcyc[:1] + subcyc[1:][::-1]
+                sub_cycles.append(
+                    extend(subcyc, (idx2, idx))[::-1]
+                    + extend(subcyc, (idx, idx2))
+                )
                 if idx2 - idx <= 1:
                     all_sub_cycles.append(sub_cycles)
                 else:
@@ -153,7 +156,7 @@ def generate_all_even_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, 
                     )
             else:
                 # this gives all the non-stutter permutations
-                sub_cycles = extend_cycle_cover(cycle_cover, (idx, idx2))
+                sub_cycles = [extend(subcyc, (idx, idx2))]
                 all_sub_cycles.append(sub_cycles)
                 if len(sub_sig) == idx + 1:
                     # add the between cycles in reversed order
@@ -209,9 +212,6 @@ def odd_odd_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     # the cut nodes are 1 2 1^{k1-1} 0^{k0-2} 0 and 2 1 1^{k1-1} 0^{k0-2} 0
     even_odd_cut_node = (1, 2) + (1,) * (sig[1] - 2) + (0,) * (sig[0] - 1) + (1, 0)
     odd_even_cut_node = swapPair(even_odd_cut_node, -2)
-    print(
-        f"cut nodes {even_odd_cut_node}-{swapPair(even_odd_cut_node, 0)} and {odd_even_cut_node}-{swapPair(odd_even_cut_node, 0)}"
-    )
     even_odd_combined = glue(
         even_odd_cut,
         odd_even_cut,
@@ -362,9 +362,6 @@ def even_odd_1_cycle(
     # 0^{k0-1} 21^{k1-2} 101 and 0^{k0-2} 201^{k1-2} 101
     cn_101 = swapPair(cn_011, -3)
     swapidx_cn_101_011 = sig[even_idx] - 2
-    print(
-        f"gluing x and y between {cn_011}-{swapPair(cn_011, swapidx_cn_101_011)} and {cn_101}-{swapPair(cn_101, swapidx_cn_101_011)}"
-    )
     c_01_11 = glue(
         odd_even_y,
         even_odd_x,
@@ -391,9 +388,6 @@ def even_odd_1_cycle(
         # 1^{k1-1} 0^{k0-1} 2 0 1 and 1^{k1-2} 01 0^{k0-2} 2 0 1
         cn_201 = swapPair(cn_021, -3)
         swapidx = sig[odd_idx] - 2
-    print(
-        f"Gluing cross edge stutter {cn_021}-{swapPair(cn_021, swapidx)} and {cn_201}-{swapPair(cn_201, swapidx)}"
-    )
     c_12_21_11_01 = glue(
         incorporated_even_even,
         c_01_11,
@@ -436,7 +430,6 @@ def even_1_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     # in the odd-1-1-1 we must watch out we don't pick the cross edge xy 0^{k0-1} z 0 ~ yx 0^{k0-1} z 0
     # we use that edge to transform the paths to cycles in this case
     cycle_cover = extend(get_connected_cycle_cover((sig[0] - 1, 1, 1, 1)), (0,))
-    # print(f"cycle cover {cycle_cover}")
     # get the even-1-1 path
     even11_path = Hpath_even_1_1(sig[0])
     # transform to other colors
@@ -447,7 +440,6 @@ def even_1_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     p1_start, p1 = p1[-2:], p1[:-2]
     p2_start, p2 = p2[-2:], p2[:-2]
     p3_start, p3 = p3[-2:], p3[:-2]
-    print(f"starts {p1_start} {p2_start} {p3_start}")
     # place the p2 start in the cycle
     cc_p1 = cutCycle(cycle_cover, swapPair(p1_start[0], -2))
     if not adjacent(cc_p1[1], p1_start[1]):
@@ -468,10 +460,8 @@ def even_1_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     cc_p3 = cc_p3[:1] + p3_start + cc_p3[1:]
     assert pathQ(cc_p3)
 
-    print(f"cc_p3; cycleQ {cycleQ(cc_p3)}")
     cut_node_c1 = (2, 3) + (0,) * (sig[0] - 1) + (1, 0)
     cut_node_c1_2 = swapPair(cut_node_c1, -2)
-    print(f"cut nodes {cut_node_c1} and {swapPair(cut_node_c1, 1)}")
     cc_c1 = glue(
         cc_p3,
         p1,
@@ -480,7 +470,6 @@ def even_1_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     )
     cut_node_c2 = (0,) * sig[0] + (3, 2, 1)
     cut_node_c2_2 = swapPair(cut_node_c2, -2)
-    print(f"cut nodes {cut_node_c2} and {swapPair(cut_node_c2, sig[0] - 1)}")
     cc_c2 = glue(
         cc_c1,
         p2,
@@ -489,7 +478,6 @@ def even_1_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     )
     cut_node_c3 = (0,) * sig[0] + (1, 3, 2)
     cut_node_c3_2 = swapPair(cut_node_c3, -2)
-    print(f"cut nodes {cut_node_c3} and {swapPair(cut_node_c3, sig[0] - 1)}")
     cc_c3 = glue(
         cc_c2,
         p3,
@@ -528,10 +516,6 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         # the 2-2-1-1 case
         odd_2_1_c03_start, odd_2_1_c03 = odd_2_1_c03[:2], odd_2_1_c03[2:]
         odd_2_0_1_c02_start, odd_2_0_1_c02 = odd_2_0_1_c02[:2], odd_2_0_1_c02[2:]
-        print(f"starts 2-2-1-1 {odd_2_1_c03_start} and {odd_2_0_1_c02_start}")
-        print(
-            f"glued between {(swapPair(odd_2_1_c03_start[0], -2), swapPair(odd_2_1_c03_start[1], -2))} and {(swapPair(odd_2_0_1_c02_start[0], -2), swapPair(odd_2_0_1_c02_start[1], -2))}"
-        )
         # now add the start nodes to the c0 cycle
         odd_2_1_1_c0 = glue(
             odd_2_1_1_c0,
@@ -558,7 +542,6 @@ def even_2_1_1_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     # now remove the first two elements from the even_1_1_p12 and even_1_1_p13 paths
     even_1_1_start12, even_1_1_c12 = even_1_1_p12[:2], even_1_1_p12[2:]
     even_1_1_start13, even_1_1_c13 = even_1_1_p13[:2], even_1_1_p13[2:]
-    print(f"Even-2-1-1 case starts with {even_1_1_start12} and {even_1_1_start13}")
     # now add the start nodes to the c1 cycle
     even_1_1_1_c1 = glue(
         even_1_1_1_c1,
@@ -684,9 +667,6 @@ def two_odd_rest_even_cycle_cover(
                 sorted_subsub_sig, tran = get_transformer(
                     two_odd_subsubsig, lambda x: [x[0] % 2 == 1, x[0]]
                 )
-                print(
-                    f"\033[1m\033[91mSUBSUUBSIG {two_odd_subsubsig} sorted {sorted_subsub_sig} tran {tran}\033[0m\033[0m"
-                )
                 if (
                     len(sorted_subsub_sig) == 3
                     and two_odd_subsubsig[2] == 1
@@ -719,7 +699,6 @@ def two_odd_rest_even_cycle_cover(
                             )
                         ]
                     )
-                    print(f"even-odd-1 cycle Distinct ends {False}")
                 else:
                     current_subcycle.append(
                         [
@@ -800,9 +779,6 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     odd_elements2 = [[i, n] for i, n in all_elements2 if n % 2 == 1]
     even_elements2 = [[i, n] for i, n in all_elements2 if n % 2 == 0]
     # node1 is a tuple of; the odd elements then the even elements in pairs of 2
-    print(
-        f"odd elements {odd_elements1} - {odd_elements2} and even elements {even_elements1} - {even_elements2}"
-    )
     node1 = tuple()
     for even_el, even_occ in even_elements1:
         node1 += tuple([even_el] * even_occ)
@@ -820,7 +796,6 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
     node2_second = node2 + t2
     swapindex2 = swapindex1
     # find_cross_edges(last_odd_cycle[:2], temp[:1])
-    print(f"sig {sig} last odd cycle")
     print(
         f"\033[1m\033[92mChosen cross edges {t1, swapPair(t1, 0)} and {t2, swapPair(t2, 0)}:\n {((node1_first, swapPair(node1_first, swapindex1)), (node1_second, swapPair(node1_second, swapindex1)))} and {((node2_first, swapPair(node2_first, swapindex2)), (node2_second, swapPair(node2_second, swapindex2)))}\033[0m\033[0m"
     )
@@ -837,7 +812,6 @@ def two_odd_rest_even_cycle(sig: tuple[int, ...]) -> list[tuple[int, ...]]:
         (node2_first, swapPair(node2_first, swapindex2)),
         (node2_second, swapPair(node2_second, swapindex2)),
     )
-    print(f"connected odds 2 is a cycle {cycleQ(connected_odds2)}")
     all_sub_cycles.append([connected_odds2])
     return all_sub_cycles
 
@@ -943,13 +917,11 @@ def generate_cycle_cover(sig: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
         all_sub_cycles = []
         # sort the signature to first have the even numbers then the odd numbers
         sorted_sig, transformer = get_transformer(sig, lambda x: [x[0]])
-        print(f"new sig {sorted_sig} and transformer {transformer}")
         for idx, color in enumerate(sorted_sig):
             sub_sig = sorted_sig[:idx] + (color - 1,) + sorted_sig[idx + 1 :]
             if any(s < 0 for s in sub_sig):
                 raise ValueError(f"Negative signature {sub_sig}")
-            else:
-                c = get_connected_cycle_cover(sub_sig)
+            c = get_connected_cycle_cover(sub_sig)
             if not isinstance(c[0], tuple):
                 raise ValueError(f"Expected a cycle, got {c}")
             all_sub_cycles.append([extend(c, (idx,))])

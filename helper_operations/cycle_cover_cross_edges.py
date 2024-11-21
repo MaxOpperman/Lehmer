@@ -49,8 +49,6 @@ def get_all_even_cross_edges(
         swapidx = odd_el[0][1] - 1
         node2 = node1 + swapPair(tail, 0)
         node1 = node1 + tail
-        print(f"newsig: {newsig} el {odd_el} tail {tail}")
-        print(f"node1: {node1} node2: {node2} with swap {swapidx}")
         cross_edges[(tail, swapPair(tail, 0))] = [
             (
                 (node1, swapPair(node1, swapidx)),
@@ -190,8 +188,5 @@ def generate_two_odd_cross_edges(
                 (node2, swapPair(node2, swapidx)),
             )
         ]
-        print(
-            f"three_odd_elements_sig: {three_odd_elements_sig}; node1: {node1} node2: {node2} swapidx: {swapidx}"
-        )
     print(f"\033[1m\033[92mChosen cross edges:\n {cross_edges}\033[0m\033[0m")
     return cross_edges

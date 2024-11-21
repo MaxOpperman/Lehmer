@@ -631,7 +631,13 @@ def glue(
         cycle1 = cycle1[:1] + cycle1[1:][::-1]
     if not cycle1[-1] == vertex_pair_c1[1]:
         v2index = cycle1.index(vertex_pair_c1[1])
-        print(f"Second vertex pair: {vertex_pair_c2}")
+        edge_2_indices = (
+            cycle2.index(vertex_pair_c2[0]),
+            cycle2.index(vertex_pair_c2[1]),
+        )
+        print(
+            f"Second vertex pair: {vertex_pair_c2} has indices {edge_2_indices} --> diff {abs(edge_2_indices[0] - edge_2_indices[1]) % len(cycle2)}"
+        )
         raise ValueError(
             f"In the first cycle, the vertices {vertex_pair_c1} are not adjacent in cycle:\n{[cycle1[-1]] + cycle1[:2]} and {cycle1[v2index-1:v2index+2]} (index {v2index})."
         )
