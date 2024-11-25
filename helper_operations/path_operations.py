@@ -622,6 +622,9 @@ def glue(
 
     Returns:
         list[tuple[int, ...]]: The glued cycles.
+
+    Raises:
+        ValueError: If the vertices are not adjacent in the cycles.
     """
     print(f"Gluing parallel edges {vertex_pair_c1} and {vertex_pair_c2}")
     # rotate the first cycle to start with the first vertex

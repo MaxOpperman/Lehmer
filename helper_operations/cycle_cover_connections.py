@@ -6,6 +6,7 @@ from helper_operations.cycle_cover_cross_edges import (
     generate_two_odd_cross_edges,
     get_all_even_cross_edges,
 )
+from helper_operations.naive_parallel_edges import find_cross_edges
 from helper_operations.path_operations import (
     find_last_distinct_adjacent_index,
     get_first_element,
@@ -152,14 +153,15 @@ def get_two_odd_rest_even_cycle(
 def connect_single_cycle_cover(
     single_cycle_cover: list[tuple[int, ...]],
     end_tuple_order: list[tuple[int, ...]],
+    naive_glue: bool = False,
 ) -> list[tuple[int, ...]]:
     """
     Connect a single list of cycles to form a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
 
     Args:
-        sig (tuple[int, ...]): The signature of the permutations. Must have at least one element.
         single_cycle_cover (list[tuple[int, ...]]): The single cycle cover to connect.
         end_tuple_order (list[tuple[int, ...]]): The order of the last elements of the cycles.
+        naive_glue (bool, optional): Naively glue the disjoint cycle cover. Defaults to False.
 
     Returns:
         list[tuple[int, ...]]:
@@ -280,10 +282,26 @@ def connect_single_cycle_cover(
                 f"Cross edge {(tail, next_tail)} not found in cross edges from signature {sig}. Cross edges keys: {cross_edges.keys()}."
             )
         cross_edge = cross_edges.get((tail, next_tail))[0]
-        result_cycle = glue(
-            result_cycle,
-            single_cycle_cover[i + 1][0],
-            cross_edge[0],
-            cross_edge[1],
-        )
+        try:
+            result_cycle = glue(
+                result_cycle,
+                single_cycle_cover[i + 1][0],
+                cross_edge[0],
+                cross_edge[1],
+            )
+        except ValueError as e:
+            print(f"Error in cycle {i} with cross edge {cross_edge}")
+            if naive_glue:
+                ce = find_cross_edges(
+                    [[result_cycle], single_cycle_cover[i + 1]], [tail], True
+                )
+                new_cross_edge = ce[(tail, next_tail)][0]
+                result_cycle = glue(
+                    result_cycle,
+                    single_cycle_cover[i + 1][0],
+                    new_cross_edge[0],
+                    new_cross_edge[1],
+                )
+            else:
+                raise e
     return result_cycle

@@ -21,9 +21,15 @@ if __name__ == "__main__":
     parser.add_argument(
         "-v", "--verbose", action="store_true", help="Enable verbose mode"
     )
+    parser.add_argument(
+        "-n",
+        "--naive-glue",
+        action="store_true",
+        help="Naively glue the disjoint cycle cover",
+    )
     args = parser.parse_args()
     sig = tuple([int(x) for x in args.signature.split(",")])
-    connected_cycle_cover = get_connected_cycle_cover(sig)
+    connected_cycle_cover = get_connected_cycle_cover(sig, args.naive_glue)
     if args.verbose:
         print(f"Connected cycle cover: {connected_cycle_cover}")
     stut_count = len(stutterPermutations(sig))

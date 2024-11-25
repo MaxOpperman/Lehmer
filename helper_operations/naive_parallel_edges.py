@@ -160,6 +160,7 @@ def find_parallel_edges_in_cycle_cover(
 def find_cross_edges(
     cycle_cover: list[list[tuple[int, ...]]],
     end_tuple_order: list[tuple[int, ...]],
+    return_first: bool = False,
 ) -> dict[
     tuple[int, ...],
     list[
@@ -174,12 +175,12 @@ def find_cross_edges(
     The cross edges are used to connect the cycles in the cycle cover.
 
     Args:
-        sig (tuple[int, ...]):
-            The signature of the permutation.
         cycle_cover (list[list[tuple[int, ...]]]):
             The cycle cover to find cross edges in.
         end_tuple_order (list[tuple[int, ...]]):
             The order of the end tuples of the cycles in the cycle cover.
+        return_first (bool, optional):
+            If only the first cross edge should be returned. Defaults to False.
 
     Returns:
         dict[tuple[int, ...], list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]]]:
@@ -218,6 +219,8 @@ def find_cross_edges(
                         cross_edges[(tail1, tail2)].append(cross)
                     else:
                         cross_edges[(tail1, tail2)] = [cross]
+                        if return_first:
+                            return cross_edges
                     # if an edge is adjacent to one parallel edge, it cannot be adjacent to another from that same cycle
                     break
             if cross is not None:
