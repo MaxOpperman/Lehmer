@@ -45,12 +45,12 @@ def _generate_all_di(chain_p: np.ndarray[int]) -> np.ndarray:
     This function corresponds to the start of the proof of Lemma 2 (case 2.1 if the length of `chain_p` even).
 
     Args:
-        chain_p (tuple[int, ...]): The chain of `p` elements in the lemma.
+        chain_p (np.ndarray[int]): The chain of `p` elements in the lemma.
 
     Returns:
-        list[tuple[int, ...]]:
+        np.ndarray:
             All possible `d_i` chains. Each `d_i` chain is represented as a numpy array of numpy arrays with integers:
-            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`.
+            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`.
             This is for every `0 <= i <= p`.
     """
     q = np.array([0, 1], dtype=int)
@@ -94,12 +94,12 @@ def _generate_all_di_prime(chain_p: np.array) -> np.ndarray:
     This function corresponds to the start of the proof of Lemma 2 (case 2.2 if the length of `chain_p` even).
 
     Args:
-        chain_p (tuple[int, ...]): The chain of p elements in Lemma 2.
+        chain_p (np.array): The chain of p elements in Lemma 2.
 
     Returns:
         np.ndarray:
             All possible `d_i'` chains. Each `d_i'` chain is represented as a numpy array of numpy arrays with integers:
-            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`.
+            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`.
             This is for every `0 <= i <= p`.
     """
     q = np.array([0, 1])
@@ -137,7 +137,7 @@ def _generate_all_di_prime(chain_p: np.array) -> np.ndarray:
     )
 
 
-def lemma2_cycle(chain_p: np.array, case_2_1=True) -> np.ndarray:
+def lemma2_cycle(chain_p: np.array, case_2_1: bool = True) -> np.ndarray:
     """
     This function generates the cycles of Lemma 2.
     If the length of the `chain_p` is even the last two nodes are discarded as in the lemma.
@@ -181,7 +181,7 @@ def lemma2_cycle(chain_p: np.array, case_2_1=True) -> np.ndarray:
     return cycle
 
 
-def lemma2_extended_path(chain_p: np.array, case_2_1=True) -> np.ndarray:
+def lemma2_extended_path(chain_p: np.array, case_2_1: bool = True) -> np.ndarray:
     """
     Extends the cycle of Lemma 2 with the last two elements in case `chain_p` is even.
     If the length of `chain_p` is odd, then the cycle is returned.
@@ -200,8 +200,8 @@ def lemma2_extended_path(chain_p: np.array, case_2_1=True) -> np.ndarray:
     Returns:
         np.ndarray:
             The cycle of all `d_i` or `d_i'` chains extended with the two nodes that are left out if the length of `chain_p` is even.\n
-            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`
-            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`
+            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`
+            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`
     """
     cycle = lemma2_cycle(chain_p, case_2_1)
     if len(chain_p) % 2 == 0:
@@ -300,7 +300,7 @@ def _lemma7_constructor(sig: np.array) -> tuple[np.ndarray, np.ndarray]:
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
     Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
-    Parameters:
+    Args:
         sig (np.array):
             The signature of the graph in the form `[1, 1, q, p]`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
@@ -394,6 +394,7 @@ def _lemma8_g_i_sub_graphs(k_q: np.array, l_p: np.array, sig: np.array) -> np.nd
     Args:
         k_q (np.array): Chain of q elements "k"
         l_p (np.array): Chain of p element "l"
+        sig (np.array): Signature of the graph in the form `[1, 1, q, p]`
 
     Returns:
         np.ndarray:

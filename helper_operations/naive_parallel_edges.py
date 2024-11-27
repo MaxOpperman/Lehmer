@@ -25,7 +25,7 @@ def find_end_tuple_order(
 
     Args:
         cycle_cover (list[list[tuple[int, ...]]]): The cycle cover to find the end tuples for.
-        force_three (bool): If the end tuples should be of length 3.
+        force_three (bool, optional): If the end tuples should be of length 3. Defaults to False.
 
     Returns:
         list[tuple[int, ...]]: The order of the end tuples of the cycles in the cycle cover.
@@ -167,7 +167,7 @@ def find_cross_edges(
         tuple[
             tuple[tuple[int, ...], tuple[int, ...]],
             tuple[tuple[int, ...], tuple[int, ...]],
-        ],
+        ]
     ],
 ]:
     """
@@ -241,7 +241,7 @@ def write_cross_edge_ratio_to_file(
             tuple[
                 tuple[tuple[int, ...], tuple[int, ...]],
                 tuple[tuple[int, ...], tuple[int, ...]],
-            ],
+            ]
         ],
     ],
     tail1: tuple[int, ...],
@@ -252,9 +252,11 @@ def write_cross_edge_ratio_to_file(
     Writes the cross edge ratio to a csv file; `./crossedges.csv`. If the file doesn't exist, it creates it.
 
     Args:
-        cross_edges (dict[tuple[int, ...], list[tuple[tuple[int, ...], tuple[int, ...]]]]): The cross edges to write to the file.
+        cross_edges (dict[tuple[int, ...], list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[int, ...], tuple[int, ...]]]]]):
+            The cross edges to write to the file.
         tail1 (tuple[int, ...]): The first tail of the cross edge.
         tail2 (tuple[int, ...]): The second tail of the cross edge.
+        prompt_keep_old_csv (bool, optional): If the user should be prompted to keep the old csv file. Defaults to False.
 
     Returns:
         None

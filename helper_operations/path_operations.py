@@ -33,7 +33,7 @@ def adjacent(s: tuple[int, ...], t: tuple[int, ...]) -> bool:
     return False
 
 
-def pathQ(p: list[tuple[int, ...]], verbose=True) -> bool:
+def pathQ(p: list[tuple[int, ...]], verbose: bool = True) -> bool:
     """
     Checks if the given list of vertices represents a path. So True if all vertices are adjacent, False otherwise.
 
@@ -87,7 +87,7 @@ def pathEdges(
         p (list[tuple[int, ...]]): The path represented as a list of adjacent vertices.
 
     Returns:
-        list[list[tuple[int, ...]]]: A list of edges, where each edge is represented as a tuple of two adjacent vertices.
+        list[tuple[tuple[int, ...], tuple[int, ...]]]: A list of edges, where each edge is represented as a tuple of two adjacent vertices.
 
     Raises:
         ValueError: If the given list of vertices does not represent a path.
@@ -370,7 +370,7 @@ def get_transformer(
 
 
 def transformer_to_sorted(
-    unsorted_signature: tuple[int, ...], func=lambda x: x[0]
+    unsorted_signature: tuple[int, ...], func: callable = lambda x: x[0]
 ) -> list[int]:
     """
     Get the transformer to go from unsorted to sorted signature.
@@ -428,7 +428,9 @@ def transform(perms: list[tuple[int, ...]], tr: list[int]) -> list[tuple[int, ..
     return l
 
 
-def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
+def transform_cycle_cover(
+    perms3d: list[list[tuple[int, ...]]], tr: list[int]
+) -> list[list[tuple[int, ...]]]:
     """
     Transforms a list of unknown depth holding a list of permutations according to the given renaming. Used for the cycle cover.
     The transformer list `tr` is a list of integers where the integer at index `i` is the new name for element `i`.
@@ -443,6 +445,7 @@ def transform_cycle_cover(perms3d: list[list], tr: list[int]) -> list[list]:
 
     Returns:
         list[list[tuple[int, ...]]]: The same structure of lists as the input, but with the permutations transformed.
+
     Raises:
         AssertionError: If the input list does not have a length greater than 0.
         ValueError: If the input is not a list.
@@ -476,8 +479,7 @@ def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[li
             Tuple of integers to remove from the permutations.
 
     Returns:
-        list[list[tuple[int, ...]]]:
-            The same structure of lists as the input, but with the permutations shortened by `elements`.
+        list[list]: The same structure of lists as the input, but with the permutations shortened by `elements`.
 
     Raises:
         AssertionError: If the input list does not have a length greater than 0.
@@ -501,7 +503,7 @@ def shorten_cycle_cover(lis3d: list[list], elements: tuple[int, ...]) -> list[li
         return [shorten_cycle_cover(l, elements) for l in lis3d]
 
 
-def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
+def recursive_cycle_check(cycle: list[list], total_length: int = 0) -> int:
     """
     Recursively check whether the given list is a cycle. The input is a list of cycles of unknown depth.
     The function will check the depth and return the total number of permutations in the lists of permutations.
@@ -509,8 +511,8 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     Then the length of the cycle is added to the total length. The total length is returned.
 
     Args:
-        cycle (list): List of cycles.
-        total_length (int): Total length of the cycle, starts at 0.
+        cycle (list[list]): List of cycles.
+        total_length (int, optional): Total length of the cycle, defaults at 0.
 
     Returns:
         int: Total length of the list of cycles.
@@ -532,7 +534,7 @@ def recursive_cycle_check(cycle: list[list], total_length=0) -> int:
     return total_length
 
 
-def get_first_element(nested_list: list, element=0) -> tuple[int, ...]:
+def get_first_element(nested_list: list, element: int = 0) -> tuple[int, ...]:
     """
     Recursively retrieves the first element of a nested list.
 

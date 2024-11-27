@@ -141,7 +141,9 @@ def _generate_all_di_prime(chain_p: tuple[int, ...]) -> list[tuple[int, ...]]:
 
 
 @cache
-def lemma2_cycle(chain_p: tuple[int, ...], case_2_1=True) -> list[tuple[int, ...]]:
+def lemma2_cycle(
+    chain_p: tuple[int, ...], case_2_1: bool = True
+) -> list[tuple[int, ...]]:
     """
     This function generates the cycles of Lemma 2.
     If the length of the `chain_p` is even the last two nodes are discarded as in the lemma.
@@ -185,7 +187,7 @@ def lemma2_cycle(chain_p: tuple[int, ...], case_2_1=True) -> list[tuple[int, ...
 
 @cache
 def lemma2_extended_path(
-    chain_p: tuple[int, ...], case_2_1=True
+    chain_p: tuple[int, ...], case_2_1: bool = True
 ) -> list[tuple[int, ...]]:
     """
     Extends the cycle of Lemma 2 with the last two elements in case `chain_p` is even.
@@ -298,7 +300,7 @@ def _lemma7_constructor(
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
     Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
-    Parameters:
+    Args:
         sig (tuple[int, ...]):
             The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).

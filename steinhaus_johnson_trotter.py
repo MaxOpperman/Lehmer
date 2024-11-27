@@ -25,12 +25,12 @@ class SteinhausJohnsonTrotter:
 
     # Utility functions for finding the
     # position of largest mobile integer in a[].
-    def searchArr(self, a, n, mobile):
+    def searchArr(self, a: list[int], n: int, mobile: int) -> int:
         """
         Search for the given mobile element in the array.
 
         Args:
-            a (list): The array to search in.
+            a (list[int]): The array to search in.
             n (int): The length of the array.
             mobile (int): The mobile element to search for.
 
@@ -47,13 +47,13 @@ class SteinhausJohnsonTrotter:
 
     # To carry out step 1 of the algorithm i.e.
     # to find the largest mobile integer.
-    def getMobile(self, a, dir, n):
+    def getMobile(self, a: list[int], dir: list[bool], n: int) -> int:
         """
         Returns the largest mobile element in the given permutation.
 
         Args:
-            a (list): The permutation of numbers.
-            dir (list): The direction of each element in the permutation.
+            a (list[int]): The permutation of numbers.
+            dir (list[bool]): The direction of each element in the permutation.
             n (int): The length of the permutation.
 
         Returns:
@@ -78,7 +78,7 @@ class SteinhausJohnsonTrotter:
         else:
             return mobile
 
-    def get_sjt_permutations(self, n):
+    def get_sjt_permutations(self, n: int) -> list[tuple[int, ...]]:
         """
         Generate permutations using the Steinhaus-Johnson-Trotter algorithm.
 
@@ -86,7 +86,7 @@ class SteinhausJohnsonTrotter:
             n (int): The number of elements in the permutation.
 
         Returns:
-            list: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
+            list[tuple[int, ...]]: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
         """
         print(
             f"\033[1m\033[92mSTEINHAUS-JOHNSON-TROTTER USED FOR SIGNATURE {(1,) * n} \033[0m\033[0m"

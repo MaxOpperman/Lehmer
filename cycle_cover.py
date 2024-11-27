@@ -631,7 +631,7 @@ def two_odd_rest_even_cycle_cover(
         naive_glue (bool, optional): If the naive glue method should be used. Defaults to False.
 
     Returns:
-        tuple[list[list[tuple[int, ...]]], list[list[tuple[int, ...]]]: The disjoint cycle cover for the given signature `sig`.
+        tuple[list[list[tuple[int, ...]]], list[list[tuple[int, ...]]]]: The disjoint cycle cover for the given signature `sig`.
         The first list contains the disjoint cycle cover for the permutations where the last element is even.
         The second list contains the disjoint cycle cover for the permutations where the last element is odd.
     """
@@ -972,6 +972,7 @@ def get_connected_cycle_cover(
 
     Args:
         sig (tuple[int, ...]): The signature for which the cycle on non-stutter permutations needs to be computed.
+        naive_glue (bool, optional): If the naive gluing method should be used. Defaults to False.
 
     Returns:
         list[tuple[int, ...]]: The connected cycle cover as a list of tuples, where each tuple represents a permutation.

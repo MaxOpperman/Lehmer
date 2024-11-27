@@ -33,6 +33,15 @@ class SteinhausJohnsonTrotterNumpy:
             return mobile
 
     def get_sjt_permutations(self, n: int) -> np.ndarray:
+        """
+        Get the steinhaus-johnson-trotter permutations of length n
+
+        Args:
+            n (int): The length of the permutations
+
+        Returns:
+            np.ndarray: A 2D array of permutations of length
+        """
         perms = np.empty((0, n), dtype=int)
         a = np.arange(n)
         perms = np.vstack((perms, a.copy()))

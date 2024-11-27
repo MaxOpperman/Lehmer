@@ -9,29 +9,69 @@ from helper_operations.permutation_graphs import binomial
 
 
 def stutterize(perm: np.array) -> np.ndarray:
-    """Converts argument into stutter permutation by repeating every number."""
+    """
+    Converts argument into stutter permutation by repeating every number.
+
+    Args:
+        perm (np.array): A permutation of integers to be converted into a stutter permutation.
+
+    Returns:
+        np.ndarray: The input permutation but every integers is repeated twice.
+    """
     return np.repeat(perm, 2, axis=1)
 
 
 def selectOdds(sig: np.array) -> np.array:
-    """Returns list of numbers with odd occurrence frequencies in the given signature."""
+    """
+    Returns list of numbers with odd occurrence frequencies in the given signature.
+
+    Args:
+        sig (np.array): A signature of a permutation.
+
+    Returns:
+        np.array: A list of numbers with odd occurrence frequencies.
+    """
     return sig[sig % 2 == 1]
 
 
 def multiset(freq: np.array) -> np.ndarray:
-    """Generates the lexicographically smallest list with given occurrence frequencies."""
+    """
+    Generates the lexicographically smallest list with given occurrence frequencies.
+
+    Args:
+        freq (np.array): A list of integers representing the occurrence frequencies of the elements.
+
+    Returns:
+        np.ndarray: A list of integers with the given occurrence frequencies.
+    """
     return np.array([i for i, f in enumerate(freq) for _ in range(f)])
 
 
 def permutations(s: np.array) -> np.ndarray:
-    """Generates all possible permutations of a given list of integers."""
+    """
+    Generates all possible permutations of a given list of integers.
+
+    Args:
+        s (np.array): The signature of the permutations.
+
+    Returns:
+        np.ndarray: A list of all possible permutations with the input signature.
+    """
     # for itertools permutations:
     # Elements are treated as unique based on their position, not on their value.
     return np.unique(np.array(list(itertoolspermutations(multiset(s)))), axis=0)
 
 
 def stutterPermutations(s: np.array) -> np.ndarray:
-    """Generates stutter permutations of a given list of integers."""
+    """
+    Generates stutter permutations of a given list of integers.
+
+    Args:
+        s (np.array): The signature of the permutations.
+
+    Returns:
+        np.ndarray: A list of all possible stutter permutations with the input signature.
+    """
     odds = selectOdds(s)
     if odds.size >= 2:
         return np.array([])
@@ -45,11 +85,19 @@ def stutterPermutations(s: np.array) -> np.ndarray:
 
 def createZigZagPath(c: np.ndarray, uv: np.ndarray) -> np.ndarray:
     """
-    :param c: cycle of even length, numpy array
-    :param uv: arrays to append [u, v]
-    :return: cycle obtained by combining two "parallel" copies of given cycle, to form a 'square wave',
-            running from cycle[[1]]v to cycle[[-1]]v; the two copies are distinguished by
-            appending u and v; also works for a path
+    Creates a zigzag path by combining two "parallel" copies of the given cycle.
+
+    Args:
+        c (np.ndarray): A cycle of even length.
+        uv (np.ndarray): An array containing two elements [u, v] to append.
+
+    Returns:
+        np.ndarray: A cycle obtained by combining two "parallel" copies of the given cycle to form a 'square wave',
+                running from cycle[[1]]v to cycle[[-1]]v. The two copies are distinguished by appending u and v.
+                Also works for a path.
+
+    Raises:
+        AssertionError: If the elements in uv are not adjacent.
     """
     assert adjacent(uv[0], uv[1])
     temp = np.repeat(c, 2, axis=0)
@@ -58,7 +106,16 @@ def createZigZagPath(c: np.ndarray, uv: np.ndarray) -> np.ndarray:
 
 
 def cutCycle(c: np.ndarray, a: np.array) -> np.ndarray:
-    """Splits a cycle at vertex a. Vertex a appears on first place"""
+    """
+    Splits a cycle at vertex a. Vertex a appears on first place
+
+    Args:
+        c (np.ndarray): A cycle.
+        a (np.array): A vertex to split the cycle at.
+
+    Returns:
+        np.ndarray: A cycle which starts with vertex a.
+    """
     # Find the index of c in a
     index = np.where(np.all(c == a, axis=1))[0][0]
 
@@ -67,6 +124,16 @@ def cutCycle(c: np.ndarray, a: np.array) -> np.ndarray:
 
 
 def incorporateSpurInZigZag(path: np.ndarray, vertex_pair: np.ndarray) -> np.ndarray:
+    """
+    Incorporates a spur into a zigzag path.
+
+    Args:
+        path (np.ndarray): A zigzag path.
+        vertex_pair (np.ndarray): A pair of vertices to incorporate into the path.
+
+    Returns:
+        np.ndarray: A zigzag path with the spur incorporated.
+    """
     # Modify path to remove last e elements except for the first one
     i = spurBaseIndex(path, vertex_pair[0])
     return np.concatenate((path[: i + 1], vertex_pair, path[i + 1 :]), axis=0)
@@ -75,9 +142,17 @@ def incorporateSpurInZigZag(path: np.ndarray, vertex_pair: np.ndarray) -> np.nda
 def incorporateSpursInZigZag(
     path: np.ndarray, vertices: np.ndarray, spur_suffixes: np.ndarray
 ) -> np.ndarray:
-    # [stut+suff for suff in [(0, 1), (1, 0)] for stut in sp11]
-    # np.concatenate((np.repeat(sp11, suffices.shape[1], axis=0), np.tile(suffices, (sp11.shape[0], 1))), axis=1)
-    # [stut+suff for stut in vertices for suff in spur_suffixes] incorporatespursinzigzag
+    """
+    Incorporates a list of spurs into a zigzag path.
+
+    Args:
+        path (np.ndarray): A zigzag path.
+        vertices (np.ndarray): A list of vertices to incorporate into the path.
+        spur_suffixes (np.ndarray): A list of suffixes to incorporate into the path.
+
+    Returns:
+        np.ndarray: A zigzag path with the spurs incorporated.
+    """
     C = np.concatenate(
         (
             np.repeat(vertices, spur_suffixes.shape[1], axis=0),
@@ -91,6 +166,17 @@ def incorporateSpursInZigZag(
 
 
 def createSquareTube(path: np.ndarray, u: np.array, v: np.array) -> np.ndarray:
+    """
+    Creates a square tube path by interleaving the elements of the four copies of the path list.
+
+    Args:
+        path (np.ndarray): A path list.
+        u (np.array): An array of one of the two elements to append.
+        v (np.array): An array of one  of the two elements to append.
+
+    Returns:
+        np.ndarray: A square tube path; u and v are appended to the path list in an interleaved manner.
+    """
     # interleave the elements of the four copies of the path list
     temp = np.repeat(path, 4, axis=0)
     uu = np.concatenate((u, u))
@@ -110,8 +196,18 @@ def createSquareTube(path: np.ndarray, u: np.array, v: np.array) -> np.ndarray:
     return result
 
 
-def swapPair(perm: np.ndarray, i: int, j=None) -> np.ndarray:
-    """Swaps elements in perm at positions i and j (or i and i+1 if j is not provided)."""
+def swapPair(perm: np.ndarray, i: int, j: int | None = None) -> np.ndarray:
+    """
+    Swaps elements in perm at positions i and j (or i and i+1 if j is not provided).
+
+    Args:
+        perm (np.ndarray): A permutation.
+        i (int): The first index to swap.
+        j (int | None, optional): The second index to swap. Defaults to None; in this case, i+1 is used.
+
+    Returns:
+        np.ndarray: The permutation with the elements at positions i and j swapped
+    """
     if j is None:
         j = i + 1
     if i < len(perm) and j < len(perm):
@@ -122,9 +218,13 @@ def swapPair(perm: np.ndarray, i: int, j=None) -> np.ndarray:
 def extend(lst: np.ndarray, e: np.ndarray) -> np.ndarray:
     """
     Extend every item in l with e
-    :param lst: numpy array of arrays of integers
-    :param e: array to extend every item in l with
-    :return:
+
+    Args:
+        lst (np.ndarray): A list of arrays.
+        e (np.ndarray): An array to extend the list with.
+
+    Returns:
+        np.ndarray: A list of arrays with e appended to each array.
     """
     try:
         return np.array([np.concatenate((i, e)) for i in lst])
@@ -143,8 +243,10 @@ def HpathNS(k0: int, k1: int) -> np.ndarray:
     Args:
         k0 (int): Number of 0s in the signature.
         k1 (int): Number of 1s in the signature.
+
     Returns:
         np.ndarray: A Hamiltonian path in the neighbor-swap graph G(0^k_0|1^(k_1)).
+
     References:
         - Tom Verhoeff. The spurs of D. H. Lehmer: Hamiltonian paths in neighbor-swap graphs of permutations. Designs, Codes, and Cryptography, 84(1-2):295-310, 7 2017.
     """

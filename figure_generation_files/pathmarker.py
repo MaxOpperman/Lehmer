@@ -42,52 +42,67 @@ class PathMarker:
         self.edge_colors = default_edges
         self.node_colors = default_nodes
 
-    def mark_node(self, node):
+    def mark_node(self, node: str) -> None:
         """
         Marks a node.
 
         Args:
-            node: The node to be marked.
+            node (str): The node to be marked.
+
+        Returns:
+            None
         """
         if node not in self.marked_nodes:
             self.marked_nodes.add(node)
 
-    def right_mark_node(self, node):
+    def right_mark_node(self, node: str) -> None:
         """
         Marks a node with a right-click.
 
         Args:
-            node: The node to be right-click marked.
+            node (str): The node to be right-click marked.
+
+        Returns:
+            None
         """
         if node not in self.right_marked_nodes:
             self.right_marked_nodes.add(node)
 
-    def un_right_mark_node(self, node):
+    def un_right_mark_node(self, node: str) -> None:
         """
         Unmarks a right-click marked node.
 
         Args:
-            node: The node to be unmarked.
+            node (str): The node to be unmarked.
+
+        Returns:
+            None
         """
         if node in self.right_marked_nodes:
             self.right_marked_nodes.remove(node)
 
-    def unmark_node(self, node):
+    def unmark_node(self, node: str) -> None:
         """
         Unmarks a node.
 
         Args:
-            node: The node to be unmarked.
+            node (str): The node to be unmarked.
+
+        Returns:
+            None
         """
         if node in self.marked_nodes:
             self.marked_nodes.remove(node)
 
-    def toggle_node(self, node):
+    def toggle_node(self, node: str) -> None:
         """
         Toggles the marking of a node.
 
         Args:
-            node: The node to be toggled.
+            node (str): The node to be toggled.
+
+        Returns:
+            None
         """
         if node in self.right_marked_nodes:
             self.un_right_mark_node(node)
@@ -96,12 +111,15 @@ class PathMarker:
         else:
             self.mark_node(node)
 
-    def toggle_right_mark_node(self, node):
+    def toggle_right_mark_node(self, node: str) -> None:
         """
         Toggles the right-click marking of a node. If the node is already right-click marked, it will be unmarked and vice versa.
 
         Args:
-            node: The node to be toggled.
+            node (str): The node to be toggled.
+
+        Returns:
+            None
         """
         if node in self.marked_nodes:
             self.unmark_node(node)
@@ -110,46 +128,59 @@ class PathMarker:
         else:
             self.right_mark_node(node)
 
-    def mark_edge(self, edge):
+    def mark_edge(self, edge: tuple[str, str]) -> None:
         """
         Marks an edge.
 
         Args:
-            edge: The edge to be marked.
+            edge (tuple[str, str]): The edge to be marked.
+
+        Returns:
+            None
         """
+        print(f"Edge: {edge}")
         if edge not in self.marked_edges:
             self.marked_edges.add(edge)
 
-    def unmark_edge(self, edge):
+    def unmark_edge(self, edge: tuple[str, str]) -> None:
         """
         Unmarks an edge.
 
         Args:
-            edge: The edge to be unmarked.
+            edge (tuple[str, str]): The edge to be unmarked.
+
+        Returns:
+            None
         """
         if edge in self.marked_edges:
             self.marked_edges.remove(edge)
 
-    def toggle_edge(self, edge):
+    def toggle_edge(self, edge: tuple[str, str]) -> None:
         """
         Toggles the marking of an edge. If the edge is already marked, it will be unmarked and vice versa.
 
         Args:
-            edge: The edge to be toggled.
+            edge (tuple[str, str]): The edge to be toggled.
+
+        Returns:
+            None
         """
         if edge in self.marked_edges:
             self.unmark_edge(edge)
         else:
             self.mark_edge(edge)
 
-    def reset_colors(self):
+    def reset_colors(self) -> None:
         """
         Clears the sets of marked nodes and edges. This is to reset the colors of the graph.
+
+        Returns:
+            None
         """
         self.marked_nodes.clear()
         self.marked_edges.clear()
 
-    def update_plot(self, nx: nx.Graph, plt_instance: plt):
+    def update_plot(self, nx: nx.Graph, plt_instance: plt) -> None:
         """
         Updates the plot with the marked nodes and edges. Draws it in the matplotlib pyplot instance.
         Marked nodes and edges are drawn in royalblue color.
@@ -158,6 +189,9 @@ class PathMarker:
         Args:
             nx (nx.Graph): The networkx graph object.
             plt_instance (plt): The matplotlib pyplot instance.
+
+        Returns:
+            None
         """
         plt_instance.clf()
         nx.draw(

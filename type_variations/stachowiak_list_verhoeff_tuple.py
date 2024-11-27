@@ -15,7 +15,7 @@ def lemma10(sig: tuple[int, ...]) -> list[list[int]]:
     Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             The signature of the graph; `Q` is the first two elements, `p` is the third.
             `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
             `p` is the third element of sig and has color 2 and occurs `p` times.
@@ -39,7 +39,7 @@ def lemma11(sig: tuple[int, ...]) -> list[list[int]]:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
             These two elements are set to the front of the signature using a recursive call.
             Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).

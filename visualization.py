@@ -4,6 +4,7 @@ from argparse import Namespace
 
 import networkx as nx
 from matplotlib import pyplot as plt
+from matplotlib.backend_bases import KeyEvent, MouseEvent
 
 from figure_generation_files.pathmarker import PathMarker
 from helper_operations.permutation_graphs import defect, multiset, total_path_motion
@@ -102,17 +103,17 @@ def find_path_colors(
     return node_colors, edge_colors.values()
 
 
-def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]):
+def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]) -> None:
     """
     Plot a graph using NetworkX and Matplotlib.
 
     Args:
         graph (nx.Graph): The graph to be plotted.
-        n_color (list): List of colors for nodes. The order corresponds to the order of the nodes in the graph.
-        e_color (list): List of colors for edges. The order corresponds to the order of the edges in the graph.
+        n_color (list[str]): List of colors for nodes. The order corresponds to the order of the nodes in the graph.
+        e_color (list[str]): List of colors for edges. The order corresponds to the order of the edges in the graph.
 
     Returns:
-    - None
+        None
     """
     plt.figure(figsize=(19, 38))
     pos = nx.get_node_attributes(graph, "pos")
@@ -131,16 +132,16 @@ def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]):
     path_marker = PathMarker(graph, pos, e_color, n_color)
 
     # Register click event handler
-    def onclick(event):
+    def onclick(event: MouseEvent) -> None:
         """
         Handles the click event of the plot. Toggles the color of nodes and edges based on the click.
         Finds the nearest node or edge to the click and toggles the color of the node or edge.
 
-        Parameters:
-        - event: The onclick event object.
+        Args:
+            event (MouseEvent): The onclick event object.
 
         Returns:
-        None
+            None
         """
         if event.inaxes is not None:
             x, y = event.xdata, event.ydata
@@ -173,15 +174,15 @@ def plot_graph(graph: nx.Graph, n_color: list[str], e_color: list[str]):
                 path_marker.update_plot(nx, plt)
 
     # Register key press event handler
-    def onkeypress(event):
+    def onkeypress(event: KeyEvent) -> None:
         """
         Reset the colors of the path marker and update the plot. This is triggered when the **C** key is pressed.
 
-        Parameters:
-        - event: The key press event object.
+        Args:
+            event (KeyEvent): The key press event object.
 
         Returns:
-        None
+            None
         """
         if event.key == "c":
             path_marker.reset_colors()
@@ -213,7 +214,7 @@ def point_to_line_distance(
         y2 (float): The y-coordinate of the second point defining the line segment.
 
     Returns:
-        distance (float): The shortest distance between the point and the line segment.
+        float: The shortest distance between the point and the line segment.
     """
     # Calculate the dot product of the vectors (x - x1, y - y1) and (x2 - x1, y2 - y1)
     dot_product = (x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)
@@ -234,7 +235,7 @@ def point_to_line_distance(
     return distance
 
 
-def is_stutter_permutation(perm: str, max_arity=False) -> bool:
+def is_stutter_permutation(perm: str, max_arity: bool = False) -> bool:
     """
     Returns whether the permutation is a stutter permutation.
     Always returns False when the permutation has the maximum arity in the graph.

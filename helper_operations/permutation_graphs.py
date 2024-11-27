@@ -160,7 +160,7 @@ def swapPair(perm: tuple[int, ...], i: int, j: int | None = None) -> tuple[int, 
     Args:
         perm (tuple[int, ...]): Permutation as a tuple of integers.
         i (int): Index to place the element that was previously at position `j`.
-        j (int, optional): Index to place the element that was previously at position `i`. Defaults to `i+1`.
+        j (int | None, optional): Index to place the element that was previously at position `i`. Defaults to `i+1`.
 
     Returns:
         tuple[int, ...]: `perm` with elements at positions `i` and `j` swapped.
@@ -191,6 +191,7 @@ def incorporateSpursInZigZag(
         path (list[tuple[int, ...]]): List of vertices, a zigzag path.
         vertices (list[tuple[int, ...]]): List of vertices to incorporate. These should be stutters.
         spur_suffixes (list[tuple[int, ...]]): List of spur suffixes (suffixes for the vertices variable).
+        skip (int, optional): Number of elements to skip before the suffixes when finding the swap index. Defaults to 0.
 
     Returns:
         list[tuple[int, ...]]: List of vertices, the zigzag path with the spurs incorporated.

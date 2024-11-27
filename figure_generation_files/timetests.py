@@ -62,7 +62,7 @@ class TimeTests:
     ]
 
     @staticmethod
-    def setup(n):
+    def setup(n: int) -> list[int]:
         """
         Returns the signature at index n.
 
@@ -70,12 +70,12 @@ class TimeTests:
             n (int): The index of the signature to retrieve.
 
         Returns:
-            list: The signature at index n.
+            list[int]: The signature at index n.
         """
         return TimeTests.signatures[n]
 
 
-def time_tests(args: Namespace):
+def time_tests(args: Namespace) -> None:
     """
     Perform time tests for different signature types and generate graphs and tables.
 

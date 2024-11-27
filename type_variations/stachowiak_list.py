@@ -15,9 +15,13 @@ from type_variations.verhoeff_list import HpathNS
 def transform_list(lis: list[list[int]], tr: list[int]) -> list[list[int]]:
     """
     Transforms a list of permutations as lists according to the given renaming.
-    @param lis: list of permutations
-    @param tr: transformation list, int at index i is the new name for i
-    @return: list of lists of transformed permutations
+
+    Args:
+        lis (list[list[int]]): list of permutations
+        tr (list[int]): transformation list, int at index i is the new name for i
+
+    Returns:
+        list[list[int]]: list of lists of transformed permutations
     """
     l = []
     for i in lis:
@@ -39,12 +43,12 @@ def _generate_all_di(chain_p: list[int]) -> list[list[int]]:
     This function corresponds to the start of the proof of Lemma 2 (case 2.1 if the length of `chain_p` even).
 
     Args:
-        chain_p (tuple[int, ...]): The chain of `p` elements in the lemma.
+        chain_p (list[int]): The chain of `p` elements in the lemma.
 
     Returns:
-        list[tuple[int, ...]]:
+        list[list[int]]:
             All possible `d_i` chains. Each `d_i` chain is represented as a list of lists of integers:
-            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`.
+            `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`.
             This is for every `0 <= i <= p`.
     """
     q = [0, 1]
@@ -71,7 +75,7 @@ def _generate_all_di_prime(chain_p: list[int]) -> list[list[int]]:
     Returns:
         list[list[int]]:
             All possible `d_i'` chains. Each `d_i'` chain is represented as a list of lists of integers:
-            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`.
+            `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`.
             This is for every `0 <= i <= p`.
     """
     q = [0, 1]
@@ -87,7 +91,7 @@ def _generate_all_di_prime(chain_p: list[int]) -> list[list[int]]:
     return d_all
 
 
-def lemma2_cycle(chain_p: list[int], case_2_1=True) -> list[list[int]]:
+def lemma2_cycle(chain_p: list[int], case_2_1: bool = True) -> list[list[int]]:
     """
     This function generates the cycles of Lemma 2.
     If the length of the `chain_p` is even the last two nodes are discarded as in the lemma.
@@ -129,7 +133,7 @@ def lemma2_cycle(chain_p: list[int], case_2_1=True) -> list[list[int]]:
     return cycle
 
 
-def lemma2_extended_path(chain_p: list[int], case_2_1=True) -> list[list[int]]:
+def lemma2_extended_path(chain_p: list[int], case_2_1: bool = True) -> list[list[int]]:
     """
     Extends the cycle of Lemma 2 with the last two elements in case `chain_p` is even.
     If the length of `chain_p` is odd, then the cycle is returned.
@@ -148,8 +152,8 @@ def lemma2_extended_path(chain_p: list[int], case_2_1=True) -> list[list[int]]:
     Returns:
         list[list[int]]:
             The cycle of all `d_i` or `d_i'` paths extended with the two nodes that are left out if the length of `chain_p` is even.\n
-            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, \cdots, l^{p-i} 01 l^i, l^{p-i} 10 l^i, \cdots, 1 l^{p-i} 0 l^i]`
-            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, \cdots, l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, \cdots, l^i 0 l^{p-i} 1]`
+            - `d_i=[0l^{p-i} 1 l^i, l0l^{p-i-1} 1 l^i, ..., l^{p-i} 01 l^i, l^{p-i} 10 l^i, ..., 1 l^{p-i} 0 l^i]`
+            - `d_i'=[l^i 1 l^{p-i} 0, l^i 1 l^{p-i-1} 0 l, ..., l^{i} 10 l^{p-i}, l^i 01 l^{p-i}, ..., l^i 0 l^{p-i} 1]`
     """
     cycle = lemma2_cycle(chain_p, case_2_1)
     if len(chain_p) % 2 == 0:
@@ -239,8 +243,8 @@ def _lemma7_constructor(
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
     Lemma 7 by Stachowiak is: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
-    Parameters:
-        sig (list[int]):
+    Args:
+        sig (tuple[int, ...]):
             The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
             Colors 0 and 1 occur once, colors 2 and 3 occur q and p times respectively.
@@ -260,7 +264,7 @@ def lemma7(sig: tuple[int, ...]) -> list[list[int]]:
     Computes Lemma 7 by Stachowiak: The graph `G=GE( (0|1) (k^q|l^p) )` contains a Hamilton cycle for every `p, q > 0`.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             The signature of the graph in the form `(1, 1, q, p)`.
             The elements are of colors 0, 1, 2, 3 (so color 2 occurs `q` times and 3 occurs `p` times).
 
@@ -335,8 +339,8 @@ def _lemma8_g_i_sub_graphs(
     - y_{ij} = l^(2(p-i-j)) 1 l^(i+2j-p) l^i k^q for (p-i)/2 < j <= p-i\n
 
     Args:
-        k_q (tuple[int, ...]): Chain of q elements "k"
-        l_p (tuple[int, ...]): Chain of p element "l"
+        k_q (list[int]): Chain of q elements "k"
+        l_p (list[int]): Chain of p element "l"
 
     Returns:
         list[list[list[int]]]:
@@ -423,8 +427,8 @@ def _lemma8_g_i_sub_graphs(
 
 
 def _lemma9_glue_a_edges(
-    k_r: list[int], k_s: list[int], l_p: list[int], p: int, sub_cycles: list[list[int]]
-):
+    k_r: list[int], k_s: list[int], l_p: list[int], sub_cycles: list[list[int]]
+) -> list[tuple[int, ...]]:
     """
     Glues the a_i edges from Lemma 8 by Stachowiak together to create the final cycle.
     `a_i = ( 0 l^(p-i) 1 l^i k^q, 0 l^(p-i) 1 l^(i-1) k l k^q )`
@@ -442,6 +446,7 @@ def _lemma9_glue_a_edges(
     # make the a1 path, we have as first part of the cycle a11~path~a12
     if len(l_p) == 0:
         return [item for row in sub_cycles for item in row]
+    p = len(l_p)
     if len(k_s) > 0:
         g_result_start = _cut_cycle_start_end(
             sub_cycles[0],
@@ -495,7 +500,7 @@ def lemma8(sig: tuple[int, ...]) -> list[list[int]]:
     The graph `G=GE( ((0|1) k^q) | l^p) )` contains a Hamilton cycle for every `p, q > 0`
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             The signature of the neighbor-swap graph; 1, 1, q, p.
             We assume the first two elements are of colors 0 and 1 and occur once.
             The second two elements are of colors 2 and 3 and occur q and p times respectively.
@@ -516,7 +521,7 @@ def lemma8(sig: tuple[int, ...]) -> list[list[int]]:
         sub_cycles.append(g_all[i] + g_all[i + 1][::-1])
     if len(g_all) % 2 == 1:
         sub_cycles.append(g_all[-1])
-    g_result_start = _lemma9_glue_a_edges([], k_q, l_p, sig[3], sub_cycles)
+    g_result_start = _lemma9_glue_a_edges([], k_q, l_p, sub_cycles)
     return g_result_start
 
 
@@ -525,7 +530,7 @@ def lemma9(sig: tuple[int, ...]) -> list[list[int]]:
     The graph `G=GE( (k^r (0|1) k^s) | l^p) )` contains a Hamilton cycle for every `p, r+s > 0`.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             The signature of the neighbor-swap graph; (1, 1, r, s, p). We assume:\n
             - The first two elements are of colors 0 and 1 respectively and occur once.
             - The second two elements are of color 2 and occur r and s times respectively.
@@ -620,7 +625,7 @@ def _lemma10_subcycle_cutter(
             The edge that should be the point at which the cycle is cut, i.e. position 0 and -1 in `cycle`.
 
     Returns:
-        tuple[list[list[int], list[list[int]]]:
+        tuple[list[list[int]], list[list[int]]]:
             The modified cycle and gi.\n
             - The gi starts with `edge_i[0]` and `edge_i[1]` is the second node.
             - The cycle starts with `edge_j[0]` and `edge_j[1]` is the last node.
@@ -746,7 +751,7 @@ def lemma10(sig: tuple[int, ...]) -> list[list[int]]:
     Here `Q` is two elements in the signature that form a Hamiltonian path of even length and p is the third element.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             The signature of the graph; `Q` is the first two elements, `p` is the third.
             `Q` is of length 2, its colors are 0 and 1. It contains a Hamiltonian path.
             `p` is the third element of sig and has color 2 and occurs `p` times.
@@ -770,7 +775,7 @@ def lemma11(sig: tuple[int, ...]) -> list[list[int]]:
     If `q = |Q| > 2`, `p = |P| > 0` and `GE(Q)` has an even number of vertices and contains a Hamiltonian path then `GE(Q|P)` has a Hamiltonian cycle.
 
     Args:
-        sig (list[int]):
+        sig (tuple[int, ...]):
             A signature of a neighbor-swap graph where at least two elements form a Hamiltonian path of even length > 2.
             These two elements are set to the front of the signature using a recursive call.
             Note that this can also be three elements if the first two are 1 (using Lemma 2). Or at least 3 elements that occur once (using Steinhaus-Johnson-Trotter algorithm).

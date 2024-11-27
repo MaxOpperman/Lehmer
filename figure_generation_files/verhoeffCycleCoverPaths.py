@@ -2,9 +2,10 @@ import argparse
 import os
 
 import matplotlib.pyplot as plt
+from matplotlib.axes import Axes
 
 
-def fig11(ax, even_int: int):
+def fig11(ax: Axes, even_int: int) -> None:
     """
     Generate and plot Figure 11 from Verhoeff's paper (see References). The figure displays a path between `c` and `d`:\n
         - `c1 = 12 0^k_0 1`
@@ -12,8 +13,8 @@ def fig11(ax, even_int: int):
     where `k_0` is an even integer (`even_int`). The path is highlighted in blue and important nodes are marked.
 
     Args:
-        ax: The matplotlib Axes object to plot the figure on.
-        even_int: An even integer value.
+        ax (Axes): The matplotlib Axes object to plot the figure on.
+        even_int (int): An even integer value.
 
     Returns:
         None: Works in place to plot the figure on the given `ax`.
@@ -103,7 +104,7 @@ def fig11(ax, even_int: int):
     ax.axis("off")
 
 
-def fig12(ax, even_int: int):
+def fig12(ax: Axes, even_int: int) -> None:
     """
     Generate and plot Figure 12 from Verhoeff's paper (see References). The figure displays a path between `a` and `b`:\n
         - `a0 = 12 0^{k_0-1} 1 0`
@@ -111,8 +112,8 @@ def fig12(ax, even_int: int):
     where `k_0` is an even integer (`even_int`). The path is highlighted in blue and important nodes are marked.
 
     Args:
-        ax: The matplotlib Axes object to plot the figure on.
-        even_int: An even integer value.
+        ax (Axes): The matplotlib Axes object to plot the figure on.
+        even_int (int): An even integer value.
 
     Returns:
         None: Works in place to plot the figure on the given `ax`.
@@ -201,7 +202,7 @@ def fig12(ax, even_int: int):
     ax.axis("off")
 
 
-def fig12_e_f(ax, even_int: int):
+def fig12_e_f(ax: Axes, even_int: int) -> None:
     """
     Generate and plot Figure 12 from Verhoeff's paper (see References). The figure displays a path between `e` and `f`:\n
         - `e0 = 1 02 0^{k_0-2} 1 0`
@@ -209,8 +210,8 @@ def fig12_e_f(ax, even_int: int):
     where `k_0` is an even integer (`even_int`). The path is highlighted in blue and important nodes are marked.
 
     Args:
-        ax: The matplotlib Axes object to plot the figure on.
-        even_int: An even integer value.
+        ax (Axes): The matplotlib Axes object to plot the figure on.
+        even_int (int): An even integer value.
 
     Returns:
         None: Works in place to plot the figure on the given `ax`.
@@ -313,14 +314,14 @@ def fig12_e_f(ax, even_int: int):
     ax.axis("off")
 
 
-def combined_figure(even_int: int, save=False):
+def combined_figure(even_int: int, save: bool = False) -> None:
     """
     Generate and plot both Figure 11 and Figure 12 from Verhoeff's paper (see References) in a single plot.
     The figures display paths between `c` and `d` and between `a` and `b` respectively. The paths are highlighted in blue and important nodes are marked.
 
     Args:
         even_int (int): An even integer value.
-        save (bool): Save the image in the `./out` directory.
+        save (bool, optional): Save the image in the `./out` directory.
 
     Returns:
         None: Works in place to plot the figure.
@@ -348,7 +349,9 @@ def combined_figure(even_int: int, save=False):
         plt.show()
 
 
-def plot_individual_figures(even_int: int, save=False, cycle=False):
+def plot_individual_figures(
+    even_int: int, save: bool = False, cycle: bool = False
+) -> None:
     """
     Generate and plot Figure 11 and Figure 12 from Verhoeff's paper (see References) in separate plots.
     The figures display paths between `c` and `d` and between `a` and `b` respectively. The paths are highlighted in blue and important nodes are marked.
@@ -356,7 +359,8 @@ def plot_individual_figures(even_int: int, save=False, cycle=False):
 
     Args:
         even_int (int): An even integer value, the number of 0s in the signature.
-        save (bool): Save the images in the `./out` directory. If `False`, the figures are displayed.
+        save (bool, optional): Save the images in the `./out` directory. Defaults to `False` which displays the figures.
+        cycle (bool, optional): Generate a cycle instead of a path. Default is `False`.
 
     Returns:
         None: Works in place to plot the figures.

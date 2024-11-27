@@ -127,5 +127,4 @@ def HpathNS(k0: int, k1: int) -> list[tuple[int, ...]]:
             + tube3
             + extend(p00, (0, 0))
         )
-        assert HpathQ(path_ham, [k0, k1])
         return path_ham

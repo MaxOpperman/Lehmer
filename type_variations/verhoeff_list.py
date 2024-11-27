@@ -12,8 +12,10 @@ from helper_operations.permutation_graphs import (
 def stutterize(p: list[int]) -> list[list[int]]:
     """
     Converts argument into a stutter permutation by repeating every number.
+
     Args:
         p (list[int]): permutation as a list of integers
+
     Returns:
         list[list[int]]: every number in p repeated twice and put into a list
     """
@@ -24,7 +26,7 @@ def selectOdds(sig: tuple[int, ...]) -> list[int]:
     """
     Returns list of numbers with odd occurrence frequencies in the given signature.
     Args:
-        sig (list[int]): signature as a list of integers
+        sig (tuple[int, ...]): signature as a list of integers
     Returns:
         list[int]: list of integers with odd occurrence frequencies in the signature
     """
@@ -37,7 +39,7 @@ def stutterPermutations(s: tuple[int, ...]) -> list[list[int]]:
     Stutter permutations have the form [a, a, b, b, c, c, ..., z] where a, b, c, ... are the elements of the permutation.
     So every pair of elements is repeated twice from the left. An stutter can have one element with odd frequency appended at the end.
     Args:
-        s (list[int]): the signature of the stutter permutations
+        s (tuple[int, ...]): the signature of the stutter permutations
     Returns:
         list[list[int]]: list of stutter permutations of signature `s`
     """
@@ -138,13 +140,13 @@ def createSquareTube(
     return result
 
 
-def swapPair(perm: list[int], i: int, j=None) -> list[int]:
+def swapPair(perm: list[int], i: int, j: int | None = None) -> list[int]:
     """
     Swaps elements in perm at positions `i` and `j` (or `i` and `i+1` if `j` is not provided).
     Args:
         perm (list[int]): list of integers
         i (int): index of the first element to swap
-        j (int): index of the second element to swap
+        j (int | None, optional): index of the second element to swap. Defaults to None; in this case, `j` is set to `i+1`.
     Returns:
         list[int]: list of integers with elements at positions `i` and `j` swapped
     """

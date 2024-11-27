@@ -46,7 +46,7 @@ class SteinhausJohnsonTrotterList:
             n (int): The number of elements in the permutation.
 
         Returns:
-            list: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
+            list[list[int]]: A list of permutations generated using the Steinhaus-Johnson-Trotter algorithm.
         """
         perms = []
         a = [i for i in range(n)]

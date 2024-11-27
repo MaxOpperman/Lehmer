@@ -2,7 +2,7 @@ from abc import ABC
 from collections.abc import Iterator
 
 
-def swap_elements(a_list, i, j):
+def swap_elements(a_list: list, i: int, j: int) -> None:
     """
     Swaps the elements at positions i and j in the given list.
 
@@ -12,7 +12,7 @@ def swap_elements(a_list, i, j):
         j (int): The index of the second element to be swapped.
 
     Returns:
-        None (the list is modified in place)
+        None: (the list is modified in place)
     """
     tmp = a_list[i]
     a_list[i] = a_list[j]

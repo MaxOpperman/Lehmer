@@ -104,7 +104,7 @@ def incorporated_odd_2_1_cycle(
 
     Args:
         k (int): The input value the number of 0s. Must be odd!
-        flip_stutter_cross_edge (bool): If the cross edge should be flipped. Defaults to False; `0^{k-1} 1 0 2` to `0^{k0-1} 1 2`.
+        flip_stutter_cross_edge (bool, optional): If the cross edge should be flipped. Defaults to False; `0^{k-1} 1 0 2` to `0^{k0-1} 1 2`.
 
     Returns:
         list[tuple[int, ...]]:
