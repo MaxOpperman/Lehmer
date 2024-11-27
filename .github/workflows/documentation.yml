@@ -28,7 +28,7 @@ jobs:
 
     - name: Test correctness of documentation
       run: |
-        python .\docs\doc_test.py -p . -i rivertz | tee ./correct_documentation.txt
+        python ./docs/doc_test.py -p . -i rivertz | tee ./correct_documentation.txt
 
     - name: Check for failed tests
       id: check_tests
