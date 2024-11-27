@@ -12,14 +12,36 @@ class SteinhausJohnsonTrotterList:
 
     # Utility functions for finding the
     # position of largest mobile integer in a[].
-    def searchArr(self, a, n, mobile):
+    def searchArr(self, a: list[int], n: int, mobile: int) -> int:
+        """
+        Search for the mobile element in the array a
+
+        Args:
+            a (list[int]): The array of elements
+            n (int): The length of the array
+            mobile (int): The mobile element
+
+        Returns:
+            int: The index of the mobile element
+        """
         for i in range(n):
             if a[i] == mobile:
                 return i + 1
 
     # To carry out step 1 of the algorithm i.e.
     # to find the largest mobile integer.
-    def getMobile(self, a, dir, n):
+    def getMobile(self, a: list[int], dir: list[bool], n: int) -> int:
+        """
+        Get the mobile element in the array a
+
+        Args:
+            a (list[int]): The array of elements
+            dir (list[bool]): The direction array
+            n (int): The length of the array
+
+        Returns:
+            int: The mobile element
+        """
         mobile_prev = 0
         mobile = 0
         for i in range(n):

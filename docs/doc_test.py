@@ -1,8 +1,32 @@
+import argparse
 import ast
 import os
 
 
-def find_functions_with_docstring_issues(filename):
+def find_functions_with_docstring_issues(
+    filename: str,
+) -> list[
+    tuple[
+        str,
+        list[str],
+        list[str],
+        list[str],
+        str,
+        str,
+        list[tuple[str, str, str]],
+        list[tuple[str, bool, bool]],
+    ]
+]:
+    """
+    Find the functions with issues in the docstring.
+
+    Args:
+        filename (str): The filename of the Python file to check for issues.
+
+    Returns:
+        list[tuple[str, list[str], list[str], list[str], str, str, list[tuple[str, str, str]], list[tuple[str, bool, bool]]]]:
+            List of functions with issues in the docstring.
+    """
     with open(filename, "r") as file:
         tree = ast.parse(file.read(), filename=filename)
 
@@ -191,11 +215,36 @@ def find_functions_with_docstring_issues(filename):
                                 param_optional_mismatches,
                             )
                         )
-
+                elif (
+                    not docstring
+                    and node.name != "main"
+                    and not (node.name.startswith("__") and node.name.endswith("__"))
+                ):
+                    functions_with_issues.append(
+                        (
+                            node.name,
+                            [],
+                            ["ALL"],
+                            [],
+                            return_type_in_function,
+                            "TODO",
+                            [],
+                            [],
+                        )
+                    )
     return functions_with_issues
 
 
-def find_all_python_files(directory):
+def find_all_python_files(directory: str) -> list[str]:
+    """
+    Find all Python files in the directory. Excludes: `venv`, `__pycache__`, and `permutation-software-master`
+
+    Args:
+        directory (str): The directory to check for Python files.
+
+    Returns:
+        list[str]: List of Python files in the directory.
+    """
     python_files = []
     for root, _, files in os.walk(directory):
         for file in files:
@@ -211,11 +260,23 @@ def find_all_python_files(directory):
     return python_files
 
 
-def main(directory):
+def main(directory: str, ignore_files: list[str]) -> None:
+    """
+    Main function to check the documentation in the Python files.
+
+    Args:
+        directory (str): The directory to check for Python files.
+        ignore_files (list[str]): List of files to ignore.
+
+    Returns:
+        None: Prints the issues found in the documentation.
+    """
     python_files = find_all_python_files(directory)
     # print(python_files)
     issues_count = 0
     for filename in python_files:
+        if os.path.basename(filename).split(".")[0] in ignore_files:
+            continue
         issues = find_functions_with_docstring_issues(filename)
         if issues:
             print(f"In file '{filename}'")
@@ -262,4 +323,29 @@ def main(directory):
 
 
 if __name__ == "__main__":
-    main(".")
+    parser = argparse.ArgumentParser(
+        description="Test the correctness of the documentation in the Python files."
+    )
+    parser.add_argument(
+        "-p",
+        "--path",
+        type=str,
+        help="Path of the parent directory",
+    )
+    parser.add_argument(
+        "-i",
+        "--ignore-files",
+        type=str,
+        help="Comma-separated files to ignore (without the path or .py extension)",
+    )
+    args = parser.parse_args()
+
+    ignore_files = []
+    if args.ignore_files:
+        ignore_files = args.ignore_files.split(",")
+
+    # check if the path is provided, otherwise use the current directory
+    if args.path:
+        main(args.path, ignore_files)
+    else:
+        main(".", ignore_files)

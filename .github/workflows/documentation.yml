@@ -26,6 +26,29 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Test correctness of documentation
+      run: |
+        python .\docs\doc_test.py -p . -i rivertz | tee ./correct_documentation.txt
+
+    - name: Check for failed tests
+      id: check_tests
+      run: |
+        if grep -q "No issues found with the documentation!" correct_documentation.txt; then
+          echo "DOCS_CHECK=Passed" >> $GITHUB_ENV
+        else
+          echo "DOCS_CHECK=Failed" >> $GITHUB_ENV
+        fi
+
+    - name: Create Documentation Status Badge
+      uses: schneegans/dynamic-badges-action@v1.7.0
+      with:
+        auth: ${{ secrets.GIST_SECRET }}
+        gistID: ${{ secrets.GIST_ID }}
+        filename: lehmer-docs-status.json
+        label: 'Docs Check Status'
+        message: ${{ env.DOCS_CHECK }}
+        color: ${{ env.DOCS_CHECK == 'passed' && '00FF00' || 'FF0000' }}
+
     - name: Building documentation
       run: |
         sphinx-apidoc -o . .. ../*tests*

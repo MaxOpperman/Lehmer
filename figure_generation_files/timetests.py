@@ -118,10 +118,30 @@ def time_tests(args: Namespace) -> None:
             break
         print(f"Performing time tests for {signature_type}")
 
-        def wrapper_tuple(kernel, input):
+        def wrapper_tuple(kernel: callable, input: list[list[int]]) -> callable:
+            """
+            Wrapper function for the tuple kernel.
+
+            Args:
+                kernel (callable): The kernel function to call.
+                input (list[list[int]]): The input for the kernel function.
+
+            Returns:
+                callable: The kernel function called with the input.
+            """
             return kernel(tuple(input))
 
-        def wrapper_numpy(kernel, input):
+        def wrapper_numpy(kernel: callable, input: list[list[int]]) -> callable:
+            """
+            Wrapper function for the numpy kernel.
+
+            Args:
+                kernel (callable): The kernel function to call.
+                input (list[list[int]]): The input for the kernel function.
+
+            Returns:
+                callable: The kernel function called with the input.
+            """
             return kernel(np.array(input))
 
         def get_kernels():

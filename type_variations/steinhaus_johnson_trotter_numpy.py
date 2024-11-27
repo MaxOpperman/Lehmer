@@ -10,9 +10,31 @@ class SteinhausJohnsonTrotterNumpy:
     RIGHT_TO_LEFT = False
 
     def searchArr(self, a: np.ndarray, n: int, mobile: int) -> int:
+        """
+        Search for the mobile element in the array a
+
+        Args:
+            a (np.ndarray): The array of elements
+            n (int): The length of the array
+            mobile (int): The mobile element
+
+        Returns:
+            int: The index of the mobile element
+        """
         return np.where(a == mobile)[0][0] + 1
 
     def getMobile(self, a: np.ndarray, dir: np.ndarray, n: int) -> int:
+        """
+        Get the mobile element in the array a
+
+        Args:
+            a (np.ndarray): The array of elements
+            dir (np.ndarray): The direction array
+            n (int): The length of the array
+
+        Returns:
+            int: The mobile element
+        """
         mobile_prev = 0
         mobile = 0
         for i in range(n):
