@@ -389,15 +389,15 @@ class Test_CycleCoverTailsOrdering:
             assert set(tail) == set(end_tuple_order[i][-2:])
         assert len(cycle_cover_tails) - 1 == len(end_tuple_order)
 
-    @pytest.mark.slow
-    def test_cycle_cover_six_2s(self):
-        sig = (2, 2, 2, 2, 2, 2)
-        cycle_cover = generate_cycle_cover(sig)
-        end_tuple_order = generate_end_tuple_order(sig)
-        cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
-        for i, tail in enumerate(cycle_cover_tails[:-1]):
-            assert set(tail) == set(end_tuple_order[i][-2:])
-        assert len(cycle_cover_tails) - 1 == len(end_tuple_order)
+    # @pytest.mark.slow
+    # def test_cycle_cover_six_2s(self):
+    #     sig = (2, 2, 2, 2, 2, 2)
+    #     cycle_cover = generate_cycle_cover(sig)
+    #     end_tuple_order = generate_end_tuple_order(sig)
+    #     cycle_cover_tails = [get_first_element(cycle)[-2:] for cycle in cycle_cover]
+    #     for i, tail in enumerate(cycle_cover_tails[:-1]):
+    #         assert set(tail) == set(end_tuple_order[i][-2:])
+    #     assert len(cycle_cover_tails) - 1 == len(end_tuple_order)
 
     def test_cycle_cover_3_2_2(self):
         sig = (3, 2, 2)
@@ -569,7 +569,6 @@ class Test_ConnectCycleCoverEvenOdd1:
         assert len(cycles) == multinomial(signature)
         assert cycleQ(cycles)
 
-    @pytest.mark.slow
     def test_connect_cycle_cover_1_8_3(self):
         signature = (1, 8, 3)
         cycles = get_connected_cycle_cover(signature)

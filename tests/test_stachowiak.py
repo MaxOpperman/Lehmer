@@ -562,7 +562,6 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
-    @pytest.mark.slow
     def test_lemma9_1_1_4_7_4(self):
         signature = (1, 1, 4, 7, 4)
         result = lemma9(signature)
@@ -570,7 +569,6 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
-    @pytest.mark.slow
     def test_lemma9_1_1_8_7_5(self):
         signature = (1, 1, 8, 7, 5)
         result = lemma9(signature)
@@ -578,7 +576,6 @@ class Test_Lemma9:
         assert cycleQ(result)
         assert len(result) == len(set(result))
 
-    @pytest.mark.slow
     def test_lemma9_1_1_6_6_6(self):
         signature = (1, 1, 6, 6, 6)
         result = lemma9(signature)
@@ -679,14 +676,6 @@ class Test_Lemma10_and_11:
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 
-
-@pytest.mark.slow
-class Test_Lemma11_Large:
-    def test_lemma11_7_7_2(self):
-        sig = (7, 7, 2)
-        result = lemma11(sig)
-        assert LargeHcycleQ(result, sig)
-
     def test_lemma11_5_5_4(self):
         sig = (5, 5, 4)
         result = lemma11(sig)
@@ -694,6 +683,14 @@ class Test_Lemma11_Large:
 
     def test_lemma11_3_5_6(self):
         sig = (3, 5, 6)
+        result = lemma11(sig)
+        assert LargeHcycleQ(result, sig)
+
+
+@pytest.mark.slow
+class Test_Lemma11_Large:
+    def test_lemma11_7_7_2(self):
+        sig = (7, 7, 2)
         result = lemma11(sig)
         assert LargeHcycleQ(result, sig)
 

@@ -300,28 +300,23 @@ class Test_HpathNS_Odd_Odd:
         result = HpathNS(3, 7)
         assert LargeHpathQ(result, [3, 7])
 
-    @pytest.mark.slow
     def test_HpathNS_5_7(self):
         result = HpathNS(5, 7)
         assert LargeHpathQ(result, [5, 7])
 
-    @pytest.mark.slow
     def test_HpathNS_7_7(self):
         result = HpathNS(7, 7)
         assert LargeHpathQ(result, [7, 7])
 
-    @pytest.mark.slow
     def test_HpathNS_5_9(self):
         result = HpathNS(5, 9)
         assert LargeHpathQ(result, [5, 9])
 
-    @pytest.mark.slow
     def test_HpathNS_9_5(self):
         result = HpathNS(9, 5)
         assert LargeHpathQ(result, [9, 5])
 
 
-@pytest.mark.slow
 class Test_HpathNS_Large:
     """
     Test for large values of k0 and k1.

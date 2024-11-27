@@ -19,13 +19,16 @@ if __name__ == "__main__":
         help="Input permutation signature (comma separated)",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose mode (prints all permutations in order)",
     )
     parser.add_argument(
         "-n",
         "--naive-glue",
         action="store_true",
-        help="Naively glue the disjoint cycle cover",
+        help="Naively glue the disjoint cycle cover (when the attempted edge is not connected in the subcycle).",
     )
     args = parser.parse_args()
     sig = tuple([int(x) for x in args.signature.split(",")])

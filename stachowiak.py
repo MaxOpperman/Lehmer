@@ -44,7 +44,10 @@ def main():
         help="Input permutation signature (comma separated)",
     )
     parser.add_argument(
-        "-v", "--verbose", action="store_true", help="Enable verbose mode"
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="Enable verbose mode (prints all permutations in order)",
     )
     parser.add_argument(
         "-p",

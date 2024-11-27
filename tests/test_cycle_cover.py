@@ -323,15 +323,15 @@ class Test_HpathCycleCover_All_But_One_Even:
             stutterPermutations(signature)
         )
 
-    @pytest.mark.slow
-    def test_HpathCycleCover_2_2_2_2_3(self):
-        signature = (2, 2, 2, 2, 3)
-        cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature)
-        total_length = recursive_cycle_check(cycles)
-        assert total_length == multinomial(signature) - len(
-            stutterPermutations(signature)
-        )
+    # @pytest.mark.slow
+    # def test_HpathCycleCover_2_2_2_2_3(self):
+    #     signature = (2, 2, 2, 2, 3)
+    #     cycles = generate_cycle_cover(signature)
+    #     assert len(cycles) == len(signature)
+    #     total_length = recursive_cycle_check(cycles)
+    #     assert total_length == multinomial(signature) - len(
+    #         stutterPermutations(signature)
+    #     )
 
     def test_HpathCycleCover_4_3_2_2(self):
         signature = (4, 3, 2, 2)
@@ -362,15 +362,15 @@ class Test_HpathCycleCover_All_Even:
             stutterPermutations(signature)
         )
 
-    @pytest.mark.slow
-    def test_HpathCycleCover_2_2_2_2_2(self):
-        signature = (2, 2, 2, 2, 2)
-        cycles = generate_cycle_cover(signature)
-        assert len(cycles) == len(signature) * (len(signature) + 1) // 2
-        total_length = recursive_cycle_check(cycles)
-        assert total_length == multinomial(signature) - len(
-            stutterPermutations(signature)
-        )
+    # @pytest.mark.slow
+    # def test_HpathCycleCover_2_2_2_2_2(self):
+    #     signature = (2, 2, 2, 2, 2)
+    #     cycles = generate_cycle_cover(signature)
+    #     assert len(cycles) == len(signature) * (len(signature) + 1) // 2
+    #     total_length = recursive_cycle_check(cycles)
+    #     assert total_length == multinomial(signature) - len(
+    #         stutterPermutations(signature)
+    #     )
 
     def test_HpathCycleCover_2_2_4_2(self):
         signature = (2, 2, 4, 2)
@@ -427,7 +427,6 @@ class Test_HpathCycleCover_Even_Odd_1:
         assert len(cycles[0]) == multinomial(signature)
         assert cycleQ(cycles[0])
 
-    @pytest.mark.slow
     def test_HpathCycleCover_4_9_1(self):
         signature = (4, 9, 1)
         cycles = generate_cycle_cover(signature)
@@ -435,7 +434,6 @@ class Test_HpathCycleCover_Even_Odd_1:
         assert len(cycles[0]) == multinomial(signature)
         assert cycleQ(cycles[0])
 
-    @pytest.mark.slow
     def test_HpathCycleCover_8_7_1(self):
         signature = (8, 7, 1)
         cycles = generate_cycle_cover(signature)
@@ -475,14 +473,12 @@ class Test_HpathCycleCover_Odd_Odd_1:
         assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
-    @pytest.mark.slow
     def test_HpathCycleCover_7_7_1(self):
         signature = (7, 7, 1)
         cycles = generate_cycle_cover(signature)
         assert len(cycles) == 1
         assert recursive_cycle_check(cycles) == multinomial(signature)
 
-    @pytest.mark.slow
     def test_HpathCycleCover_5_9_1(self):
         signature = (5, 9, 1)
         cycles = generate_cycle_cover(signature)

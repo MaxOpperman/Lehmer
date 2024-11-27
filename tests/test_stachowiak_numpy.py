@@ -780,7 +780,6 @@ class Test_Lemma9_numpy:
         assert cycleQ(result)
         assert len(result) == len(set(tuple(row) for row in result))
 
-    @pytest.mark.slow
     def test_lemma9_1_1_4_7_4(self):
         signature = [1, 1, 4, 7, 4]
         result = lemma9(signature)
@@ -788,7 +787,6 @@ class Test_Lemma9_numpy:
         assert cycleQ(result)
         assert len(result) == len(set(tuple(row) for row in result))
 
-    @pytest.mark.slow
     def test_lemma9_1_1_6_6_4(self):
         signature = [1, 1, 6, 6, 4]
         result = lemma9(signature)
@@ -869,7 +867,6 @@ class Test_Lemma10_and_11_numpy:
         assert len(result) == multinomial([3, 3, 2, 1])
         assert cycleQ(result)
 
-    @pytest.mark.slow
     def test_lemma11_3_3_2_2(self):
         # we only have to add the last the last element (which occurs twice) to the path
         result = _lemma10_helper(self.l11sig_3_3_2, 2, 3)
@@ -877,7 +874,6 @@ class Test_Lemma10_and_11_numpy:
         assert len(result) == multinomial([3, 3, 2, 2])
         assert cycleQ(result)
 
-    @pytest.mark.slow
     def test_lemma11_5_3_2(self):
         sig = [5, 3, 2]
         result = lemma11(sig)
@@ -892,16 +888,6 @@ class Test_Lemma10_and_11_numpy:
         assert len(result) == multinomial(sig)
         assert cycleQ(result)
 
-
-@pytest.mark.slow
-class Test_Lemma11_Large_numpy:
-    def test_lemma11_7_7_2(self):
-        sig = [7, 7, 2]
-        result = lemma11(sig)
-        assert len(result) == len(set(tuple(row) for row in result))
-        assert len(result) == multinomial(sig)
-        assert cycleQ(result)
-
     def test_lemma11_5_5_4(self):
         sig = [5, 5, 4]
         result = lemma11(sig)
@@ -911,6 +897,16 @@ class Test_Lemma11_Large_numpy:
 
     def test_lemma11_3_5_6(self):
         sig = [3, 5, 6]
+        result = lemma11(sig)
+        assert len(result) == len(set(tuple(row) for row in result))
+        assert len(result) == multinomial(sig)
+        assert cycleQ(result)
+
+
+@pytest.mark.slow
+class Test_Lemma11_Large_numpy:
+    def test_lemma11_7_7_2(self):
+        sig = [7, 7, 2]
         result = lemma11(sig)
         assert len(result) == len(set(tuple(row) for row in result))
         assert len(result) == multinomial(sig)
