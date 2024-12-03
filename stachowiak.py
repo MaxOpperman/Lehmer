@@ -60,14 +60,23 @@ def main():
     s = tuple([int(x) for x in args.signature.split(",")])
     if args.parities:
         defect_g = defect(s)
-        print(f"Defect {defect_g} for n={sum(s)}")
-        if defect_g > 0:
+        if defect_g > 1:
             print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} EVEN and defect={defect_g} != 0"
+                f"NO HAMILTONIAN PATH POSSIBLE: n = {sum(s)} ODD and defect = {defect_g} > 1"
             )
-        elif defect_g > 1:
+        elif (sorted(s)[:2] == [1, 1] and sorted(s)[2] % 2 == 0 and len(s) == 3) or (
+            sorted(s)[0] == 1 and len(s) == 2
+        ):
             print(
-                f"NO HAMILTONIAN CYCLE POSSIBLE: n={sum(s)} ODD and defect={defect_g} != 1"
+                f"Defect {defect_g} for n = {sum(s)}. A Hamiltonian path is possible for signature {s}."
+            )
+        elif defect_g > 0:
+            print(
+                f"NO HAMILTONIAN CYCLE POSSIBLE: n = {sum(s)} EVEN and defect = {defect_g} > 0; only a Hamiltonian path is possible!"
+            )
+        else:
+            print(
+                f"Defect {defect_g} for n = {sum(s)}. A Hamiltonian cycle is possible for signature {s}."
             )
     if len(s) > 1:
         if len(s) == 2:
