@@ -133,7 +133,6 @@ def get_two_odd_rest_even_cycle(
     Returns:
         list[tuple[int, ...]]: The connected cycle cover as a list of tuples, where each tuple represents a permutation.
     """
-    generate_two_odd_cross_edges(end_tuple_order, cross_edges, sig)
     # the 2 odd case is different because we connect all individual cycles to the last one
     last_cycle = single_cycle_cover[-1][0]
     for i, cycle in enumerate(single_cycle_cover[:-1]):
@@ -150,34 +149,26 @@ def get_two_odd_rest_even_cycle(
     return last_cycle
 
 
-def connect_single_cycle_cover(
-    single_cycle_cover: list[tuple[int, ...]],
+def get_cross_edges(
+    sig: tuple[int, ...],
     end_tuple_order: list[tuple[int, ...]],
-    naive_glue: bool = False,
 ) -> list[tuple[int, ...]]:
     """
-    Connect a single list of cycles to form a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
+    Get the cross edges for a single cycle cover based on the end tuple order.
 
     Args:
-        single_cycle_cover (list[tuple[int, ...]]): The single cycle cover to connect.
+        sig (tuple[int, ...]): The signature of the permutation.
         end_tuple_order (list[tuple[int, ...]]): The order of the last elements of the cycles.
-        naive_glue (bool, optional): Naively glue the disjoint cycle cover. Defaults to False.
 
     Returns:
-        list[tuple[int, ...]]:
-            The connected cycle cover as a list of tuples, where each tuple represents a permutation.\n
-            The last element of the last tuple is the first element of the first tuple.
+        list[tuple[int, ...]]: A list of cross edges, where each edge is represented as a tuple of tuples.
     """
-    # The cycles are split on the last elements
     cross_edges = {}
     # cross_edges = find_cross_edges(single_cycle_cover, end_tuple_order)
-    sig = get_perm_signature(get_first_element(single_cycle_cover))
     if sum(n % 2 for n in sig) == 1:
         generate_one_odd_cross_edges(end_tuple_order, cross_edges, sig)
     elif sum(n % 2 for n in sig) == 2:
-        return get_two_odd_rest_even_cycle(
-            single_cycle_cover, end_tuple_order, cross_edges, sig
-        )
+        generate_two_odd_cross_edges(end_tuple_order, cross_edges, sig)
     elif sum(n % 2 for n in sig) >= 3:
         print(
             f"Signature {sig} has three or more odd numbers. (total: {sum(n % 2 for n in sig)})"
@@ -274,6 +265,37 @@ def connect_single_cycle_cover(
         get_all_even_cross_edges(end_tuple_order, cross_edges, sig)
     else:
         raise ValueError(f"Signature {sig} has an unexpected number of odd numbers.")
+    return cross_edges
+
+
+def connect_single_cycle_cover(
+    single_cycle_cover: list[tuple[int, ...]],
+    end_tuple_order: list[tuple[int, ...]],
+    naive_glue: bool = False,
+) -> list[tuple[int, ...]]:
+    """
+    Connect a single list of cycles to form a Hamiltonian cycle on the non-stutter permutations of a neighbor-swap graph.
+
+    Args:
+        single_cycle_cover (list[tuple[int, ...]]): The single cycle cover to connect.
+        end_tuple_order (list[tuple[int, ...]]): The order of the last elements of the cycles.
+        naive_glue (bool, optional): Naively glue the disjoint cycle cover. Defaults to False.
+
+    Returns:
+        list[tuple[int, ...]]:
+            The connected cycle cover as a list of tuples, where each tuple represents a permutation.\n
+            The last element of the last tuple is the first element of the first tuple.
+    """
+    # The cycles are split on the last elements
+    sig = get_perm_signature(get_first_element(single_cycle_cover))
+    cross_edges = get_cross_edges(
+        sig,
+        end_tuple_order,
+    )
+    if sum(n % 2 for n in sig) == 2:
+        return get_two_odd_rest_even_cycle(
+            single_cycle_cover, end_tuple_order, cross_edges, sig
+        )
     result_cycle = single_cycle_cover[0][0]
     for i, tail in enumerate(end_tuple_order):
         next_tail = swapPair(tail, 0)
