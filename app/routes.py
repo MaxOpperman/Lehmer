@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 
+from app.app import generate_cycles
 from app.utils import get_cross_edges_per_signature, validate_signature
 
 routes = Blueprint("routes", __name__)
@@ -31,7 +32,7 @@ def visualize_cycles_route():
     nodes = [
         {
             "id": idx,
-            "trailing": trailing,
+            "trailing": trailing[1:],
             # "signature": signature,
             "subsignature": tuple(
                 signature[i] - sum(1 for t in trailing[1:] if i == t)
@@ -49,4 +50,25 @@ def visualize_cycles_route():
         "edges": cross_edges_str_keys,
     }
     print("Result data:", result)
+    return jsonify(result)
+
+
+@routes.route("/generated_cycle", methods=["POST"])
+def generated_cycle_route():
+    data = request.json
+    signature = tuple(data.get("signature", []))
+    try:
+        validate_signature(signature)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+
+    result = generate_cycles(signature)
+    if result is None:
+        return (
+            jsonify(
+                {"error": f"Signature {signature} not supported for visualization."}
+            ),
+            400,
+        )
+
     return jsonify(result)
