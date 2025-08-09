@@ -86,7 +86,7 @@ Run the `permute.py` script with the following command-line arguments (only the 
 ## Testing
 For testing, the Pytest library was used. By running `pytest`, all tests are executed. Some tests are marked as slow.
 The slow tests can be executed seperately with `pytest -m slow` or excluded with `pytest -m "not slow"`.
-To generate a coverage report: `pytest --cov-report=html --cov=./ tests/` with optional pytest parameters, e.g. `-m "not slow"`.
+To generate a coverage report: `pytest --cov-report=html --cov=./ core/tests/` with optional pytest parameters, e.g. `-m "not slow"`.
 
 The code also uses helper functions made by Ana Smerdu [Hamiltonian cycles in neighbor-swap graphs, 2019](https://repozitorij.uni-lj.si/IzpisGradiva.php?id=108786). These functions are tested too by their provided tests.
 

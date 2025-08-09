@@ -32,7 +32,7 @@ jobs:
     - name: Create coverage report
       id: create_coverage_report
       run: |
-        pytest -m "not slow" --cov-report=html --cov=./ tests/ | tee ./pytest_output.txt
+        pytest -m "not slow" --cov-report=html --cov=./ core/tests/ | tee ./pytest_output.txt
 
     - name: Check for failed tests
       id: check_tests
