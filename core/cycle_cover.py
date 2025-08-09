@@ -978,11 +978,7 @@ def get_subsigs_and_cross_edges(
         naive_glue (bool, optional): Whether to use naive gluing or not. Defaults to False.
 
     Returns:
-        tuple[
-            list[tuple[int, ...]],
-            list[tuple[tuple[int, ...], tuple[int, ...]]],
-            list[tuple[int, ...]]
-        ]:
+        tuple[list[tuple[int, ...]], list[tuple[tuple[int, ...], tuple[int, ...]]], list[tuple[int, ...]]]:
             The subsignatures, cross edges, and colors trailing each subsignature for the given signature `sig`.
     """
     subsigs = []

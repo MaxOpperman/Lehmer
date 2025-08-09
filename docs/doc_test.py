@@ -251,6 +251,7 @@ def find_all_python_files(directory: str) -> list[str]:
             # print(f"Checking file {file} - {root}, {_}")
             if (
                 os.path.join(directory, "venv") in root
+                or os.path.join(directory, ".venv") in root
                 or os.path.join(directory, "__pycache__") in root
                 or os.path.join(directory, "permutation-software-master") in root
             ):
