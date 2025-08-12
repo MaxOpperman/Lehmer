@@ -1,23 +1,41 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import GraphVisualization from './components/GraphVisualization.vue';
+import { computed, ref } from "vue";
+import GraphVisualization from "./components/GraphVisualization.vue";
+import { type Node, generateEdges } from "./utils/edgeGenerator";
 
-const API_BASE_URL = 'http://127.0.0.1:5000'; // Update for production if needed
-const signatureInput = ref('');
-const nodes = ref([]);
+const API_BASE_URL = "http://127.0.0.1:5000"; // Update for production if needed
+const signatureInput = ref("");
+
+const nodes = ref<Node[]>([]);
 const edges = ref([]);
-const errorMessage = ref('');
+const errorMessage = ref("");
+const isSidebarOpen = ref(true); // State for toggling the sidebar
+
+// Computed property to format edges for display
+const formattedEdges = computed(() => {
+  const transformedEdges = generateEdges(nodes.value, edges.value);
+  return transformedEdges.map((edge) => {
+    const sourceNode = nodes.value.find((node) => node.id === edge.source);
+    const targetNode = nodes.value.find((node) => node.id === edge.target);
+
+    if (sourceNode && targetNode) {
+      return `(${sourceNode.subsignature.join(",")})<strong>${sourceNode.trailing.join("")}/${targetNode.trailing.join("")}</strong>: ${edge.value}`;
+    }
+    return edge.value;
+  });
+});
 
 const fetchVisualization = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/visualize_cycles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ signature: signatureInput.value.split(',').map(Number) }),
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        signature: signatureInput.value.split(",").map(Number),
+      }),
     });
     const data = await response.json();
 
-    console.log('Response from backend:', data);
     if (data.error) {
       errorMessage.value = data.error;
       nodes.value = [];
@@ -25,12 +43,10 @@ const fetchVisualization = async () => {
     } else {
       nodes.value = data.nodes;
       edges.value = data.edges;
-      errorMessage.value = '';
+      errorMessage.value = "";
     }
-    console.log('Nodes:', JSON.stringify(nodes.value));
-    console.log('Edges:', JSON.stringify(edges.value));
   } catch (error) {
-    errorMessage.value = 'Failed to fetch data from the backend.';
+    errorMessage.value = "Failed to fetch data from the backend.";
   }
 };
 </script>
@@ -44,26 +60,91 @@ const fetchVisualization = async () => {
       <button type="submit">Generate</button>
     </form>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    <GraphVisualization :nodes="nodes" :edges="edges" />
+    <div class="content">
+      <GraphVisualization :nodes="nodes" :edges="edges" />
+      <button class="toggle-button" @click="isSidebarOpen = !isSidebarOpen">
+        {{ isSidebarOpen ? "Hide Edges" : "Show Edges" }}
+      </button>
+      <div class="sidebar" :class="{ open: isSidebarOpen }">
+        <ul v-if="isSidebarOpen" class="edge-list">
+          <li
+            v-for="(edge, index) in formattedEdges"
+            :key="index"
+            v-html="edge"
+          ></li>
+        </ul>
+      </div>
+    </div>
   </div>
 </template>
 
-<style>
+<style scoped>
 body {
   margin: 0;
-  padding: 20px;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+#app {
+  max-width: 1280px;
+  width: 80vw;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
 }
 
 h1 {
-  text-align: center;
-}
-
-form {
-  text-align: center;
+  margin-bottom: 1rem;
 }
 
 .error {
-  color: red;
-  text-align: center;
+  margin-bottom: 1rem;
+}
+
+form {
+  margin-bottom: 2rem;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-rows: auto 1fr; /* Sidebar takes its height, visualization takes remaining space */
+  gap: 1rem;
+}
+
+.sidebar {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+  transform: translateY(-100%); /* Initially hidden above the visualization */
+}
+
+.sidebar.open {
+  transform: translateY(0); /* Moves downwards when opened */
+}
+
+button {
+  border: 1px solid #ddd;
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.edge-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.edge-list li {
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.visualization {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 </style>
