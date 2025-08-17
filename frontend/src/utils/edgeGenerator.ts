@@ -1,21 +1,38 @@
-export interface Node extends d3.SimulationNodeDatum {
-  id: number;
-  trailing: number[];
-  subsignature: number[];
-}
+import { z } from "zod";
 
-export interface Edge {
-  key: string; // The key representing the edge
-  source: number; // The ID of the source node
-  target: number; // The ID of the target node
-  value: string; // The concatenated value of the edge
-  curvature: number; // Curvature for the edge
-}
+export const VisualizationNodeSchema = z.object({
+  id: z.number(),
+  trailing: z.array(z.number()),
+  subsignature: z.array(z.number()),
+});
+
+export type VisualizationNode = z.infer<typeof VisualizationNodeSchema>;
+
+export const NodeWithPositionSchema = VisualizationNodeSchema.extend({
+  x: z.number(),
+  y: z.number(),
+  vx: z.number(),
+  vy: z.number(),
+});
+
+export type NodeWithPosition = z.infer<typeof NodeWithPositionSchema>;
+
+export const EdgeSchema = z.object({
+  key: z.string(),
+  source: z.number(),
+  target: z.number(),
+  value: z.string(),
+  curvature: z.number(),
+});
+
+export type Edge = z.infer<typeof EdgeSchema>;
 
 export const generateEdges = (
   nodes: { id: number; trailing: number[] }[],
-  edges: Record<string, any>,
+  edges: Edge | undefined,
 ): Edge[] => {
+  if (!edges) return [];
+
   const trailingToNodeId = new Map(
     nodes.map((node) => [JSON.stringify(node.trailing), node.id]),
   );
@@ -28,7 +45,9 @@ export const generateEdges = (
     const targetId = trailingToNodeId.get(JSON.stringify(targetTrailing));
 
     if (sourceId !== undefined && targetId !== undefined) {
-      edgeData.forEach((pair: any, index: number) => {
+      (
+        edgeData as unknown as [[number[], number[]], [number[], number[]]]
+      ).forEach((pair, index) => {
         const [firstArray, secondArray] = pair;
 
         // Add two edges for each pair with curvature
@@ -36,14 +55,14 @@ export const generateEdges = (
           key: `${key}-${index}-0`,
           source: sourceId,
           target: targetId,
-          value: `${firstArray[0].join("")} - ${secondArray[0].join("")}`,
+          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-${index}-1`,
           source: sourceId,
           target: targetId,
-          value: `${firstArray[1].join("")} - ${secondArray[1].join("")}`,
+          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
           curvature: -0.2,
         });
       });
@@ -61,42 +80,46 @@ export const generateEdges = (
     );
 
     if (swappedSourceId !== undefined && targetId !== undefined) {
-      edgeData.forEach((pair: any, index: number) => {
+      (
+        edgeData as unknown as [[number[], number[]], [number[], number[]]]
+      ).forEach((pair, index: number) => {
         const [firstArray, secondArray] = pair;
 
         possibleEdges.push({
           key: `${key}-swapped-${index}-0`,
           source: swappedSourceId,
           target: targetId,
-          value: `${firstArray[0].join("")} - ${secondArray[0].join("")}`,
+          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-swapped-${index}-1`,
           source: swappedSourceId,
           target: targetId,
-          value: `${firstArray[1].join("")} - ${secondArray[1].join("")}`,
+          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
           curvature: -0.2,
         });
       });
     }
 
     if (sourceId !== undefined && swappedTargetId !== undefined) {
-      edgeData.forEach((pair: any, index: number) => {
+      (
+        edgeData as unknown as [[number[], number[]], [number[], number[]]]
+      ).forEach((pair, index: number) => {
         const [firstArray, secondArray] = pair;
 
         possibleEdges.push({
           key: `${key}-swapped-target-${index}-0`,
           source: sourceId,
           target: swappedTargetId,
-          value: `${firstArray[0].join("")} - ${secondArray[0].join("")}`,
+          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-swapped-target-${index}-1`,
           source: sourceId,
           target: swappedTargetId,
-          value: `${firstArray[1].join("")} - ${secondArray[1].join("")}`,
+          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
           curvature: -0.2,
         });
       });
