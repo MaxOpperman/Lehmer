@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import GraphVisualization from "./components/GraphVisualization.vue";
-import { type Node, generateEdges } from "./utils/edgeGenerator";
+import { Edge, generateEdges, VisualizationNode } from "./utils/edgeGenerator";
 
-const API_BASE_URL = "http://127.0.0.1:5000"; // Update for production if needed
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 const signatureInput = ref("");
 
-const nodes = ref<Node[]>([]);
-const edges = ref([]);
+const nodes = ref<VisualizationNode[]>([]);
+const edges = ref<Edge | undefined>(undefined);
 const errorMessage = ref("");
 const isSidebarOpen = ref(true); // State for toggling the sidebar
 
@@ -19,9 +20,17 @@ const formattedEdges = computed(() => {
     const targetNode = nodes.value.find((node) => node.id === edge.target);
 
     if (sourceNode && targetNode) {
-      return `(${sourceNode.subsignature.join(",")})<strong>${sourceNode.trailing.join("")}/${targetNode.trailing.join("")}</strong>: ${edge.value}`;
+      return {
+        subsignature: `(${sourceNode.subsignature.join(",")})`,
+        boldPart: `${sourceNode.trailing.join("")}/${targetNode.trailing.join("")}`,
+        value: `: ${edge.value}`,
+      };
     }
-    return edge.value;
+    return {
+      subsignature: "",
+      boldPart: "",
+      value: edge.value,
+    };
   });
 });
 
@@ -35,11 +44,12 @@ const fetchVisualization = async () => {
       }),
     });
     const data = await response.json();
+    console.log(data);
 
     if (data.error) {
       errorMessage.value = data.error;
       nodes.value = [];
-      edges.value = [];
+      edges.value = undefined;
     } else {
       nodes.value = data.nodes;
       edges.value = data.edges;
@@ -47,6 +57,7 @@ const fetchVisualization = async () => {
     }
   } catch (error) {
     errorMessage.value = "Failed to fetch data from the backend.";
+    console.error(error);
   }
 };
 </script>
@@ -54,12 +65,21 @@ const fetchVisualization = async () => {
 <template>
   <div id="app">
     <h1>Graph Visualization</h1>
+    This website visualizes the meta-graph of cycles for given input signatures.
+    What this exactly is is explained in
+    <a
+      href="/files/Lehmers_Conjecture_and_Hamiltonian_Paths_in_Neighbor_swap_Graphs.pdf"
+      target="_blank"
+      >the documentation</a
+    >.
     <form @submit.prevent="fetchVisualization">
       <label for="signature">Enter Signature (comma-separated):</label>
-      <input v-model="signatureInput" id="signature" required />
+      <input id="signature" v-model="signatureInput" required />
       <button type="submit">Generate</button>
     </form>
-    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+    <p v-if="errorMessage" class="error">
+      {{ errorMessage }}
+    </p>
     <div class="content">
       <GraphVisualization :nodes="nodes" :edges="edges" />
       <button class="toggle-button" @click="isSidebarOpen = !isSidebarOpen">
@@ -67,11 +87,11 @@ const fetchVisualization = async () => {
       </button>
       <div class="sidebar" :class="{ open: isSidebarOpen }">
         <ul v-if="isSidebarOpen" class="edge-list">
-          <li
-            v-for="(edge, index) in formattedEdges"
-            :key="index"
-            v-html="edge"
-          ></li>
+          <li v-for="(edge, index) in formattedEdges" :key="index">
+            <span>{{ edge.subsignature }}</span>
+            <strong>{{ edge.boldPart }}</strong>
+            <span>{{ edge.value }}</span>
+          </li>
         </ul>
       </div>
     </div>

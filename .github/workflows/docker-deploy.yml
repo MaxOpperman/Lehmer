@@ -1,0 +1,34 @@
+name: Docker Build and Deploy
+
+on:
+  release:
+    types:
+      - published # Trigger only when a new release is published
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    # Step 2: Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    # Step 3: Build and push backend Docker image
+    - name: Build and Push Backend Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:${{ github.event.release.tag_name }} -f Dockerfile.backend .
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:${{ github.event.release.tag_name }}
+
+    # Step 4: Build and push frontend Docker image
+    - name: Build and Push Frontend Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:${{ github.event.release.tag_name }} -f frontend/Dockerfile.frontend ./frontend
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:${{ github.event.release.tag_name }}

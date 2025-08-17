@@ -1,0 +1,18 @@
+services:
+  backend:
+    image: mopperman/lehmer-backend:latest
+    container_name: lehmer_backend
+    environment:
+      - BACKEND_PORT=5050
+    ports:
+      - "5050:5050"
+    restart: always
+
+  frontend:
+    image: mopperman/lehmer-frontend:latest
+    container_name: lehmer_frontend
+    environment:
+      - FRONTEND_PORT=49139
+    ports:
+      - "49139:49139"
+    restart: always

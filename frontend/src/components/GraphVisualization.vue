@@ -1,18 +1,23 @@
 <script setup lang="ts">
 import * as d3 from "d3";
 import { onMounted, ref, watch } from "vue";
-import { type Edge, type Node, generateEdges } from "../utils/edgeGenerator";
+import {
+  type Edge,
+  NodeWithPosition,
+  type VisualizationNode,
+  generateEdges,
+} from "../utils/edgeGenerator";
 
 // Props
 const props = defineProps<{
-  nodes: Node[];
-  edges: Record<string, any>;
+  nodes: VisualizationNode[];
+  edges: Edge | undefined;
 }>();
 
 const graphContainer = ref<HTMLDivElement | null>(null);
 
 const drawGraph = () => {
-  if (!graphContainer.value) return;
+  if (!graphContainer.value || !props.edges) return;
 
   // Clear previous graph
   d3.select(graphContainer.value).selectAll("*").remove();
@@ -54,17 +59,26 @@ const drawGraph = () => {
   // Calculate maximum node size for spacing
   const maxNodeRadius = Math.max(
     ...props.nodes.map((node) =>
-      Math.max(30, node.subsignature.join(", ").length * 4),
+      Math.max(30, node.subsignature.join(", ").length * 4.5),
     ),
   );
 
+  // Ensure nodes conform to SimulationNodeDatum
+  const nodesWithDatum = (props.nodes as NodeWithPosition[]).map((node) => ({
+    ...node,
+    x: node.x ?? 0,
+    y: node.y ?? 0,
+    vx: node.vx ?? 0,
+    vy: node.vy ?? 0,
+  }));
+
   const simulation = d3
-    .forceSimulation(props.nodes)
+    .forceSimulation(nodesWithDatum)
     .force(
       "link",
       d3
         .forceLink(transformedEdges)
-        .id((d: any) => d.id)
+        .id((d: d3.SimulationNodeDatum) => (d as VisualizationNode).id)
         .distance(maxNodeRadius * 2), // Adjust distance based on node size
     )
     .force("charge", d3.forceManyBody().strength(-300))
@@ -80,15 +94,29 @@ const drawGraph = () => {
     .attr("stroke", "#999")
     .attr("stroke-width", 4) // Increased stroke width for larger edges
     .attr("fill", "none")
-    .attr("d", (d: any) => {
+    .attr("d", (d: Edge) => {
       const curvature = d.curvature || 0;
-      return `M${d.source.x},${d.source.y} Q${(d.source.x + d.target.x) / 2 + curvature * 100},${(d.source.y + d.target.y) / 2 + curvature * 100} ${d.target.x},${d.target.y}`;
+      // If d.source or d.target is a number, find the corresponding node object
+      const source: NodeWithPosition =
+        typeof d.source === "number"
+          ? nodesWithDatum.find((n) => n.id === d.source)!
+          : (d.source as NodeWithPosition);
+      const target: NodeWithPosition =
+        typeof d.target === "number"
+          ? nodesWithDatum.find((n) => n.id === d.target)!
+          : (d.target as NodeWithPosition);
+      const sx = source.x ?? 0;
+      const sy = source.y ?? 0;
+      const tx = target.x ?? 0;
+      const ty = target.y ?? 0;
+      return `M${sx},${sy} Q${(sx + tx) / 2 + curvature * 100},${(sy + ty) / 2 + curvature * 100} ${tx},${ty}`;
     })
-    .on("mouseover", (event: MouseEvent, d: any) => {
+    .on("mouseover", (event: MouseEvent, d: Edge) => {
       tooltip
         .style("display", "block")
         .style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY + 10}px`)
+        .style("color", "#333")
         .html(`<strong>Edge:</strong> ${d.value}`);
     })
     .on("mouseout", () => {
@@ -98,15 +126,25 @@ const drawGraph = () => {
   const nodeGroup = containerGroup
     .append("g")
     .selectAll("g")
-    .data(props.nodes)
+    .data(nodesWithDatum)
     .enter()
     .append("g")
     .call(
       d3
-        .drag<SVGGElement, Node>()
+        .drag<
+          SVGGElement,
+          NodeWithPosition & { fx?: number | null; fy?: number | null }
+        >()
         .on(
           "start",
-          (event: d3.D3DragEvent<SVGGElement, Node, Node>, d: Node) => {
+          (
+            event: d3.D3DragEvent<
+              SVGGElement,
+              NodeWithPosition & { fx?: number | null; fy?: number | null },
+              NodeWithPosition & { fx?: number | null; fy?: number | null }
+            >,
+            d,
+          ) => {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
@@ -114,14 +152,28 @@ const drawGraph = () => {
         )
         .on(
           "drag",
-          (event: d3.D3DragEvent<SVGGElement, Node, Node>, d: Node) => {
+          (
+            event: d3.D3DragEvent<
+              SVGGElement,
+              NodeWithPosition & { fx?: number | null; fy?: number | null },
+              NodeWithPosition & { fx?: number | null; fy?: number | null }
+            >,
+            d,
+          ) => {
             d.fx = event.x;
             d.fy = event.y;
           },
         )
         .on(
           "end",
-          (event: d3.D3DragEvent<SVGGElement, Node, Node>, d: Node) => {
+          (
+            event: d3.D3DragEvent<
+              SVGGElement,
+              NodeWithPosition & { fx?: number | null; fy?: number | null },
+              NodeWithPosition & { fx?: number | null; fy?: number | null }
+            >,
+            d,
+          ) => {
             if (!event.active) simulation.alphaTarget(0);
             d.fx = null;
             d.fy = null;
@@ -132,7 +184,9 @@ const drawGraph = () => {
   // Append circles to represent nodes
   nodeGroup
     .append("circle")
-    .attr("r", (d: any) => Math.max(30, d.subsignature.join(", ").length * 3.5)) // Adjust radius based on text length
+    .attr("r", (d: NodeWithPosition) =>
+      Math.max(30, d.subsignature.join(", ").length * 4.25),
+    ) // Adjust radius based on text length
     .attr("fill", "steelblue");
 
   // Append text inside nodes to display subsignature and trailing items
@@ -141,22 +195,38 @@ const drawGraph = () => {
     .attr("text-anchor", "middle")
     .attr("dy", "-0.5em") // Position the first line slightly above the center
     .attr("fill", "white")
-    .text((d: any) => d.subsignature.join(", "));
+    .text((d: NodeWithPosition) => `(${d.subsignature.join(", ")})`);
 
   nodeGroup
     .append("text")
     .attr("text-anchor", "middle")
     .attr("dy", "1em") // Position the second line slightly below the center
     .attr("fill", "white")
-    .text((d: any) => `_${d.trailing.join("")}`);
+    .text((d: NodeWithPosition) => `_${d.trailing.join("")}`);
 
   simulation.on("tick", () => {
-    link.attr("d", (d: any) => {
+    link.attr("d", (d: Edge) => {
       const curvature = d.curvature || 0;
-      return `M${d.source.x},${d.source.y} Q${(d.source.x + d.target.x) / 2 + curvature * 100},${(d.source.y + d.target.y) / 2 + curvature * 100} ${d.target.x},${d.target.y}`;
+      // If d.source or d.target is a number, find the corresponding node object
+      const source: NodeWithPosition =
+        typeof d.source === "number"
+          ? nodesWithDatum.find((n) => n.id === d.source)!
+          : (d.source as NodeWithPosition);
+      const target: NodeWithPosition =
+        typeof d.target === "number"
+          ? nodesWithDatum.find((n) => n.id === d.target)!
+          : (d.target as NodeWithPosition);
+      const sx = source.x ?? 0;
+      const sy = source.y ?? 0;
+      const tx = target.x ?? 0;
+      const ty = target.y ?? 0;
+      return `M${sx},${sy} Q${(sx + tx) / 2 + curvature * 100},${(sy + ty) / 2 + curvature * 100} ${tx},${ty}`;
     });
 
-    nodeGroup.attr("transform", (d: any) => `translate(${d.x},${d.y})`);
+    nodeGroup.attr(
+      "transform",
+      (d: NodeWithPosition) => `translate(${d.x},${d.y})`,
+    );
   });
 };
 
