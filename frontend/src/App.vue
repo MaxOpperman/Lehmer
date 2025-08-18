@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import GraphVisualization from "./components/GraphVisualization.vue";
-import { Edge, generateEdges, VisualizationNode } from "./utils/edgeGenerator";
+import { BackendEdge, generateEdges, VisualizationNode } from "./utils/edgeGenerator";
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5050";
 const signatureInput = ref("");
 
 const nodes = ref<VisualizationNode[]>([]);
-const edges = ref<Edge | undefined>(undefined);
+const edges = ref<BackendEdge | undefined>(undefined);
 const errorMessage = ref("");
 const isSidebarOpen = ref(true); // State for toggling the sidebar
 
@@ -44,7 +44,6 @@ const fetchVisualization = async () => {
       }),
     });
     const data = await response.json();
-    console.log(data);
 
     if (data.error) {
       errorMessage.value = data.error;
