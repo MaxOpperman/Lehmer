@@ -2,6 +2,7 @@
 import * as d3 from "d3";
 import { onMounted, ref, watch } from "vue";
 import {
+  BackendEdge,
   type Edge,
   NodeWithPosition,
   type VisualizationNode,
@@ -11,7 +12,7 @@ import {
 // Props
 const props = defineProps<{
   nodes: VisualizationNode[];
-  edges: Edge | undefined;
+  edges: BackendEdge | undefined;
 }>();
 
 const graphContainer = ref<HTMLDivElement | null>(null);

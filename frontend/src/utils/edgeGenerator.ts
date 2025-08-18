@@ -27,9 +27,19 @@ export const EdgeSchema = z.object({
 
 export type Edge = z.infer<typeof EdgeSchema>;
 
+export type BackendEdge = {
+  [key: string]: [[number[], number[]], [number[], number[]]]
+}
+
+const constructEdgeValue = (firstArray: number[], secondArray: number[]): string => {
+  const firstValue = Array.isArray(firstArray[0]) ? (firstArray[0] as number[]).join("") : String(firstArray[0]);
+  const secondValue = Array.isArray(secondArray[0]) ? (secondArray[0] as number[]).join("") : String(secondArray[0]);
+  return `${firstValue} - ${secondValue}`;
+};
+
 export const generateEdges = (
   nodes: { id: number; trailing: number[] }[],
-  edges: Edge | undefined,
+  edges: BackendEdge | undefined,
 ): Edge[] => {
   if (!edges) return [];
 
@@ -45,9 +55,7 @@ export const generateEdges = (
     const targetId = trailingToNodeId.get(JSON.stringify(targetTrailing));
 
     if (sourceId !== undefined && targetId !== undefined) {
-      (
-        edgeData as unknown as [[number[], number[]], [number[], number[]]]
-      ).forEach((pair, index) => {
+      edgeData.forEach((pair, index) => {
         const [firstArray, secondArray] = pair;
 
         // Add two edges for each pair with curvature
@@ -55,14 +63,14 @@ export const generateEdges = (
           key: `${key}-${index}-0`,
           source: sourceId,
           target: targetId,
-          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
+          value: constructEdgeValue(firstArray, secondArray), // Use helper function
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-${index}-1`,
           source: sourceId,
           target: targetId,
-          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
+          value: constructEdgeValue(firstArray.slice(1), secondArray.slice(1)), // Use helper function
           curvature: -0.2,
         });
       });
@@ -80,46 +88,42 @@ export const generateEdges = (
     );
 
     if (swappedSourceId !== undefined && targetId !== undefined) {
-      (
-        edgeData as unknown as [[number[], number[]], [number[], number[]]]
-      ).forEach((pair, index: number) => {
+      edgeData.forEach((pair, index: number) => {
         const [firstArray, secondArray] = pair;
 
         possibleEdges.push({
           key: `${key}-swapped-${index}-0`,
           source: swappedSourceId,
           target: targetId,
-          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
+          value: constructEdgeValue(firstArray, secondArray), // Use helper function
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-swapped-${index}-1`,
           source: swappedSourceId,
           target: targetId,
-          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
+          value: constructEdgeValue(firstArray.slice(1), secondArray.slice(1)), // Use helper function
           curvature: -0.2,
         });
       });
     }
 
     if (sourceId !== undefined && swappedTargetId !== undefined) {
-      (
-        edgeData as unknown as [[number[], number[]], [number[], number[]]]
-      ).forEach((pair, index: number) => {
+      edgeData.forEach((pair, index: number) => {
         const [firstArray, secondArray] = pair;
 
         possibleEdges.push({
           key: `${key}-swapped-target-${index}-0`,
           source: sourceId,
           target: swappedTargetId,
-          value: `${Array.isArray(firstArray[0]) ? firstArray[0].join("") : String(firstArray[0])} - ${Array.isArray(secondArray[0]) ? secondArray[0].join("") : String(secondArray[0])}`,
+          value: constructEdgeValue(firstArray, secondArray), // Use helper function
           curvature: 0.2,
         });
         possibleEdges.push({
           key: `${key}-swapped-target-${index}-1`,
           source: sourceId,
           target: swappedTargetId,
-          value: `${Array.isArray(firstArray[1]) ? firstArray[1].join("") : String(firstArray[1])} - ${Array.isArray(secondArray[1]) ? secondArray[1].join("") : String(secondArray[1])}`,
+          value: constructEdgeValue(firstArray.slice(1), secondArray.slice(1)), // Use helper function
           curvature: -0.2,
         });
       });
