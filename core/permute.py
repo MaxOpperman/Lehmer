@@ -29,6 +29,7 @@ def main():
     The input permutation signature is a comma-separated list of integers. (e.g. `4,2,1`)
 
     Command Line Arguments:
+
         - ``-s, --signature:`` Input permutation signature (comma separated) *(required)*
         - ``-v, --verbose:`` Enable verbose mode
         - ``-l, --lehmer:`` Compute the path using Lehmer's algorithm

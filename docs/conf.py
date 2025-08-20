@@ -37,8 +37,8 @@ exclude_patterns = [
     "_build",
     "Thumbs.db",
     ".DS_Store",
-    "./tests",
-    "./type_variations",
+    "./core/tests",
+    "./core/type_variations",
     "./permutation-software-master",
 ]
 napoleon_use_param = True

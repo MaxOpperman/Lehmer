@@ -26,9 +26,13 @@ jobs:
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:${{ github.event.release.tag_name }} -f Dockerfile.backend .
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:${{ github.event.release.tag_name }}
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-backend:latest
 
     # Step 4: Build and push frontend Docker image
     - name: Build and Push Frontend Image
       run: |
         docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:${{ github.event.release.tag_name }} -f frontend/Dockerfile.frontend ./frontend
         docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:${{ github.event.release.tag_name }}
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:${{ github.event.release.tag_name }} ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:latest
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/lehmer-frontend:latest

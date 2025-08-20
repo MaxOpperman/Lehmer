@@ -7,7 +7,7 @@ Lehmer Paths in Neighbor-Swap Graphs's documentation!
 ================================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
    modules
