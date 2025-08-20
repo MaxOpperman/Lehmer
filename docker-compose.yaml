@@ -5,17 +5,26 @@ services:
     environment:
       - FLASK_DEBUG=False
       - FLASK_PORT=5050
-      - FLASK_HOST=127.0.0.1
+      - FLASK_HOST=0.0.0.0
       - FLASK_CORS=False
     ports:
       - "5050:5050"
-    restart: always
+    networks:
+      - lehmer_network
+    restart: unless-stopped
 
   frontend:
     image: mopperman/lehmer-frontend:latest
     container_name: lehmer_frontend
     environment:
-      - VITE_API_BASE_URL=https://lehmer.mopper.dev
+      - VITE_API_BASE_URL=http://lehmer_backend:5050
+      - FRONTEND_PORT=5173
     ports:
-      - "49139:49139"
-    restart: always
+      - "5173:5173"
+    networks:
+      - lehmer_network
+    restart: unless-stopped
+
+networks:
+  lehmer_network:
+    driver: bridge
