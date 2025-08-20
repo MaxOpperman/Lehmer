@@ -10,10 +10,10 @@ COPY ./requirements.txt /backend/requirements.txt
 
 RUN pip install --no-cache-dir -r /backend/requirements.txt
 
-EXPOSE 5050
+EXPOSE ${FLASK_PORT}
 
 # Use Gunicorn to serve the Flask app
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "run:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:${FLASK_PORT}", "run:app"]
 
 # Stage 2: Build the frontend
 FROM node:22-slim AS frontend-build
@@ -24,6 +24,6 @@ COPY ./frontend /frontend
 
 RUN npm install && npm run build
 
-EXPOSE $FRONTEND_PORT
+EXPOSE ${FRONTEND_PORT}
 
-CMD ["npx", "serve", "-s", "dist", "-l", "$FRONTEND_PORT"]
+CMD ["npx", "serve", "-s", "dist", "-l", "${FRONTEND_PORT}"]
