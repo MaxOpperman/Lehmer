@@ -87,7 +87,7 @@ def time_tests(args: Namespace) -> None:
             - latex (bool): Save LaTeX tables files for the results.
 
     Returns:
-        None: The results are saved in the `.\out` directory.
+        None: The results are saved in the `.\\out` directory.
     """
     if not os.path.exists("./out") and (args.graph or args.latex):
         os.makedirs("./out")

@@ -6,12 +6,28 @@ from core.helper_operations.cycle_cover_connections import generate_end_tuple_or
 
 
 def generate_cycles(signature: tuple[int, ...]) -> list[list[tuple[int, ...]]]:
-    """Generate the cycle structure for a given signature."""
+    """
+    Generate the cycle structure for a given signature.
+
+    Args:
+        signature (tuple[int, ...]): The input signature to process.
+
+    Returns:
+        list[list[tuple[int, ...]]]: The generated cycle structure.
+    """
     return get_connected_cycle_cover(signature)
 
 
 def get_end_tuple_order(signature: tuple[int, ...]) -> list[tuple[int, ...]]:
-    """Get the order of end tuples in the cycle cover."""
+    """
+    Get the order of end tuples in the cycle cover.
+
+    Args:
+        signature (tuple[int, ...]): The input signature to process.
+
+    Returns:
+        list[tuple[int, ...]]: The order of end tuples.
+    """
     return generate_end_tuple_order(signature)
 
 
@@ -34,10 +50,9 @@ def cross_edges_service(signature: tuple[int, ...]) -> (
         signature (tuple[int, ...]): The input signature to process.
 
     Returns:
-        A tuple containing:
-            - A list of cross edges.
-            - A list of trailing numbers (end tuples).
-        None if the signature does not match any cases.
+        tuple[list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[tuple[int, ...], tuple[int, ...]]]]], list[tuple[int, ...]]] | None:
+            A tuple containing a list of cross edges and a list of trailing numbers (end tuples),
+            or None if the signature does not match any cases.
     """
 
     result = get_cross_edges_per_signature(signature)

@@ -59,6 +59,7 @@ def find_functions_with_docstring_issues(
                         elif args_section:
                             if (
                                 stripped_line
+                                and " " in stripped_line
                                 and stripped_line.split()[1].startswith("(")
                                 and stripped_line.split(":")[0].endswith(")")
                             ):
@@ -276,7 +277,10 @@ def main(directory: str, ignore_files: list[str]) -> None:
     # print(python_files)
     issues_count = 0
     for filename in python_files:
-        if os.path.basename(filename).split(".")[0] in ignore_files:
+        if os.path.basename(filename).split(".")[0] in ignore_files or any(
+            ignored_dir in os.path.abspath(filename).split(os.sep)
+            for ignored_dir in ignore_files
+        ):
             continue
         issues = find_functions_with_docstring_issues(filename)
         if issues:

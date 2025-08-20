@@ -1,9 +1,18 @@
-def validate_signature(signature):
+from core.helper_operations.cycle_cover_connections import (
+    generate_end_tuple_order,
+    get_cross_edges,
+)
+
+
+def validate_signature(signature: tuple[int, ...]) -> None:
     """
     Validate the input signature.
 
     Args:
         signature (tuple[int, ...]): The input signature to validate.
+
+    Returns:
+        None: (only raises ValueError)
 
     Raises:
         ValueError: If the signature is not a list or tuple, or if it contains non-negative integers.
@@ -14,14 +23,7 @@ def validate_signature(signature):
         raise ValueError("Signature must contain non-negative integers.")
 
 
-from core.cycle_cover import get_connected_cycle_cover
-from core.helper_operations.cycle_cover_connections import (
-    generate_end_tuple_order,
-    get_cross_edges,
-)
-
-
-def case_one_to_eight_cross_edges(signature):
+def case_one_to_eight_cross_edges(signature: tuple[int, ...]) -> bool:
     """
     For certain signatures, return True if the signature matches any of the specified cases.
 
@@ -113,13 +115,13 @@ def get_cross_edges_per_signature(signature: tuple[int, ...]) -> (
 ):
     """
     Get the cross edges for a given signature.
+
     Args:
         signature (tuple[int, ...]): The input signature to process.
+
     Returns:
-        tuple: A tuple containing:
-            - A list of cross edges, where each edge is represented as a tuple of tuples.
-            - A list of trailing numbers (end tuples).
-        None: If the signature does not match any of the cases from 1 to 8.
+        tuple[list[tuple[tuple[tuple[int, ...], tuple[int, ...]], tuple[tuple[tuple[int, ...], tuple[int, ...]]]]], list[tuple[int, ...]]] | None:
+            If the signature matches any of the cases from 1 to 8.
     """
     if case_one_to_eight_cross_edges(signature):
         return None
