@@ -3,7 +3,10 @@ services:
     image: mopperman/lehmer-backend:latest
     container_name: lehmer_backend
     environment:
-      - BACKEND_PORT=5050
+      - FLASK_DEBUG=False
+      - FLASK_PORT=5050
+      - FLASK_HOST=127.0.0.1
+      - FLASK_CORS=False
     ports:
       - "5050:5050"
     restart: always
@@ -12,7 +15,7 @@ services:
     image: mopperman/lehmer-frontend:latest
     container_name: lehmer_frontend
     environment:
-      - FRONTEND_PORT=49139
+      - VITE_API_BASE_URL=https://lehmer.mopper.dev
     ports:
       - "49139:49139"
     restart: always
