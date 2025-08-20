@@ -17,7 +17,6 @@ services:
     image: mopperman/lehmer-frontend:latest
     container_name: lehmer_frontend
     environment:
-      - VITE_API_BASE_URL=http://lehmer_backend:5050
       - FRONTEND_PORT=http://0.0.0.0:5173
     ports:
       - "5173:5173"
