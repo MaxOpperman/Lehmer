@@ -29,10 +29,6 @@ COPY ./frontend /frontend
 # Install dependencies and build the frontend
 RUN npm install && npm run build
 
-# Copy the built files to the runtime directory
-RUN mkdir -p /dist/runtime-config
-COPY ./frontend/dist /dist
-
 # Add the entrypoint script
 COPY ./frontend/entrypoint.sh ./entrypoint.sh
 RUN chmod +x ./entrypoint.sh

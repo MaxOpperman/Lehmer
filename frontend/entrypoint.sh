@@ -3,7 +3,7 @@
 # Generate the runtime configuration file
 echo "Generating runtime configuration..."
 mkdir -p /dist/runtime-config
-echo "window.RUNTIME_CONFIG = { VITE_API_URL: \"${VITE_API_URL}\" };" > /dist/runtime-config/env.js
+echo "window.RUNTIME_CONFIG = { VITE_API_URL: \"${VITE_API_URL}\" };" > /dist/env.template.js
 
 # Start the frontend server using npx serve
 echo "Starting the frontend server..."
