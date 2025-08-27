@@ -3,8 +3,8 @@ services:
     image: mopperman/lehmer-backend:latest
     container_name: lehmer_backend
     environment:
-      - FLASK_DEBUG=False
       - FLASK_PORT=5050
+      - FLASK_DEBUG=False
       - FLASK_HOST=0.0.0.0
       - FLASK_CORS=False
     ports:
@@ -17,7 +17,8 @@ services:
     image: mopperman/lehmer-frontend:latest
     container_name: lehmer_frontend
     environment:
-      - FRONTEND_PORT=http://0.0.0.0:5173
+      - VITE_API_URL=http://lehmer_backend:5050
+      - FRONTEND_PORT=5173
     ports:
       - "5173:5173"
     networks:

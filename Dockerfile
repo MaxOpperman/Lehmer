@@ -3,13 +3,16 @@ FROM python:3.13-slim AS backend-build
 
 WORKDIR /backend
 
+# Copy backend files
 COPY ./app /backend/app
 COPY ./run.py /backend/run.py
 COPY ./core /backend/core
 COPY ./requirements.txt /backend/requirements.txt
 
+# Install Python dependencies
 RUN pip install --no-cache-dir -r /backend/requirements.txt
 
+# Expose the backend port (default to 5050)
 EXPOSE ${FLASK_PORT:-5050}
 
 # Use Gunicorn to serve the Flask app
@@ -20,10 +23,22 @@ FROM node:22-slim AS frontend-build
 
 WORKDIR /frontend
 
+# Copy frontend files
 COPY ./frontend /frontend
 
+# Install dependencies and build the frontend
 RUN npm install && npm run build
 
+# Copy the built files to the runtime directory
+RUN mkdir -p /dist/runtime-config
+COPY ./frontend/dist /dist
+
+# Add the entrypoint script
+COPY ./frontend/entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
+
+# Expose the frontend port
 EXPOSE ${FRONTEND_PORT:-5173}
 
-CMD ["/bin/bash", "-c", "npx serve -s dist -l ${FRONTEND_PORT:-5173}"]
+# Use the custom entrypoint script
+ENTRYPOINT ["./entrypoint.sh"]
