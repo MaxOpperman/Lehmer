@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9](https://github.com/MaxOpperman/Lehmer/compare/v1.0.8...v1.0.9) (2025-08-27)
+
+
+### Bug Fixes
+
+* entrypoint file creation ([48a9cbb](https://github.com/MaxOpperman/Lehmer/commit/48a9cbb88802d4ac22518de3cdd27c3281ec09b8))
+
 ## [1.0.8](https://github.com/MaxOpperman/Lehmer/compare/v1.0.7...v1.0.8) (2025-08-27)
 
 
