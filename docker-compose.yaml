@@ -1,6 +1,13 @@
+version: '3.8'
+
 services:
   backend:
-    image: mopperman/lehmer-backend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: backend-build
+      args:
+        FLASK_PORT: 5050
     container_name: lehmer_backend
     environment:
       - FLASK_PORT=5050
@@ -14,7 +21,13 @@ services:
     restart: unless-stopped
 
   frontend:
-    image: mopperman/lehmer-frontend:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: frontend-build
+      args:
+        VITE_API_URL: http://lehmer_backend:5050
+        FRONTEND_PORT: 5173
     container_name: lehmer_frontend
     environment:
       - VITE_API_URL=http://lehmer_backend:5050

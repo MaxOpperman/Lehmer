@@ -29,12 +29,8 @@ COPY ./frontend /frontend
 # Install dependencies and build the frontend
 RUN npm install && npm run build
 
-# Add the entrypoint script
-COPY ./frontend/entrypoint.sh ./entrypoint.sh
-RUN chmod +x ./entrypoint.sh
-
 # Expose the frontend port
 EXPOSE ${FRONTEND_PORT:-5173}
 
 # Use the custom entrypoint script
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["/bin/bash", "-c", "npx serve -s dist -l ${FRONTEND_PORT:-5173}"]
