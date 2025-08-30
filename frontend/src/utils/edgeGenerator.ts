@@ -28,12 +28,19 @@ export const EdgeSchema = z.object({
 export type Edge = z.infer<typeof EdgeSchema>;
 
 export type BackendEdge = {
-  [key: string]: [[number[], number[]], [number[], number[]]]
-}
+  [key: string]: [[number[], number[]], [number[], number[]]];
+};
 
-const constructEdgeValue = (firstArray: number[], secondArray: number[]): string => {
-  const firstValue = Array.isArray(firstArray[0]) ? (firstArray[0] as number[]).join("") : String(firstArray[0]);
-  const secondValue = Array.isArray(secondArray[0]) ? (secondArray[0] as number[]).join("") : String(secondArray[0]);
+const constructEdgeValue = (
+  firstArray: number[],
+  secondArray: number[],
+): string => {
+  const firstValue = Array.isArray(firstArray[0])
+    ? (firstArray[0] as number[]).join("")
+    : String(firstArray[0]);
+  const secondValue = Array.isArray(secondArray[0])
+    ? (secondArray[0] as number[]).join("")
+    : String(secondArray[0]);
   return `${firstValue} - ${secondValue}`;
 };
 
