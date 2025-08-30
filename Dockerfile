@@ -25,6 +25,7 @@ WORKDIR /frontend
 
 # Copy frontend files
 COPY ./frontend /frontend
+COPY .env /frontend
 
 # Install dependencies and build the frontend
 RUN npm install && npm run build
