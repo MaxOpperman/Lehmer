@@ -44,22 +44,33 @@ const constructEdgeValue = (
   return `${firstValue} - ${secondValue}`;
 };
 
+// Helper function to extract original trailing values from the backend
+const getOriginalTrailing = (fullTrailing: number[], accumulatedLength: number): number[] => {
+  // The original trailing is everything except the last accumulatedLength elements
+  return fullTrailing.slice(0, fullTrailing.length - accumulatedLength);
+};
+
 export const generateEdges = (
   nodes: { id: number; trailing: number[] }[],
   edges: BackendEdge | undefined,
+  accumulatedLength: number = 0,
 ): Edge[] => {
   if (!edges) return [];
 
-  const trailingToNodeId = new Map(
-    nodes.map((node) => [JSON.stringify(node.trailing), node.id]),
+  // Create a map using original trailing values (without accumulated trailing)
+  const originalTrailingToNodeId = new Map(
+    nodes.map((node) => {
+      const originalTrailing = getOriginalTrailing(node.trailing, accumulatedLength);
+      return [JSON.stringify(originalTrailing), node.id];
+    })
   );
 
   const transformedEdges = Object.entries(edges).flatMap(([key, edgeData]) => {
     const [sourceTrailing, targetTrailing] = JSON.parse(key.replace(/'/g, '"'));
 
     const possibleEdges: Edge[] = [];
-    const sourceId = trailingToNodeId.get(JSON.stringify(sourceTrailing));
-    const targetId = trailingToNodeId.get(JSON.stringify(targetTrailing));
+    const sourceId = originalTrailingToNodeId.get(JSON.stringify(sourceTrailing));
+    const targetId = originalTrailingToNodeId.get(JSON.stringify(targetTrailing));
 
     if (sourceId !== undefined && targetId !== undefined) {
       edgeData.forEach((pair, index) => {
@@ -87,10 +98,10 @@ export const generateEdges = (
     const swappedSourceTrailing = [...sourceTrailing].reverse();
     const swappedTargetTrailing = [...targetTrailing].reverse();
 
-    const swappedSourceId = trailingToNodeId.get(
+    const swappedSourceId = originalTrailingToNodeId.get(
       JSON.stringify(swappedSourceTrailing),
     );
-    const swappedTargetId = trailingToNodeId.get(
+    const swappedTargetId = originalTrailingToNodeId.get(
       JSON.stringify(swappedTargetTrailing),
     );
 

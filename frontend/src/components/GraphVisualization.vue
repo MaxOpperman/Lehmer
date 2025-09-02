@@ -13,6 +13,12 @@ import {
 const props = defineProps<{
   nodes: VisualizationNode[];
   edges: BackendEdge | undefined;
+  accumulatedLength: number;
+}>();
+
+// Emit event for node click
+const emit = defineEmits<{
+  (e: "node-clicked", subsignature: number[], trailing: number[]): void;
 }>();
 
 const graphContainer = ref<HTMLDivElement | null>(null);
@@ -55,7 +61,7 @@ const drawGraph = () => {
     .style("display", "none");
 
   // Generate edges using the utility function
-  const transformedEdges: Edge[] = generateEdges(props.nodes, props.edges);
+  const transformedEdges: Edge[] = generateEdges(props.nodes, props.edges, props.accumulatedLength);
 
   // Calculate maximum node size for spacing
   const maxNodeRadius = Math.max(
@@ -136,50 +142,20 @@ const drawGraph = () => {
           SVGGElement,
           NodeWithPosition & { fx?: number | null; fy?: number | null }
         >()
-        .on(
-          "start",
-          (
-            event: d3.D3DragEvent<
-              SVGGElement,
-              NodeWithPosition & { fx?: number | null; fy?: number | null },
-              NodeWithPosition & { fx?: number | null; fy?: number | null }
-            >,
-            d,
-          ) => {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
-            d.fx = d.x;
-            d.fy = d.y;
-          },
-        )
-        .on(
-          "drag",
-          (
-            event: d3.D3DragEvent<
-              SVGGElement,
-              NodeWithPosition & { fx?: number | null; fy?: number | null },
-              NodeWithPosition & { fx?: number | null; fy?: number | null }
-            >,
-            d,
-          ) => {
-            d.fx = event.x;
-            d.fy = event.y;
-          },
-        )
-        .on(
-          "end",
-          (
-            event: d3.D3DragEvent<
-              SVGGElement,
-              NodeWithPosition & { fx?: number | null; fy?: number | null },
-              NodeWithPosition & { fx?: number | null; fy?: number | null }
-            >,
-            d,
-          ) => {
-            if (!event.active) simulation.alphaTarget(0);
-            d.fx = null;
-            d.fy = null;
-          },
-        ),
+        .on("start", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        })
+        .on("drag", (event, d) => {
+          d.fx = event.x;
+          d.fy = event.y;
+        })
+        .on("end", (event, d) => {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }),
     );
 
   // Append circles to represent nodes
@@ -188,7 +164,12 @@ const drawGraph = () => {
     .attr("r", (d: NodeWithPosition) =>
       Math.max(30, d.subsignature.join(", ").length * 4.25),
     ) // Adjust radius based on text length
-    .attr("fill", "steelblue");
+    .attr("fill", "steelblue")
+    .on("click", (event, d: NodeWithPosition) => {
+      // Extract only the original backend trailing (not the accumulated part)
+      const originalTrailing = d.trailing.slice(0, d.trailing.length - props.accumulatedLength);
+      emit("node-clicked", d.subsignature, originalTrailing); // Emit the subsignature and original trailing
+    });
 
   // Append text inside nodes to display subsignature and trailing items
   nodeGroup
@@ -196,6 +177,7 @@ const drawGraph = () => {
     .attr("text-anchor", "middle")
     .attr("dy", "-0.5em") // Position the first line slightly above the center
     .attr("fill", "white")
+    .style("user-select", "none") // Make text non-selectable
     .text((d: NodeWithPosition) => `(${d.subsignature.join(", ")})`);
 
   nodeGroup
@@ -203,7 +185,8 @@ const drawGraph = () => {
     .attr("text-anchor", "middle")
     .attr("dy", "1em") // Position the second line slightly below the center
     .attr("fill", "white")
-    .text((d: NodeWithPosition) => `_${d.trailing.join("")}`);
+    .style("user-select", "none") // Make text non-selectable
+    .text((d: NodeWithPosition) => `_${d.trailing.join("")}`); // Display trailing elements
 
   simulation.on("tick", () => {
     link.attr("d", (d: Edge) => {
@@ -236,7 +219,7 @@ onMounted(() => {
 });
 
 watch(
-  () => [props.nodes, props.edges],
+  () => [props.nodes, props.edges, props.accumulatedLength],
   () => {
     drawGraph();
   },
