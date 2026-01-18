@@ -59,7 +59,13 @@ const formattedEdges = computed(() => {
       // Check if this is a full graph (nodes have permutation field)
       const isFullGraph = 'permutation' in sourceNode && sourceNode.permutation && sourceNode.permutation.length > 0;
       
-      let formattedEdge;
+      let formattedEdge: {
+        subsignature: string;
+        boldPart: string;
+        italicPart: string;
+        value: string;
+        showSeparator?: boolean;
+      };
       if (isFullGraph) {
         // For full graphs, show permutation transitions
         formattedEdge = {
