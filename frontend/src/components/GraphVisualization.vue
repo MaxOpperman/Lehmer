@@ -2,7 +2,7 @@
 import * as d3 from "d3";
 import { onMounted, ref, watch } from "vue";
 import {
-  BackendEdge,
+  BackendEdgeData,
   type Edge,
   NodeWithPosition,
   type VisualizationNode,
@@ -12,7 +12,7 @@ import {
 // Props
 const props = defineProps<{
   nodes: VisualizationNode[];
-  edges: BackendEdge | undefined;
+  edges: BackendEdgeData | undefined;
   accumulatedLength: number;
 }>();
 
@@ -36,15 +36,16 @@ const drawGraph = () => {
     .select(graphContainer.value)
     .append("svg")
     .attr("width", width)
-    .attr("height", height)
-    .call(
-      d3
-        .zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.5, 2]) // Set zoom limits
-        .on("zoom", (event) => {
-          svg.select("g").attr("transform", event.transform);
-        }),
-    );
+    .attr("height", height);
+
+  const zoom = d3
+    .zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.1, 4]) // Allow more zoom out
+    .on("zoom", (event) => {
+      containerGroup.attr("transform", event.transform);
+    });
+
+  svg.call(zoom);
 
   const containerGroup = svg.append("g"); // Group for panning and zooming
 
@@ -64,9 +65,11 @@ const drawGraph = () => {
   const transformedEdges: Edge[] = generateEdges(props.nodes, props.edges, props.accumulatedLength);
 
   // Calculate maximum node size for spacing
+  // Smaller nodes for large graphs to fit more on screen
+  const baseRadius = props.nodes.length > 50 ? 20 : 30;
   const maxNodeRadius = Math.max(
     ...props.nodes.map((node) =>
-      Math.max(30, node.subsignature.join(", ").length * 4.5),
+      Math.max(baseRadius, node.subsignature.join(", ").length * 3),
     ),
   );
 
@@ -79,6 +82,28 @@ const drawGraph = () => {
     vy: node.vy ?? 0,
   }));
 
+  // Scale spacing based on number of nodes - smaller graphs get more space
+  const nodeCount = props.nodes.length;
+  let linkDistance, chargeStrength, collisionPadding;
+  
+  if (nodeCount < 10) {
+    linkDistance = maxNodeRadius * 4;
+    chargeStrength = -300;
+    collisionPadding = 10;
+  } else if (nodeCount < 30) {
+    linkDistance = maxNodeRadius * 3;
+    chargeStrength = -200;
+    collisionPadding = 5;
+  } else if (nodeCount < 100) {
+    linkDistance = maxNodeRadius * 1.5;
+    chargeStrength = -100;
+    collisionPadding = 2;
+  } else {
+    linkDistance = maxNodeRadius * 1.2;
+    chargeStrength = -50;
+    collisionPadding = 1;
+  }
+  
   const simulation = d3
     .forceSimulation(nodesWithDatum)
     .force(
@@ -86,11 +111,11 @@ const drawGraph = () => {
       d3
         .forceLink(transformedEdges)
         .id((d: d3.SimulationNodeDatum) => (d as VisualizationNode).id)
-        .distance(maxNodeRadius * 2), // Adjust distance based on node size
+        .distance(linkDistance),
     )
-    .force("charge", d3.forceManyBody().strength(-300))
+    .force("charge", d3.forceManyBody().strength(chargeStrength))
     .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("collision", d3.forceCollide().radius(maxNodeRadius + 5)); // Add collision force
+    .force("collision", d3.forceCollide().radius(maxNodeRadius + collisionPadding));
 
   const link = containerGroup
     .append("g")
@@ -99,7 +124,7 @@ const drawGraph = () => {
     .enter()
     .append("path")
     .attr("stroke", "#999")
-    .attr("stroke-width", 4) // Increased stroke width for larger edges
+    .attr("stroke-width", 1.5)
     .attr("fill", "none")
     .attr("d", (d: Edge) => {
       const curvature = d.curvature || 0;
@@ -159,11 +184,12 @@ const drawGraph = () => {
     );
 
   // Append circles to represent nodes
+  const nodeRadius = props.nodes.length > 50 ? 20 : 30;
   nodeGroup
     .append("circle")
     .attr("r", (d: NodeWithPosition) =>
-      Math.max(30, d.subsignature.join(", ").length * 4.25),
-    ) // Adjust radius based on text length
+      Math.max(nodeRadius, d.subsignature.join(", ").length * 3),
+    )
     .attr("fill", "steelblue")
     .on("click", (event, d: NodeWithPosition) => {
       // Extract only the original backend trailing (not the accumulated part)
@@ -172,21 +198,31 @@ const drawGraph = () => {
     });
 
   // Append text inside nodes to display subsignature and trailing items
+  const fontSize = props.nodes.length > 50 ? "10px" : "12px";
   nodeGroup
     .append("text")
     .attr("text-anchor", "middle")
-    .attr("dy", "-0.5em") // Position the first line slightly above the center
+    .attr("dy", "-0.5em")
     .attr("fill", "white")
-    .style("user-select", "none") // Make text non-selectable
+    .attr("font-size", fontSize)
+    .attr("font-weight", "bold")
+    .style("user-select", "none")
     .text((d: NodeWithPosition) => `(${d.subsignature.join(", ")})`);
 
   nodeGroup
     .append("text")
     .attr("text-anchor", "middle")
-    .attr("dy", "1em") // Position the second line slightly below the center
+    .attr("dy", "1em")
     .attr("fill", "white")
-    .style("user-select", "none") // Make text non-selectable
-    .text((d: NodeWithPosition) => `_${d.trailing.join("")}`); // Display trailing elements
+    .attr("font-size", props.nodes.length > 50 ? "9px" : "11px")
+    .style("user-select", "none")
+    .text((d: NodeWithPosition & { permutation?: number[] }) => {
+      // Show permutation if available (full graph mode), otherwise show trailing
+      if (d.permutation && d.permutation.length > 0) {
+        return d.permutation.join("");
+      }
+      return `_${d.trailing.join("")}`;
+    });
 
   simulation.on("tick", () => {
     link.attr("d", (d: Edge) => {
@@ -210,6 +246,36 @@ const drawGraph = () => {
     nodeGroup.attr(
       "transform",
       (d: NodeWithPosition) => `translate(${d.x},${d.y})`,
+    );
+  });
+
+  // After simulation ends, zoom to fit all nodes
+  simulation.on("end", () => {
+    if (nodesWithDatum.length === 0) return;
+    
+    // Calculate bounds of all nodes
+    const xExtent = d3.extent(nodesWithDatum, d => d.x ?? 0) as [number, number];
+    const yExtent = d3.extent(nodesWithDatum, d => d.y ?? 0) as [number, number];
+    
+    const padding = maxNodeRadius * 3; // Add padding around the graph
+    const graphWidth = xExtent[1] - xExtent[0] + padding * 2;
+    const graphHeight = yExtent[1] - yExtent[0] + padding * 2;
+    
+    // Calculate scale to fit graph in viewport
+    const scale = Math.min(
+      width / graphWidth,
+      height / graphHeight,
+      1 // Don't zoom in beyond 1x
+    ) * 0.9; // 90% to leave some margin
+    
+    // Calculate translation to center the graph
+    const translateX = width / 2 - (xExtent[0] + xExtent[1]) / 2 * scale;
+    const translateY = height / 2 - (yExtent[0] + yExtent[1]) / 2 * scale;
+    
+    // Apply the transform
+    svg.call(
+      zoom.transform as any,
+      d3.zoomIdentity.translate(translateX, translateY).scale(scale)
     );
   });
 };

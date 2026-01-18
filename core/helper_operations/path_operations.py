@@ -78,7 +78,7 @@ def cycleQ(c: list[tuple[int, ...]]) -> bool:
 
 
 def pathEdges(
-    p: list[tuple[int, ...]]
+    p: list[tuple[int, ...]],
 ) -> list[tuple[tuple[int, ...], tuple[int, ...]]]:
     """
     Returns a list of edges of a path. T

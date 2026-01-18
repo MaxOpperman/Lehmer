@@ -234,7 +234,7 @@ def lemma2_extended_path(
 
 
 def _lemma8_helper(
-    sig_occ: list[tuple[int, int]]
+    sig_occ: list[tuple[int, int]],
 ) -> tuple[list[tuple[int, ...]], list[tuple[int, ...]]]:
     """
     Helper function for Lemma 8 of Stachowiak:

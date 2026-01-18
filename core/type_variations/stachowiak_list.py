@@ -169,7 +169,7 @@ def lemma2_extended_path(chain_p: list[int], case_2_1: bool = True) -> list[list
 
 
 def _lemma8_helper(
-    sig_occ: list[tuple[int, int]]
+    sig_occ: list[tuple[int, int]],
 ) -> tuple[list[list[int]], list[list[int]]]:
     """
     Helper function for Lemma 8 of Stachowiak:
@@ -239,7 +239,7 @@ def _lemma8_helper(
 
 
 def _lemma7_constructor(
-    sig: tuple[int, ...]
+    sig: tuple[int, ...],
 ) -> tuple[list[list[int]], list[list[int]]]:
     """
     Writes colors of Lemma 7 to fit the helper of Lemma 8 (which solves a more general version of this graph).
