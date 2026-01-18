@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.1.0](https://github.com/MaxOpperman/Lehmer/compare/v1.0.10...v1.1.0) (2026-01-18)
+
+
+### Features
+
+* allow nodes to be clicked ([ed00e97](https://github.com/MaxOpperman/Lehmer/commit/ed00e970134318f2ac54e8258c422d8577d092d1))
+
+
+### Bug Fixes
+
+* env in Docker build ([5729d08](https://github.com/MaxOpperman/Lehmer/commit/5729d086df57e821d252c2bf58585e95112b883e))
+* remove configs ([32ecc90](https://github.com/MaxOpperman/Lehmer/commit/32ecc90dbd4b4e78b0285ea29db246c229b9829e))
+* show subgraphs that are cycles already as input ([#7](https://github.com/MaxOpperman/Lehmer/issues/7)) ([461db40](https://github.com/MaxOpperman/Lehmer/commit/461db408c6103c3b6064485bd72aba4c66f45fe7))
+* started last signatures and clickable subsignatures ([98c9379](https://github.com/MaxOpperman/Lehmer/commit/98c93798260c4a7f09fb30843874ced08483fb67))
+
 ## [1.0.10](https://github.com/MaxOpperman/Lehmer/compare/v1.0.9...v1.0.10) (2025-08-30)
 
 
