@@ -4,6 +4,7 @@ export const VisualizationNodeSchema = z.object({
   id: z.number(),
   trailing: z.array(z.number()),
   subsignature: z.array(z.number()),
+  permutation: z.array(z.number()).optional(), // For full graphs
 });
 
 export type VisualizationNode = z.infer<typeof VisualizationNodeSchema>;
@@ -31,6 +32,13 @@ export type BackendEdge = {
   [key: string]: [[number[], number[]], [number[], number[]]];
 };
 
+export type SimpleEdge = {
+  source: number;
+  target: number;
+};
+
+export type BackendEdgeData = BackendEdge | SimpleEdge[];
+
 const constructEdgeValue = (
   firstArray: number[],
   secondArray: number[],
@@ -52,10 +60,37 @@ const getOriginalTrailing = (fullTrailing: number[], accumulatedLength: number):
 
 export const generateEdges = (
   nodes: { id: number; trailing: number[] }[],
-  edges: BackendEdge | undefined,
+  edges: BackendEdgeData | undefined,
   accumulatedLength: number = 0,
 ): Edge[] => {
   if (!edges) return [];
+
+  // Check if this is a simple edge list (full graph format)
+  if (Array.isArray(edges)) {
+    return generateSimpleEdges(edges);
+  }
+
+  // Otherwise, use the cross-edge format
+  return generateCrossEdges(nodes, edges, accumulatedLength);
+};
+
+// Handle simple edge list format (for full neighbor-swap graphs)
+const generateSimpleEdges = (edges: SimpleEdge[]): Edge[] => {
+  return edges.map((edge, index) => ({
+    key: `edge-${index}`,
+    source: edge.source,
+    target: edge.target,
+    value: "", // No value for simple edges
+    curvature: 0,
+  }));
+};
+
+// Handle cross-edge format (for cycle-cover based graphs)
+const generateCrossEdges = (
+  nodes: { id: number; trailing: number[] }[],
+  edges: BackendEdge,
+  accumulatedLength: number,
+): Edge[] => {
 
   // Create a map using original trailing values (without accumulated trailing)
   const originalTrailingToNodeId = new Map(

@@ -32,7 +32,9 @@ def case_one_to_eight_cross_edges(signature: tuple[int, ...]) -> bool:
     Returns:
         bool: True if the signature matches any of the specified cases (1 up to and including 8), False otherwise.
     """
-    sig = tuple(signature)
+    # Sort signature in descending order to handle isomorphic signatures
+    # e.g., (2,1,1,2) becomes (2,2,1,1)
+    sig = tuple(sorted(signature, reverse=True))
     length = len(sig)
 
     # Case 0: length <= 2
