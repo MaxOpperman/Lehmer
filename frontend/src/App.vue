@@ -24,6 +24,15 @@ const currentSubsignature = computed(() =>
   stack.value[currentStackIndex.value] || null,
 );
 
+// Helper function to check array equality
+const arraysEqual = (a: number[], b: number[]): boolean => {
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+};
+
 // Computed property to format edges for display
 const formattedEdges = computed(() => {
   const transformedEdges = generateEdges(nodes.value, edges.value, currentAccumulatedLength.value);
@@ -50,7 +59,13 @@ const formattedEdges = computed(() => {
       // Check if this is a full graph (nodes have permutation field)
       const isFullGraph = 'permutation' in sourceNode && sourceNode.permutation && sourceNode.permutation.length > 0;
       
-      let formattedEdge;
+      let formattedEdge: {
+        subsignature: string;
+        boldPart: string;
+        italicPart: string;
+        value: string;
+        showSeparator?: boolean;
+      };
       if (isFullGraph) {
         // For full graphs, show permutation transitions
         formattedEdge = {
@@ -86,7 +101,7 @@ const formattedEdges = computed(() => {
             // For full graphs, compare last tailLength elements of permutations
             const prevTail = prevSourceNode.permutation.slice(-tailLength);
             const currTail = sourceNode.permutation.slice(-tailLength);
-            shouldSeparate = JSON.stringify(prevTail) !== JSON.stringify(currTail);
+            shouldSeparate = !arraysEqual(prevTail, currTail);
           } else if (!isFullGraph) {
             // For cross-edge graphs, compare trailing values
             const prevTrailing = prevSourceNode.trailing.slice(0, prevSourceNode.trailing.length - currentAccumulatedLength.value);
@@ -95,7 +110,7 @@ const formattedEdges = computed(() => {
             // Compare last tailLength elements
             const prevTail = prevTrailing.slice(-tailLength);
             const currTail = currTrailing.slice(-tailLength);
-            shouldSeparate = JSON.stringify(prevTail) !== JSON.stringify(currTail);
+            shouldSeparate = !arraysEqual(prevTail, currTail);
           }
           
           if (shouldSeparate) {

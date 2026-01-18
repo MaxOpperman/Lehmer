@@ -49,9 +49,11 @@ def generate_binary_neighbor_swap_graph(signature: tuple[int, ...]) -> dict:
     non_zero_pairs = [(i, val) for i, val in enumerate(signature) if val > 0]
 
     if len(non_zero_pairs) != 2:
-        raise ValueError(
-            f"Expected binary signature with 2 non-zero values, got {signature}"
+        # Return empty graph instead of raising an error
+        print(
+            f"Warning: Expected binary signature with 2 non-zero values, got {signature}"
         )
+        return {"nodes": [], "edges": [], "is_full_graph": True}
 
     # Extract k0 and k1 for Verhoeff's algorithm
     pos0, k0 = non_zero_pairs[0]
@@ -62,18 +64,6 @@ def generate_binary_neighbor_swap_graph(signature: tuple[int, ...]) -> dict:
 
     if not binary_path:
         return {"nodes": [], "edges": [], "is_full_graph": True}
-
-    # Transform the binary path back to the original color scheme
-    # Binary path uses 0s and 1s, we need to map them to the original positions
-    def transform_binary_to_original(binary_perm):
-        """Transform binary permutation (0s and 1s) to original signature positions."""
-        result = [0] * len(signature)
-        for val in binary_perm:
-            if val == 0:
-                result[pos0] = pos0
-            else:
-                result[pos1] = pos1
-        return result
 
     # Actually, the binary permutation tells us the ORDER of colors, not positions
     # We need to construct the full permutation

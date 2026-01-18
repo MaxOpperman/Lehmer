@@ -154,3 +154,5 @@ permutation-software-master/
 /out
 result.csv
 crossedges.csv
+
+app/tests

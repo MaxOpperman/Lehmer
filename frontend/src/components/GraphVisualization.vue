@@ -274,7 +274,7 @@ const drawGraph = () => {
     
     // Apply the transform
     svg.call(
-      zoom.transform as any,
+      zoom.transform as (selection: d3.Selection<SVGSVGElement, unknown, null, undefined>, transform: d3.ZoomTransform) => void,
       d3.zoomIdentity.translate(translateX, translateY).scale(scale)
     );
   });
